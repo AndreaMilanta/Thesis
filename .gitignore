@@ -1,6 +1,9 @@
 # Files and folder to be ignored
 
-*.pyc # pyhton compiled files
-*.cpython-36 # python compiled files
-*.csv # data file
-__pycache__/ # folder of cached python executables
+# pyhton compiled files
+*.pyc 
+*.cpython-36
+__pycache__/
+
+# data files
+*.csv
