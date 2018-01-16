@@ -7,7 +7,6 @@ import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
 import datetime
-import geometry as geo
 
 # PATH CONSTANTS
 HERE = os.path.dirname(__file__)

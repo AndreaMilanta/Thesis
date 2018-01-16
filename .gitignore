@@ -1,5 +1,5 @@
 # Files and folder to be ignored
 
 *.pyc # pyhton compiled files
-*.csv # data files
+*.csv # data file
 __pycache__ # folder of cached python executables

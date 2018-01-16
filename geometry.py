@@ -1,7 +1,6 @@
 """Library for math operation on paths and related
 """
 import math
-import pandas as pd
 
 
 class Coordinates:
