@@ -38,6 +38,40 @@ class Coordinates:
         else:
             return math.sqrt(x2 + y2)
 
+    def dot(self, p, ignore_z=False):
+        """dot product between caller and p
+
+        Keyword Arguments:
+            ignore_z {bool} -- Ignore z in the computation (default: {False})
+        """
+        if ignore_z:
+            return self.x * p.x + self.y * p.y
+        else:
+            return self.x * p.x + self.y * p.y + self.z * p.z
+
+    def mag(self, ignore_z=False):
+        """Returns the magnitude of the point vector
+
+        Keyword Arguments:
+            ignore_z {bool} -- ignore z in the computation (default: {False})
+        """
+        if ignore_z:
+            return math.sqrt(math.pow(self.x, 2) + math.pow(self.y, 2))
+        else:
+            return math.sqrt(math.pow(self.x, 2) + math.pow(self.y, 2) + math.pow(self.z, 2))
+
+    def angle(self, p, o, ignore_z=False):
+        """returns sin and cos of the angle between two points wrt o
+
+        Keyword Arguments:
+            ignore_z {bool} -- ignore z in the computation (default: {False})
+        """
+        s = Coordinates(self.x - o.x, self.y - o.y, self.z - o.z)
+        d = Coordinates(p.x - o.x, p.y - o.y, p.z - o.z)
+        cos = s.dot(d, ignore_z) / (s.mag(ignore_z) * d.mag(ignore_z))
+        sin = math.sqrt(1 - math.pow(cos, 2))
+        return [sin, cos]
+
     def within(self, pts, dest, radius, ignore_z=False, stop_on_found=True):
         """Checks whether the point p is strictyl within radius distance from the line connecting the calling point and dist
 
@@ -58,19 +92,14 @@ class Coordinates:
         out = True
         i = 0
         index = []
-        dist = self.distance(dest, ignore_z)
         if type(pts) is Coordinates:
             pts = [pts]
         for p in pts:
+            # print('pts: ' + str(p.x) + ', ' + str(p.y) + ', ' + str(p.z))
             if(self.equals(p) | dest.equals(p)):
                 continue
             dist_orig = self.distance(p, ignore_z)
-            dist_dest = p.distance(dest, ignore_z)
-            proportion = dist_orig / (dist_orig + dist_dest)
-            proj_orig = dist * proportion
-            # print("dist: " + str(dist))
-            # print("orig: " + str(dist_orig))
-            d = math.sqrt(math.pow(dist_orig, 2) - math.pow(proj_orig, 2))
+            d = dist_orig * p.angle(dest, self, ignore_z)[0]
             out = out & (d < radius)
             if d >= radius:
                 if stop_on_found:
