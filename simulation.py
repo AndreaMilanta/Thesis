@@ -10,6 +10,8 @@ from matplotlib import pyplot as plt
 import dataparser as dp
 import geometry as geo
 
+REDUCTION_RADIUS = 5   # radius of cilinder for reducing paths
+
 fruits = dp.parsefruittree()
 island = dp.parseisland()
 moves = dp.getmonkey()
@@ -26,7 +28,7 @@ dates = moves.dates(monkey)
 #     c = int(c + step)
 
 mvs = moves.points(monkey, dates[0])
-red = geo.reduce_path(mvs, 20)
+red = geo.reduce_path(mvs, REDUCTION_RADIUS)
 
 plt.imshow(island)
 plt.plot(mvs.x, mvs.y, c="#FF0000")
