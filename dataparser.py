@@ -8,11 +8,19 @@ import pandas as pd
 from matplotlib import pyplot as plt
 import datetime
 
+import geometry as geo
+
 # PATH CONSTANTS
 HERE = os.path.dirname(__file__)
 FRUIT_PATH = HERE + "\Data\FruitTrees.csv"
 ISLAND_PATH = HERE + "\Data\IslandPic.png"
 MONKEY_PATH = HERE + "\Data\AllChibi.csv"
+
+# CONSTANTS
+DELTA_X_FRT = -50   # shift on x axis for gps conversion of fruit tree data
+DELTA_Y_FRT = -45   # shift on y axis for gpf conversion of fruit tree data
+DELTA_X_MON = -50   # shift on x axis for gps conversion of monkey movement data
+DELTA_Y_MON = -45   # shift on y axis for gpf conversion of monkey movement data
 
 
 class MovementData:
@@ -63,7 +71,7 @@ class MovementData:
         Reads AllChibi file and returns it an a dataframe
 
         Returns:
-            array -- array of tuples with info (id), coordinates (x,y,h) and timestamp (date,ts)
+            dataframe -- info (id), coordinates (x,y,h) and timestamp (date,ts)
         """
         fo = open(path, "r")
         lines = fo.readlines()
@@ -115,25 +123,27 @@ class MovementData:
         totalH = 5540.4
         x = (utmE - utmE1) / (utmE2 - utmE1) * totalW
         y = (utmN2 - utmN) / (utmN2 - utmN1) * totalH
+        x = x + DELTA_X_MON
+        y = y + DELTA_Y_MON
         return (x, y)
 
 
 def parsefruittree():
-    """Fruit Tree Reader (x,y,h)
+    """Fruit Tree Reader (x,y)
 
     Read fruittree dataset and shifts it so that it maps on the island coordinates
 
     Returns:
-        dataframe -- each row containes xy coordinates and height of a fruit tree
+        List of Coordinates -- each element is a coordinate object of a fruit tree
     """
-    DELTA_X = -50
-    DELTA_Y = -45
-    columns = ['x', 'y', 'h']
+    columns = ['x', 'y', 'extra']
     df = pd.read_csv(FRUIT_PATH, sep=' ', header=None, names=columns)
     df.reset_index()
-    df.x = df.x.apply(lambda x: x + DELTA_X)
-    df.y = df.y.apply(lambda x: x + DELTA_Y)
-    return df
+    df.x = df.x.apply(lambda x: x + DELTA_X_FRT)
+    df.y = df.y.apply(lambda x: x + DELTA_Y_FRT)
+    fts = df.values.tolist()
+    isla = parseisland()
+    return [geo.Coordinates(x[1], x[0], isla[int(x[1]), int(x[0])]) for x in fts]
 
 
 def parseisland():
@@ -148,6 +158,7 @@ def parseisland():
     """
     island_img = plt.imread(ISLAND_PATH)
     island_img = np.flipud(island_img)
+    island_img = island_img * 255
     return island_img
 
 
@@ -165,8 +176,8 @@ def getmonkey():
 # MAIN
 # fruits = parsefruittree()
 # island = parseisland()
-# correct = fruits[fruits.apply(lambda f: island[int(f.y), int(f.x)] > 0, axis=1)]
-# incorrect = fruits[fruits.apply(lambda f: island[int(f.y), int(f.x)] <= 0, axis=1)]
+# correct = fruits[fruits.apply(lambda f: island[int(f.x), int(f.y)] > 0, axis=1)]
+# incorrect = fruits[fruits.apply(lambda f: island[int(f.x), int(f.y)] <= 0, axis=1)]
 # moves = getmonkey()
 # for m in moves.monkeys():
 #     print(m)
@@ -176,7 +187,7 @@ def getmonkey():
 #         print(str(d))
 
 # VISUALIZATION
-# plt.imshow(island, origin='lower')
+# plt.imshow(island.transpose(), origin='lower')
 # plt.scatter(fruits.x, fruits.y, s=2, c="#00FF00")
 # plt.scatter(correct.x, correct.y, s=2, c="#00FF00")
 # plt.scatter(incorrect.x, incorrect.y, s=2, c="#FF0000")
