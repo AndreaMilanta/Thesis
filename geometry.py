@@ -344,24 +344,23 @@ def unit():
     return Coordinates(1, 0, 0)
 
 
-def getList(points, id, datetime0, dt):
+def getDataframe(points, datetime0, dt):
     """returns a dataframe representing the path
 
     Arguments:
         points {list [Coordinates]} -- List of points
-        id {int} -- identifier of the monkey
         date {datetime.datetime} -- Date and time of the firts point
         dt {int} -- number of seconds between samples (points)
 
     Returns:
-        dataframe -- info (id), coordinates (x,y,h) and timestamp (date,ts)
+        dataframe -- coordinates (x,y,h) and timestamp (date,ts)
     """
     moves = []
     t = datetime0
     for p in points:
-        moves.append((id, p.x, p.y, p.z, t.date(), t.time()))
+        moves.append((p.x, p.y, int(p.z), t.date(), t.time()))
         t = t + datetime.timedelta(0, dt)
-    header = ['id', 'x', 'y', 'h', 'date', 'ts']
+    header = ['x', 'y', 'h', 'date', 'ts']
     return pd.DataFrame(moves, columns=header)
 
 

@@ -15,6 +15,7 @@ from colormap import rgb2hex
 import geometry as geo
 import dataparser as dp
 import simulation as sim
+import monkeyfile as mf
 
 REDUCTION_RADIUS = 5   # radius of cilinder for reducing paths
 DATE_DURATION_MIN = 4 * 60  # Duration of day in minutes
@@ -24,6 +25,7 @@ geo.HEIGHT_MARGIN = 1
 geo.VIEW_MAX_RANGE = 200
 geo.VIEW_MIN_RANGE = 20
 geo.FOV = 180
+date = dt.datetime(1995, 1, 19, 8, 0, 0, 0)
 
 
 def display_memory(path, index):
@@ -33,7 +35,7 @@ def display_memory(path, index):
     color = [0, 0, 0]
     color_step = 255 / len(path)
     for mvs in paths:
-        drt = geo.getList(mvs[0], 10, dt.datetime.now(), sim.DT)
+        drt = geo.getDataframe(mvs[0], dt.datetime.now(), sim.DT)
         drt = geo.reduce_path(drt, REDUCTION_RADIUS)
         orig = mvs[0][0]
         dest = mvs[0][-1]
@@ -57,8 +59,8 @@ def display_view(path, index):
     color_step = 255 / len(path)
     color = [color_step, color_step, color_step]
     for mvs in paths:
-        rdm = geo.getList(mvs[0], 10, dt.datetime.now(), sim.DT)
-        drt = geo.getList(mvs[1], 10, dt.datetime.now(), sim.DT)
+        rdm = geo.getDataframe(mvs[0], dt.datetime.now(), sim.DT)
+        drt = geo.getDataframe(mvs[1], dt.datetime.now(), sim.DT)
         rdm = geo.reduce_path(rdm, REDUCTION_RADIUS)
         drt = geo.reduce_path(drt, REDUCTION_RADIUS)
         orig = mvs[0][0]
@@ -104,7 +106,7 @@ fruits = dp.parsefruittree()
 # # p = geo.Coordinates(3, 3, 0)
 # orig = p1
 
-pts = np.random.normal(2500, 900, [5, 2])
+pts = np.random.normal(2500, 900, [1, 2])
 cts = []
 invalid = 0
 for p in pts:
@@ -123,11 +125,13 @@ for c in cts:
     if view:
         print("\nworking on " + str(index) + " - VIEW")
         paths = sim.createViewDate(c, fruits, DATE_DURATION_MIN)
+        mf.path_to_csv(paths, 10, date, sim.DT)
         display_view(paths, index)
         view = False
     else:
         print("\nworking on " + str(index) + " - MEMORY")
         paths = sim.createMemoryDate(c, fruits, DATE_DURATION_MIN, max_mem_range=MAX_MEM_DIST)
+        mf.path_to_csv(paths, 11, date, sim.DT)
         display_memory(paths, index)
         # view = True
 plt.show()
