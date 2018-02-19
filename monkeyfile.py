@@ -49,4 +49,4 @@ def path_to_csv(path, id, datetime0, dt, filename=None):
         #     writer.writerow(row)
 # Write data file
     df = geo.getDataframe(fullpath, datetime0, dt)
-    df.to_csv(filename, na_rep="None", float_format='%.3f', header=True, index=False)
+    df.to_csv(filename, na_rep='None', float_format='%.3f', header=True, index=False)

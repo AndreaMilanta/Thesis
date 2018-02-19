@@ -106,7 +106,7 @@ fruits = dp.parsefruittree()
 # # p = geo.Coordinates(3, 3, 0)
 # orig = p1
 
-pts = np.random.normal(2500, 900, [1, 2])
+pts = np.random.normal(2500, 2000, [5, 2])
 cts = []
 invalid = 0
 for p in pts:
@@ -125,13 +125,13 @@ for c in cts:
     if view:
         print("\nworking on " + str(index) + " - VIEW")
         paths = sim.createViewDate(c, fruits, DATE_DURATION_MIN)
-        mf.path_to_csv(paths, 10, date, sim.DT)
+        mf.path_to_csv(paths, index, date, sim.DT)
         display_view(paths, index)
         view = False
     else:
         print("\nworking on " + str(index) + " - MEMORY")
         paths = sim.createMemoryDate(c, fruits, DATE_DURATION_MIN, max_mem_range=MAX_MEM_DIST)
-        mf.path_to_csv(paths, 11, date, sim.DT)
+        mf.path_to_csv(paths, index, date, sim.DT)
         display_memory(paths, index)
-        # view = True
+        view = True
 plt.show()
