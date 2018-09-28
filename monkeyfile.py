@@ -1,17 +1,13 @@
 """Library to save, handle and open custom data files related to monkeys
 """
 import csv
-import geometry as geo
 
 
-def path_to_csv(path, id, datetime0, dt, filename=None):
+def path_to_csv(date, folderpath, filename=None):
     """write a one-day path to csv file
 
     Arguments:
-        path {List[List[Coordinates], List[Coordinates]]} -- list of points
-        id {int} -- id of monkey
-        datetime0 {datetime} -- date and time of first point
-        dt {int} -- distance in seconds between datapoints
+        datepath {datepath} -- list of points
 
     Keyword Arguments:
         filename {string} -- name of output file. If None the file is saved as id_date.csv (default: {None})
@@ -20,25 +16,24 @@ def path_to_csv(path, id, datetime0, dt, filename=None):
     linecount = 0
     content = []
     fullpath = []                       # Unique full path of monkey on date
-    for p in path:
+    for seg in date.path():
         bgn = linecount
-        fullpath.extend(p[0])           # add first part (random)
-        if p[1] is None:
-            end = linecount + len(p[0]) - 1
-            # vwp = None
+        fullpath.extend(seg[0])           # add first part (random)
+        if not(seg[0]):
+            end = linecount + len(seg[1]) - 1
             vwp = 'None'
         else:
-            vwp = linecount + len(p[0]) - 1
-            end = vwp + len(p[1])
-            fullpath.extend(p[1])       # add second part
+            vwp = linecount + len(seg[0]) - 1
+            end = vwp + len(seg[1])
+            fullpath.extend(seg[1])       # add second part
         linecount = end + 1
         row = (bgn, vwp, end)
         content.append(row)
 # Filename preparation
     if filename is None:
-        filename = str(id) + '_' + str(datetime0.date()).replace('-', '')
-    filename = filename.split('.')[0] + '.csv'              # Force filetype to .csv
-    fname_info = filename.split('.')[0] + '_info.csv'
+        fname = str(date.id) + '_' + str(date.date).replace('-', '')
+    filename = folderpath + fname.split('.')[0] + '.csv'              # Force filetype to .csv
+    fname_info = folderpath + fname.split('.')[0] + '_info.csv'
 # Write info file
     header_info = ['start', 'viewpoint', 'end']
     with open(fname_info, 'w', newline='') as csvfile:
@@ -48,5 +43,5 @@ def path_to_csv(path, id, datetime0, dt, filename=None):
         # for row in content:
         #     writer.writerow(row)
 # Write data file
-    df = geo.getDataframe(fullpath, datetime0, dt)
+    df = date.toDataframe()
     df.to_csv(filename, na_rep='None', float_format='%.3f', header=True, index=False)

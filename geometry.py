@@ -1,25 +1,20 @@
 """Library for math operation on paths and related
 """
 import numpy as np
-import pandas as pd
 import math
-import datetime
-
 from matplotlib import pyplot as plt
 # from mpl_toolkits.mplot3d import Axes3D
 
+import monkeyconstants as mc
+
 ISLAND = None
-HEIGHT_MARGIN = 2
-VIEW_MAX_RANGE = 200
-VIEW_MIN_RANGE = 20
-FOV = 100
 
 
 class Coordinates:
-    """Represents a point coordinate
+    """Represents a point coordinate with time information
     """
 
-    def __init__(self, x, y, z):
+    def __init__(self, x, y, z, time=None):
         self.x = x
         self.y = y
         self.z = z
@@ -27,17 +22,29 @@ class Coordinates:
         self.xz = [x, z]
         self.yz = [y, z]
         self.xyz = [x, y, z]
+        self.set_time(time)
 
     def __eq__(self, other):
         return self.equals(other)
 
-    def equals(self, p, ignore_z=False):
+    def __repr__(self):
+        return self.__str__()
+
+    def __str__(self):
+        return str(self.xyz)
+
+    def set_time(self, time):
+        """Assign a timestamp to point
+        """
+        self.time = time
+
+    def equals(self, p, ignore_z=False, ignore_t=True):
         """determines whether 2 points are equals
 
         Keyword Arguments:
             ignore_z {bool} -- ignore z in the comparison (default: {False})
         """
-        return self.x == p.x and self.y == p.y and (ignore_z or self.z == p.z)
+        return self.x == p.x and self.y == p.y and (ignore_z or self.z == p.z) and (ignore_t or self.time == p.time)
 
     def distance(self, p, ignore_z=False):
         """Euclidean distance from the parameter point
@@ -45,13 +52,65 @@ class Coordinates:
         Keyword Arguments:
             ignore_z {Boolean} -- ignore z dimension and work only on xy plane projection (default: False)
         """
-        x2 = math.pow((self.x - p.x), 2)
-        y2 = math.pow((self.y - p.y), 2)
-        if (ignore_z is False):
-            z2 = math.pow((self.z - p.z), 2)
-            return math.sqrt(x2 + y2 + z2)
+        # Case p is list of points
+        if isinstance(p, list):
+            distances = []                      # array of distances
+            for point in p:
+                x2 = math.pow((self.x - point.x), 2)
+                y2 = math.pow((self.y - point.y), 2)
+                if (ignore_z is False):
+                    z2 = math.pow((self.z - point.z), 2)
+                    distances.add(math.sqrt(x2 + y2 + z2))
+                else:
+                    distances.add(math.sqrt(x2 + y2))
+            return distances
+        # case p is single point
         else:
-            return math.sqrt(x2 + y2)
+            x2 = math.pow((self.x - p.x), 2)
+            y2 = math.pow((self.y - p.y), 2)
+            if (ignore_z is False):
+                z2 = math.pow((self.z - p.z), 2)
+                return math.sqrt(x2 + y2 + z2)
+            else:
+                return math.sqrt(x2 + y2)
+
+    def minDistance(self, points, ignore_z=False):
+        """Return minimum distance between the point and the set of points given as parameter
+
+        Arguments:
+            points {List[Coordinates]} -- points considered for minimum distance
+
+        Keyword Arguments:
+            ignore_z {Boolean} -- ignore z dimension and work only on xy plane projection (default: False)
+
+        Return:
+            min_dist {[float, Coordinates]} -- point of the set at minimum distance and distance
+        """
+        min_dist = [math.inf, None]
+        for p in points:
+            d = self.distance(p, ignore_z)
+            if d < min_dist[0]:
+                min_dist = [d, p]
+        return min_dist
+
+    def maxDistance(self, points, ignore_z=False):
+        """Return maximum distance between the point and the set of points given as parameter
+
+        Arguments:
+            points {List[Coordinates]} -- points considered for maximum distance
+
+        Keyword Arguments:
+            ignore_z {Boolean} -- ignore z dimension and work only on xy plane projection (default: False)
+
+        Return:
+            max_dist {[float, Coordinates]} -- point of the set at maximum distance and distance
+        """
+        max_dist = [0, None]
+        for p in points:
+            d = self.distance(p, ignore_z)
+            if d > max_dist[0]:
+                max_dist = [d, p]
+        return max_dist
 
     def dot(self, p, ignore_z=False):
         """dot product between caller and p
@@ -139,6 +198,7 @@ class Coordinates:
         matrix = np.array([[cos, -sin], [sin, cos]])
         coor = np.array([self.x, self.y])
         rot_coor = matrix.dot(coor)
+        self = Coordinates(rot_coor[0], rot_coor[1], self.z)
         return Coordinates(rot_coor[0], rot_coor[1], self.z)
 
     def within(self, pts, dest, radius, ignore_z=False, stop_on_found=True):
@@ -183,7 +243,7 @@ class Coordinates:
 
         Arguments:
             fruits {List[Coordinates]} -- List of fruit tree Coordinates
-            previous {Coordinates} -- previous points, used to computed direction of movement
+            previous {Coordinates} -- previous point, used to computed direction of movement
             ignores {List[Coordinates]} -- List of fruit trees to ignore: Already visited
 
         Library Variables:
@@ -194,91 +254,108 @@ class Coordinates:
         Returns
             fruit {Coordinates} -- Coordinate of closes fruit tree which can be seen
         """
-        sin = math.sin(FOV / 2)
-        cos = math.cos(FOV / 2)
+        # sin = math.sin(mc.FOV / 2)
+        cos = math.cos(mc.FOV / 2)
         cont = self.add(previous.diff(self))
-        lst = filter(lambda x: self.distance(x) < VIEW_MIN_RANGE or (self.distance(x) < VIEW_MAX_RANGE and
-                            abs(cont.angle(x, self, ignore_z=True)[0]) < sin and cont.angle(x, self, ignore_z=True)[1] < cos), fruits)
+        # lst = filter(lambda x: self.distance(x) < mc.VIEW_MAX_RANGE, fruits)
+        # lst = filter(lambda x: self.distance(x) < mc.VIEW_MIN_RANGE or
+        #              (self.distance(x) < mc.VIEW_MAX_RANGE and abs(cont.angle(x, self, ignore_z=True)[0]) < sin and
+        #               cont.angle(x, self, ignore_z=True)[1] < -cos), fruits)
+        lst = filter(lambda x: self.distance(x) < mc.VIEW_MIN_RANGE or
+                     (self.distance(x) < mc.VIEW_MAX_RANGE and cont.angle(x, self, ignore_z=True)[1] < -cos), fruits)
         index = 0
         for e in lst:
             index = index + 1
             if e in ignores:
                 continue
-            if self.isVisible(e, VIEW_MIN_RANGE):
+            if self.isVisible(e):
                 return e
         return None
 
-    def isVisible(self, p, min_range):
+    def isVisible(self, p, min_range=mc.VIEW_MIN_RANGE, next=None, FOV=mc.FOV):
         """Checks if p is visible from the caller
 
         Requires ISLAND to be set to the corrisponding matrix
 
         Arguments:
             p {Coordinate} -- Point to be seen
-            min_range {float} -- distance within which a tree is seen by default
-            margin {float} -- margin for height comparison {default: {2}}
+            # margin {float} -- margin for height comparison {default: {2}}
+
+        Keyword Arguments:
+            min_range {float} -- distance within which a tree is seen by default.  {Default: mc.VIEW_MIN_RANGE}
+            next {Coordinates} -- previous point. Establishes looking direction. if None look all around {Default: None}
+            FOV {int} -- Horizontal field of view in degrees. Ignored if previous is None.  {Default: mc.FOV}
 
         Returns:
             visible {Boolean} -- The point is visible
         """
 
-        # VISUALIZATION for DEBUG ONLY
-        draw = False
-        if draw:
-            fig = plt.figure()
-            # plt.imshow(island.transpose())
-            ny, nx = ISLAND.shape
-            x = np.linspace(0, nx, nx)
-            y = np.linspace(0, ny, ny)
-            xv, yv = np.meshgrid(x, y)
-            sf = fig.add_subplot(111, projection='3d')
-            sf.plot([self.x, p.x], [self.y, p.y], [self.z, p.z], c="#000000")
-            sf.plot_surface(xv, yv, ISLAND, cmap="winter", linewidth=2)
-            plt.show()
+        # # VISUALIZATION for DEBUG ONLY
+        # draw = False
+        # if draw:
+        #     fig = plt.figure()
+        #     # plt.imshow(island.transpose())
+        #     ny, nx = ISLAND.shape
+        #     x = np.linspace(0, nx, nx)
+        #     y = np.linspace(0, ny, ny)
+        #     xv, yv = np.meshgrid(x, y)
+        #     sf = fig.add_subplot(111, projection='3d')
+        #     sf.plot([self.x, p.x], [self.y, p.y], [self.z, p.z], c="#000000")
+        #     sf.plot_surface(xv, yv, ISLAND, cmap="winter", linewidth=2)
+        #     plt.show()
 
+        # check if fruit tree too close
         delta = self.diff(p)
         dist = delta.mag()
         if(dist < min_range):
             # print("Tree too close found")             # DEBUG!!!!
             return True
+
+        # check if p in FOV
+        cos = math.cos(FOV / 2)
+        cont = self.add(self.diff(next))
+        if not cont.angle(p, self, ignore_z=True)[1] < -cos:
+            return False
+
+        dist -= min_range
         unit = delta.scale(1 / dist)
         steps = 0
         temp = self
         while steps < dist:
-            steps = steps + 1
+            steps += 1
             temp = temp.add(unit)
             tl = [math.ceil(temp.x), math.floor(temp.y)]
             tr = [math.ceil(temp.x), math.ceil(temp.y)]
             br = [math.floor(temp.x), math.ceil(temp.y)]
             bl = [math.floor(temp.x), math.floor(temp.y)]
             try:
-                if(ISLAND[tl[0], tl[1]] > temp.z + HEIGHT_MARGIN):
+                if(ISLAND[tl[0], tl[1]] > temp.z + mc.HEIGHT_MARGIN):
                     tl = False
                 else:
                     tl = True
             except IndexError:
-                tl = True
+                tl = False
             try:
-                if(ISLAND[tr[0], tr[1]] > temp.z + HEIGHT_MARGIN):
+                if(ISLAND[tr[0], tr[1]] > temp.z + mc.HEIGHT_MARGIN):
                     tr = False
                 else:
                     tr = True
             except IndexError:
-                tr = True
+                tr = False
             try:
-                if(ISLAND[br[0], br[1]] > temp.z + HEIGHT_MARGIN):
+                if(ISLAND[br[0], br[1]] > temp.z + mc.HEIGHT_MARGIN):
                     br = False
                 else:
                     br = True
             except IndexError:
-                br = True
+                br = False
             try:
-                if(ISLAND[bl[0], bl[1]] > temp.z + HEIGHT_MARGIN):
+                if(ISLAND[bl[0], bl[1]] > temp.z + mc.HEIGHT_MARGIN):
                     bl = False
                 else:
                     bl = True
             except IndexError:
-                bl = True
+                bl = False
             if not (tl and tr and br and bl):
                 return False
         # print("Tree Found of height=" + str(p.z) + " from height=" + str(self.z))         # DEBUG!!!!
@@ -344,24 +421,27 @@ def unit():
     return Coordinates(1, 0, 0)
 
 
-def getDataframe(points, datetime0, dt):
-    """returns a dataframe representing the path
+def shortestPath(start, points, ignore_z=False):
+    """sorts according to minimum distance from start
 
     Arguments:
-        points {list [Coordinates]} -- List of points
-        date {datetime.datetime} -- Date and time of the firts point
-        dt {int} -- number of seconds between samples (points)
+        start {Coordinates} -- starting point of shortest path
+        points {[Coordinates]} -- list of points that need to be visited -> ordered
 
-    Returns:
-        dataframe -- coordinates (x,y,h) and timestamp (date,ts)
+    Keyword Arguments:
+        ignore_z {Boolean} -- ignore z dimension and work only on xy plane projection (default: False)
+
+    Return:
+        points {[Coordinates]} -- List of sorted points
     """
-    moves = []
-    t = datetime0
-    for p in points:
-        moves.append((p.x, p.y, int(p.z), t.date(), t.time()))
-        t = t + datetime.timedelta(0, dt)
-    header = ['x', 'y', 'h', 'date', 'ts']
-    return pd.DataFrame(moves, columns=header)
+    shortest = []
+    old = points
+    s = start
+    while old:
+        old.sort(key=lambda x: s.distance(x, ignore_z))
+        shortest.append(old[0])
+        s = old.pop(0)
+    return shortest
 
 
 def reduce_path(pts, radius, ignore_z=False):
@@ -380,7 +460,9 @@ def reduce_path(pts, radius, ignore_z=False):
         dataframe -- reduced set in the original format
     """
     reduced = []
-    pts_list = pts[['x', 'y', 'h']].apply(lambda p: Coordinates(p.x, p.y, p.h), axis=1).tolist()
+    pts_list = pts[['x', 'y', 'h']].apply(lambda p: Coordinates(p.x, p.y, p.h), axis=1).values.tolist()
+    if len(pts_list) == 0:
+        return pts
     curr_orig = 0
     while curr_orig < len(pts_list) - 1:
         curr_dest = curr_orig + 1
@@ -390,3 +472,34 @@ def reduce_path(pts, radius, ignore_z=False):
         curr_orig = curr_dest - 1
     reduced.append(curr_orig)
     return pts.iloc[reduced]
+
+
+def pathActLength(path, ignore_z=False):
+    """returns overall length of the path
+    """
+    distance = 0
+    pre = path[0]
+    for p in path:
+        distance += pre.distance(p, ignore_z)
+        pre = p
+    return distance
+
+
+def pathCrowLenght(path, ignore_z=False):
+    """returns length of the path as the crow flies - aka distance between first and last point
+
+    Keyword Arguments:
+        ignore_z {Boolean} -- ignore z dimension and work only on xy plane projection (default: False)
+    """
+    return path[0].distance(path[-1], ignore_z)
+
+
+def straighRatio(path, ignore_z=False):
+    """Returns the degree of straightness of the path given as the ratio between the crow distance and the actual path distance
+     if 1 - direct path
+     if 0 - limit case, path never reaches the end
+
+    Keyword Arguments:
+        ignore_z {Boolean} -- ignore z dimension and work only on xy plane projection (default: False)
+    """
+    return pathCrowLenght(path, ignore_z) / pathActLength(path, ignore_z)

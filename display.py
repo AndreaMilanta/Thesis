@@ -7,38 +7,36 @@ Variables:
     island {array} -- island with height info for each coordinate
 """
 from matplotlib import pyplot as plt
-import datetime as dt
+from datetime import date
 # import math
 import numpy as np
 from colormap import rgb2hex
 
+import monkeyconstants as mc
+import monkeyexceptions as me
 import geometry as geo
 import dataparser as dp
 import simulation as sim
 import monkeyfile as mf
 
-REDUCTION_RADIUS = 5   # radius of cilinder for reducing paths
-DATE_DURATION_MIN = 4 * 60  # Duration of day in minutes
-MAX_MEM_DIST = 500          # Maximum distance of next fruit tree in memory model (as the crow flies)
-
-geo.HEIGHT_MARGIN = 1
-geo.VIEW_MAX_RANGE = 200
-geo.VIEW_MIN_RANGE = 20
-geo.FOV = 180
-date = dt.datetime(1995, 1, 19, 8, 0, 0, 0)
+NUM_TRIES = 2
+FIRST_IS_VIEW = False
 
 
-def display_memory(path, index):
-    plt.figure(index)
+# date = dt.datetime(1995, 1, 19, 8, 0, 0, 0)
+
+
+def display_memory(path, index, newfig=False):
+    if newfig:
+        plt.figure(index)
     ax = plt.gca()
     plt.imshow(island.transpose())
     color = [0, 0, 0]
-    color_step = 255 / len(path)
-    for mvs in paths:
-        drt = geo.getDataframe(mvs[0], dt.datetime.now(), sim.DT)
-        drt = geo.reduce_path(drt, REDUCTION_RADIUS)
-        orig = mvs[0][0]
-        dest = mvs[0][-1]
+    color_step = 255 / len(path.path())
+    for mvs in path.toMultipleDf():
+        drt = geo.reduce_path(mvs[1], mc.REDUCTION_RADIUS)
+        orig = mvs[1].iloc[0]
+        dest = mvs[1].iloc[-1]
         plt.axis('scaled')
         plt.scatter(orig.x, orig.y, s=50, c="#0000FF")
         plt.scatter(dest.x, dest.y, s=50, c="#FF0000")
@@ -52,20 +50,22 @@ def display_memory(path, index):
     plt.draw()
 
 
-def display_view(path, index):
-    plt.figure(index)
+def display_view(path, index, newfig=False):
+    if newfig:
+        plt.figure(index)
     ax = plt.gca()
     plt.imshow(island.transpose())
-    color_step = 255 / len(path)
+    color_step = 255 / len(path.path())
     color = [color_step, color_step, color_step]
-    for mvs in paths:
-        rdm = geo.getDataframe(mvs[0], dt.datetime.now(), sim.DT)
-        drt = geo.getDataframe(mvs[1], dt.datetime.now(), sim.DT)
-        rdm = geo.reduce_path(rdm, REDUCTION_RADIUS)
-        drt = geo.reduce_path(drt, REDUCTION_RADIUS)
-        orig = mvs[0][0]
-        view = mvs[1][0]
-        dest = mvs[1][-1]
+    i = 0
+    for mvs in path.toMultipleDf():
+        rdm = mvs[0]
+        drt = mvs[1]
+        rdm = geo.reduce_path(rdm, mc.REDUCTION_RADIUS)
+        drt = geo.reduce_path(drt, mc.REDUCTION_RADIUS)
+        orig = mvs[1].iloc[0]
+        dest = mvs[1].iloc[-1]
+        view = mvs[1].iloc[0]
         plt.axis('scaled')
         plt.scatter(orig.x, orig.y, s=50, c="#0000FF")
         plt.scatter(dest.x, dest.y, s=50, c="#FF0000")
@@ -75,6 +75,7 @@ def display_view(path, index):
         color[0] = color[0] + color_step
         color[1] = color[1] + color_step
         color[2] = color[2] + color_step
+        i += 1
     for f in fruits:
         c = plt.Circle((f.x, f.y), radius=7, color="#FFFFFF")
         ax.add_patch(c)
@@ -83,55 +84,89 @@ def display_view(path, index):
 
 island = dp.parseisland()
 geo.ISLAND = island
-# fruits = sim.buildFruitTree(10, sim.Distr.UNIFORM)
+# fruits = sim.buildFruitTree(30, sim.Distr.UNIFORM)
 fruits = dp.parsefruittree()
 # print("fruit tree density: " + '{:3f}'.format(len(fruits) * 1000000 / np.count_nonzero(island)) + " tree / skm")
 
-# monkey = moves.monkeys()[0]
-# dates = moves.dates(monkey)
+# DISPLAY ISLAND ONLY
+plt.figure(100)
+ax = plt.gca()
+plt.imshow(island.transpose())
+for f in fruits:
+    c = plt.Circle((f.x, f.y), radius=7, color="#FFFFFF")
+    ax.add_patch(c)
 
-# Display all dates of first monkey
-# step = 255 / dates.size
-# c = 0
-# for d in dates:
-#     points = moves.points(monkey, d)
-#     plt.scatter(points.x, points.y, s=1, c="#%02X%02X%02X" % (c, c, c))
-#     c = int(c + step)
+plt.draw()
+data = dp.getmonkey()
+days = data.toStandard(fruits)
+display_memory(days[0])
+# monkeys = data.monkeys()
+# print("found " + str(len(monkeys)) + " monkeys")
+# days = data.dates(monkeys[0])
+# print("found " + str(len(days)) + " days")
+# points = data.points(monkeys[0], days[0])
+# print("found " + str(len(points)) + " points")
 
-# mvs = moves.points(monkey, dates[2])
-# red = geo.reduce_path(mvs, REDUCTION_RADIUS)
 
-# p1 = geo.Coordinates(2000, 1000, island[2000][1000])
-# # p2 = geo.Coordinates(4000, 4000, 0)
-# # p = geo.Coordinates(3, 3, 0)
-# orig = p1
+# plt.show()
 
-pts = np.random.normal(2500, 2000, [5, 2])
-cts = []
-invalid = 0
-for p in pts:
-    try:
-        if p[0] < 0 or p[1] < 0 or island[int(p[0]), int(p[1])] <= 0:
-            invalid = invalid + 1
-            continue
-        cts.append(geo.Coordinates(p[0], p[1], island[int(p[0]), int(p[1])]))
-    except IndexError:
-        invalid = invalid + 1
-print("Invalid = " + str(invalid))
-index = 0
-view = False
-for c in cts:
-    index = index + 1
-    if view:
-        print("\nworking on " + str(index) + " - VIEW")
-        paths = sim.createViewDate(c, fruits, DATE_DURATION_MIN)
-        mf.path_to_csv(paths, index, date, sim.DT)
-        display_view(paths, index)
-        view = False
-    else:
-        print("\nworking on " + str(index) + " - MEMORY")
-        paths = sim.createMemoryDate(c, fruits, DATE_DURATION_MIN, max_mem_range=MAX_MEM_DIST)
-        mf.path_to_csv(paths, index, date, sim.DT)
-        display_memory(paths, index)
-        view = True
+# invalid = 0
+# index = 0
+# view = FIRST_IS_VIEW
+# while(index < NUM_TRIES):
+#     try:
+#         p = np.random.normal(2000, 500, [1, 2])[0]
+#         c = geo.Coordinates(p[0], p[1], island[int(p[0]), int(p[1])])
+#         if view:
+#             paths = sim.createViewDate(c, fruits, mc.DATE_DURATION_MIN)
+#             print("\nworking on " + str(index) + " - VIEW")
+#             paths.set_id(index)
+#             paths.set_date(date.today())
+#             mf.path_to_csv(paths, mc.VIEW_PATH)
+#             display_view(paths, index)
+#             view = False
+#         else:
+#             paths = sim.createMemoryDate(c, fruits, mc.DATE_DURATION_MIN, max_mem_range=mc.MAX_MEM_DIST)
+#             print("\nworking on " + str(index) + " - MEMORY")
+#             paths.set_id(index)
+#             paths.set_date(date.today())
+#             mf.path_to_csv(paths, mc.MEMORY_PATH)
+#             display_memory(paths, index)
+#             view = True
+#         index += 1
+#     except IndexError:
+#         print("Invalid = " + str(invalid) + " :Path out of bound")
+#         invalid += 1
+#     except me.PathOnWaterException:
+#         print("Invalid = " + str(invalid) + " :Path on water")
+#         invalid += 1
+
+# strMem = []
+# strRDM = []
+# for i in range(0, NUM_TRIES):
+#     if i % 2 == 0:
+#         path = mc.MEMORY_PATH + str(i) + "_20180320"
+#     else:
+#         path = mc.VIEW_PATH + str(i) + "_20180320"
+#     file = path + ".csv"
+#     infofile = path + "_info.csv"
+#     dtpath = dp.parseSTDDate(file, infofile)
+#     if i % 2 == 0:
+#         strMem.append(dtpath.strRatioAeSD())
+#     else:
+#         strRDM.append(dtpath.strRatioAeSD())
+
+# arrMem = np.array(strMem)
+# print("Memory: " + str(np.mean(arrMem, axis=0)) + ', ' + str(np.std(arrMem, axis=0)))
+# arrView = np.array(strRDM)
+# print("View: " + str(np.mean(arrView, axis=0)) + ', ' + str(np.std(arrView, axis=0)))
+
+# print("straighratio: " + str(dtpath.strRatioAeSD()))
+# print('finished computing read one')
+# if(FIRST_IS_VIEW):
+#     display_view(dtpath, index)
+# else:
+#     display_memory(dtpath, index)
+# print('finished displaying read one')
+
 plt.show()

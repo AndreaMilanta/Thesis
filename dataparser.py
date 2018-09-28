@@ -2,19 +2,15 @@
 
 contains a set of functions specifically written to read and properly parse all the dataset required
 """
-import os
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
 import datetime
+import csv
 
+import monkeyconstants as mc
+import datepath as dp
 import geometry as geo
-
-# PATH CONSTANTS
-HERE = os.path.dirname(__file__)
-FRUIT_PATH = HERE + "\Data\FruitTrees.csv"
-ISLAND_PATH = HERE + "\Data\IslandPic.png"
-MONKEY_PATH = HERE + "\Data\AllChibi.csv"
 
 # CONSTANTS
 DELTA_X_FRT = -50   # shift on x axis for gps conversion of fruit tree data
@@ -27,7 +23,7 @@ class MovementData:
     """Represents and manages movement data
 
     Variables:
-        _moves -- array of tuples with info (id), coordinates (x,y,h) and timestamp (YYYYMMDD,h,m,s)
+        _moves -- dataframe with info (id), coordinates (x,y,h) and timestamp (YYYYMMDD,h,m,s)
     """
 
     def __init__(self, path):
@@ -104,6 +100,7 @@ class MovementData:
         # header = ['id', 'coo', 'date', 'ts']
         df = pd.DataFrame(moves, columns=header)
         df.reset_index()
+        print(df.describe())
         return df
 
     def _converttoXY(self, utmE, utmN):
@@ -127,6 +124,22 @@ class MovementData:
         y = y + DELTA_Y_MON
         return (x, y)
 
+    def toStandard(self, fruits):
+        """Returns standard notation of monkey
+        """
+        dates = []
+        single_date = []
+        single_path = []
+        for m in self.monkeys().rows():
+            for d in self.dates(m).rows():
+                for p in self.points(m, d).rows():
+                    single_path.append(geo.Coordinates(p.x, p.y, p.ht), p.ts)
+                    if single_path[-1][0].minDistance(fruits) < mc.FRUIT_RADIUS:
+                        single_date.append([None, single_path])
+                        single_path = []
+                dates.append(dp.DatePath.FullInit(m, d, single_date))
+        return dates
+
 
 def parsefruittree():
     """Fruit Tree Reader (x,y)
@@ -137,7 +150,7 @@ def parsefruittree():
         List of Coordinates -- each element is a coordinate object of a fruit tree
     """
     columns = ['x', 'y', 'extra']
-    df = pd.read_csv(FRUIT_PATH, sep=' ', header=None, names=columns)
+    df = pd.read_csv(mc.FRUIT_PATH, sep=' ', header=None, names=columns)
     df.reset_index()
     df.x = df.x.apply(lambda x: x + DELTA_X_FRT)
     df.y = df.y.apply(lambda x: x + DELTA_Y_FRT)
@@ -156,7 +169,7 @@ def parseisland():
     Returns:
         array -- matrix with height as elements
     """
-    island_img = plt.imread(ISLAND_PATH)
+    island_img = plt.imread(mc.ISLAND_PATH)
     island_img = np.flipud(island_img)
     island_img = island_img * 255
     return island_img
@@ -170,25 +183,60 @@ def getmonkey():
     Returns:
         MovementData -- Class containing tha data for the monkey movements
     """
-    return MovementData(MONKEY_PATH)
+    return MovementData(mc.MONKEY_PATH)
 
 
-# MAIN
-# fruits = parsefruittree()
-# island = parseisland()
-# correct = fruits[fruits.apply(lambda f: island[int(f.x), int(f.y)] > 0, axis=1)]
-# incorrect = fruits[fruits.apply(lambda f: island[int(f.x), int(f.y)] <= 0, axis=1)]
-# moves = getmonkey()
-# for m in moves.monkeys():
-#     print(m)
-#     print(moves.dates(m).size)
-#     for d in moves.dates(m):
-#         print(moves.points(m, d))
-#         print(str(d))
+def parse_date(filename):
+    """get date and id from filename
 
-# VISUALIZATION
-# plt.imshow(island.transpose(), origin='lower')
-# plt.scatter(fruits.x, fruits.y, s=2, c="#00FF00")
-# plt.scatter(correct.x, correct.y, s=2, c="#00FF00")
-# plt.scatter(incorrect.x, incorrect.y, s=2, c="#FF0000")
-# plt.show()
+    Returns:
+        {int, datetime} - id and date
+    """
+    info_str = filename.split('.')[0].split('\\')[-1].split('_')
+    id_val = int(info_str[0])
+    date_str = info_str[1]
+    date = datetime.datetime(year=int(date_str[0:4]), month=int(date_str[4:6]), day=int(date_str[6:8]))
+    print('id: ' + str(id_val) + " date: " + str(date))
+    return [id_val, date_str]
+
+
+
+def parseSTDDate(file, infofile, id=None, date=None):
+    """Parses file of movement of one day according to standard format
+
+    Arguments:
+        file {string} -- path of data file
+        infofile {string} -- path of info file
+
+    Keyword Arguments:
+        id {int} -- id of monkey. if None, is retrieved from filename id_yyyymmdd.csv {Default: None}
+        date {datetime} -- date of path. if None is retrieved from filename id_yyyymmdd.csv  {Defualt: None}
+
+    Return:
+        datepath -- instance of datepath class representing the movement of the monkey in that date
+     """
+    if date is None or id is None:
+        info = parse_date(file)
+        id = info[0]
+        date = info[1]
+    path = []
+    currentPointer = 0
+    with open(infofile, 'rt') as info:
+        reader = csv.reader(info)
+        infolist = list(map(tuple, reader))
+        infolist = infolist[1:]                 # remove header row
+    for i in infolist:
+        st = int(i[0])
+        if i[1] == 'None':
+            vwp = st
+        else:
+            vwp = int(i[1])
+        end = int(i[2])
+        df = pd.read_csv(file, skiprows=currentPointer, nrows=(vwp - st))
+        rdm = [tuple([geo.Coordinates(p[0], p[1], p[2]), p[3]]) for p in df.values]
+        currentPointer = vwp
+        df = pd.read_csv(file, skiprows=currentPointer, nrows=(end - vwp + 1))
+        drt = [tuple([geo.Coordinates(p[0], p[1], p[2]), p[3]]) for p in df.values]
+        currentPointer = end + 1
+        path.append([rdm, drt])
+    return dp.datepath(path)
