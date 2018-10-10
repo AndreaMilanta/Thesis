@@ -14,9 +14,32 @@ import geometry as geo
 
 # CONSTANTS
 DELTA_X_FRT = -50   # shift on x axis for gps conversion of fruit tree data
-DELTA_Y_FRT = -45   # shift on y axis for gpf conversion of fruit tree data
+DELTA_Y_FRT = -45   # shift on y axis for gps conversion of fruit tree data
 DELTA_X_MON = -50   # shift on x axis for gps conversion of monkey movement data
-DELTA_Y_MON = -45   # shift on y axis for gpf conversion of monkey movement data
+DELTA_Y_MON = -45   # shift on y axis for gps conversion of monkey movement data
+
+# global variables
+_Island = None    # holds parsed Island
+_Fruits = None    # holds parsed Fruits
+
+
+# Getters
+def Island():
+    """ returns parsed island
+    """
+    global _Island
+    if _Island is None:
+        _Island = _parseisland()
+    return _Island
+
+
+def Fruits():
+    """ returns parsed fruits
+    """
+    global _Fruits
+    if _Fruits is None:
+        _Fruits = _parsefruittree()
+    return _Fruits
 
 
 class MovementData:
@@ -124,24 +147,28 @@ class MovementData:
         y = y + DELTA_Y_MON
         return (x, y)
 
-    def toStandard(self, fruits):
-        """Returns standard notation of monkey
+    def toStandard(self):
+        """Returns standard notation of monkey path (list of points)
         """
         dates = []
-        single_date = []
-        single_path = []
         for m in self.monkeys().rows():
             for d in self.dates(m).rows():
-                for p in self.points(m, d).rows():
-                    single_path.append(geo.Coordinates(p.x, p.y, p.ht), p.ts)
-                    if single_path[-1][0].minDistance(fruits) < mc.FRUIT_RADIUS:
-                        single_date.append([None, single_path])
-                        single_path = []
-                dates.append(dp.DatePath.FullInit(m, d, single_date))
+                # datepath as simple list of  geo.Coordinates
+                path = map(lambda p: geo.Coordinates(p.x, p.y, p.ht, time=p.ts), self.dates(m).rows)
+                dates.append(dp.datepath(path, date=d, monkey=m, fruits=Fruits()))
+                # # datepath as list of subpaths each split between to-view and from-view
+                # single_date = []
+                # single_path = []
+                # for p in self.points(m, d).rows():
+                #     single_path.append(geo.Coordinates(p.x, p.y, p.ht), p.ts)
+                #     if single_path[-1][0].minDistance(fruits) < mc.FRUIT_RADIUS:
+                #         single_date.append([None, single_path])
+                #         single_path = []
+                # dates.append(dp.DatePath.FullInit(m, d, single_date))
         return dates
 
 
-def parsefruittree():
+def _parsefruittree():
     """Fruit Tree Reader (x,y)
 
     Read fruittree dataset and shifts it so that it maps on the island coordinates
@@ -155,11 +182,10 @@ def parsefruittree():
     df.x = df.x.apply(lambda x: x + DELTA_X_FRT)
     df.y = df.y.apply(lambda x: x + DELTA_Y_FRT)
     fts = df.values.tolist()
-    isla = parseisland()
-    return [geo.Coordinates(x[1], x[0], isla[int(x[1]), int(x[0])]) for x in fts]
+    return [geo.Coordinates(x[1], x[0], Island()[int(x[1]), int(x[0])]) for x in fts]
 
 
-def parseisland():
+def _parseisland():
     """Island Image Reader
 
     Reads black and white image of the island

@@ -4,6 +4,7 @@
 import os
 from enum import Enum
 from datetime import time
+from datetime import date
 
 
 class cls(Enum):
@@ -32,6 +33,7 @@ FRUIT_RADIUS = 15       # Radius of fruit tree
 REDUCTION_RADIUS = 5        # radius of cilinder for reducing paths
 DATE_DURATION_MIN = 1 * 60  # Duration of day in minutes
 MAX_MEM_DIST = 500          # Maximum distance of next fruit tree in memory model (as the crow flies)
+DEFAULT_DATE = date.today()
 
 # LINE OF SIGHT
 HEIGHT_MARGIN = 1       # margin on LOS height obstruction

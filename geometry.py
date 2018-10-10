@@ -2,12 +2,10 @@
 """
 import numpy as np
 import math
-from matplotlib import pyplot as plt
+# from matplotlib import pyplot as plt
 # from mpl_toolkits.mplot3d import Axes3D
 
 import monkeyconstants as mc
-
-ISLAND = None
 
 
 class Coordinates:
@@ -18,10 +16,14 @@ class Coordinates:
         self.x = x
         self.y = y
         self.z = z
+        self.iz = int(z)
         self.xy = [x, y]
         self.xz = [x, z]
         self.yz = [y, z]
+        self.xiz = [x, int(z)]
+        self.yiz = [y, int(z)]
         self.xyz = [x, y, z]
+        self.xyiz = [x, y, int(z)]
         self.set_time(time)
 
     def __eq__(self, other):
@@ -37,6 +39,8 @@ class Coordinates:
         """Assign a timestamp to point
         """
         self.time = time
+        self.xyzt = [self.x, self.y, self.z, self.time]
+        self.xyizt = [self.x, self.y, int(self.z), self.time]
 
     def equals(self, p, ignore_z=False, ignore_t=True):
         """determines whether 2 points are equals
@@ -60,9 +64,9 @@ class Coordinates:
                 y2 = math.pow((self.y - point.y), 2)
                 if (ignore_z is False):
                     z2 = math.pow((self.z - point.z), 2)
-                    distances.add(math.sqrt(x2 + y2 + z2))
+                    distances.append(math.sqrt(x2 + y2 + z2))
                 else:
-                    distances.add(math.sqrt(x2 + y2))
+                    distances.append(math.sqrt(x2 + y2))
             return distances
         # case p is single point
         else:
@@ -238,11 +242,12 @@ class Coordinates:
             i = i + 1
         return [out, index]
 
-    def sees(self, fruits, previous, ignores):
+    def sees(self, fruits, island, previous, ignores):
         """Checks if any fruit tree within range and in FOV with respect to movement direcction can be seen by the caller
 
         Arguments:
             fruits {List[Coordinates]} -- List of fruit tree Coordinates
+            island {img[nxmxk]} -- island
             previous {Coordinates} -- previous point, used to computed direction of movement
             ignores {List[Coordinates]} -- List of fruit trees to ignore: Already visited
 
@@ -268,18 +273,18 @@ class Coordinates:
             index = index + 1
             if e in ignores:
                 continue
-            if self.isVisible(e):
+            if self.isVisible(e, island):
                 return e
         return None
 
-    def isVisible(self, p, min_range=mc.VIEW_MIN_RANGE, next=None, FOV=mc.FOV):
+    def isVisible(self, p, island, min_range=mc.VIEW_MIN_RANGE, next=None, FOV=mc.FOV):
         """Checks if p is visible from the caller
 
-        Requires ISLAND to be set to the corrisponding matrix
+        Requires island to be set to the corrisponding matrix
 
         Arguments:
             p {Coordinate} -- Point to be seen
-            # margin {float} -- margin for height comparison {default: {2}}
+            island {img[nxmxk]} -- island
 
         Keyword Arguments:
             min_range {float} -- distance within which a tree is seen by default.  {Default: mc.VIEW_MIN_RANGE}
@@ -289,21 +294,6 @@ class Coordinates:
         Returns:
             visible {Boolean} -- The point is visible
         """
-
-        # # VISUALIZATION for DEBUG ONLY
-        # draw = False
-        # if draw:
-        #     fig = plt.figure()
-        #     # plt.imshow(island.transpose())
-        #     ny, nx = ISLAND.shape
-        #     x = np.linspace(0, nx, nx)
-        #     y = np.linspace(0, ny, ny)
-        #     xv, yv = np.meshgrid(x, y)
-        #     sf = fig.add_subplot(111, projection='3d')
-        #     sf.plot([self.x, p.x], [self.y, p.y], [self.z, p.z], c="#000000")
-        #     sf.plot_surface(xv, yv, ISLAND, cmap="winter", linewidth=2)
-        #     plt.show()
-
         # check if fruit tree too close
         delta = self.diff(p)
         dist = delta.mag()
@@ -311,12 +301,14 @@ class Coordinates:
             # print("Tree too close found")             # DEBUG!!!!
             return True
 
-        # check if p in FOV
-        cos = math.cos(FOV / 2)
-        cont = self.add(self.diff(next))
-        if not cont.angle(p, self, ignore_z=True)[1] < -cos:
-            return False
+        # check if p in FOV if next available
+        if next is not None:
+            cos = math.cos(FOV / 2)
+            cont = self.add(self.diff(next))
+            if not cont.angle(p, self, ignore_z=True)[1] < -cos:
+                return False
 
+        # check if visible
         dist -= min_range
         unit = delta.scale(1 / dist)
         steps = 0
@@ -329,28 +321,28 @@ class Coordinates:
             br = [math.floor(temp.x), math.ceil(temp.y)]
             bl = [math.floor(temp.x), math.floor(temp.y)]
             try:
-                if(ISLAND[tl[0], tl[1]] > temp.z + mc.HEIGHT_MARGIN):
+                if(island[tl[0], tl[1]] > temp.z + mc.HEIGHT_MARGIN):
                     tl = False
                 else:
                     tl = True
             except IndexError:
                 tl = False
             try:
-                if(ISLAND[tr[0], tr[1]] > temp.z + mc.HEIGHT_MARGIN):
+                if(island[tr[0], tr[1]] > temp.z + mc.HEIGHT_MARGIN):
                     tr = False
                 else:
                     tr = True
             except IndexError:
                 tr = False
             try:
-                if(ISLAND[br[0], br[1]] > temp.z + mc.HEIGHT_MARGIN):
+                if(island[br[0], br[1]] > temp.z + mc.HEIGHT_MARGIN):
                     br = False
                 else:
                     br = True
             except IndexError:
                 br = False
             try:
-                if(ISLAND[bl[0], bl[1]] > temp.z + mc.HEIGHT_MARGIN):
+                if(island[bl[0], bl[1]] > temp.z + mc.HEIGHT_MARGIN):
                     bl = False
                 else:
                     bl = True
@@ -361,11 +353,12 @@ class Coordinates:
         # print("Tree Found of height=" + str(p.z) + " from height=" + str(self.z))         # DEBUG!!!!
         return True
 
-    def inWater(self, p):
+    def inWater(self, p, island):
         """Checks if path from self to p goes through water
 
         Arguments:
             p {Coordinates} -- destination
+            island {img[nxmxk]} -- island
 
         Returns:
             bool -- true if path goes through water
@@ -383,28 +376,28 @@ class Coordinates:
             br = [math.floor(temp.x), math.ceil(temp.y)]
             bl = [math.floor(temp.x), math.floor(temp.y)]
             try:
-                if(ISLAND[tl[0], tl[1]] > 0):
+                if(island[tl[0], tl[1]] > 0):
                     tl = False
                 else:
                     tl = True
             except IndexError:
                 tl = True
             try:
-                if(ISLAND[tr[0], tr[1]] > 0):
+                if(island[tr[0], tr[1]] > 0):
                     tr = False
                 else:
                     tr = True
             except IndexError:
                 tr = True
             try:
-                if(ISLAND[br[0], br[1]] > 0):
+                if(island[br[0], br[1]] > 0):
                     br = False
                 else:
                     br = True
             except IndexError:
                 br = True
             try:
-                if(ISLAND[bl[0], bl[1]] > 0):
+                if(island[bl[0], bl[1]] > 0):
                     bl = False
                 else:
                     bl = True
@@ -498,6 +491,9 @@ def straighRatio(path, ignore_z=False):
     """Returns the degree of straightness of the path given as the ratio between the crow distance and the actual path distance
      if 1 - direct path
      if 0 - limit case, path never reaches the end
+
+    Arguments:
+        path {List[Coordinates]} -- path
 
     Keyword Arguments:
         ignore_z {Boolean} -- ignore z dimension and work only on xy plane projection (default: False)

@@ -3,109 +3,130 @@
 Displays trees and paths. Used for testing
 
 Variables:
-    fruits {dataframe} -- fruit tree coords and height
-    island {array} -- island with height info for each coordinate
+    Fruits {dataframe} -- fruit tree coords and height
+    Island {array} -- island with height info for each coordinate
 """
 from matplotlib import pyplot as plt
-from datetime import date
-# import math
-import numpy as np
 from colormap import rgb2hex
-
-import monkeyconstants as mc
-import monkeyexceptions as me
-import geometry as geo
 import dataparser as dp
-import simulation as sim
-import monkeyfile as mf
-
-NUM_TRIES = 2
-FIRST_IS_VIEW = False
 
 
-# date = dt.datetime(1995, 1, 19, 8, 0, 0, 0)
+def display(path, index=None, color='#FFFFFF', show=True):
+    """ displays a path
 
+    if a valid index is passed, the image is created with the island as background
 
-def display_memory(path, index, newfig=False):
-    if newfig:
-        plt.figure(index)
-    ax = plt.gca()
-    plt.imshow(island.transpose())
-    color = [0, 0, 0]
-    color_step = 255 / len(path.path())
-    for mvs in path.toMultipleDf():
-        drt = geo.reduce_path(mvs[1], mc.REDUCTION_RADIUS)
-        orig = mvs[1].iloc[0]
-        dest = mvs[1].iloc[-1]
-        plt.axis('scaled')
-        plt.scatter(orig.x, orig.y, s=50, c="#0000FF")
-        plt.scatter(dest.x, dest.y, s=50, c="#FF0000")
-        plt.plot(drt.x, drt.y, c=rgb2hex(int(color[0]), int(color[1]), int(color[2])))
-        color[0] = color[0] + color_step
-        color[1] = color[1] + color_step
-        color[2] = color[2] + color_step
-    for f in fruits:
-        c = plt.Circle((f.x, f.y), radius=7, color="#FFFFFF")
-        ax.add_patch(c)
+    Arguments:
+        path {List[Coordinates]} -- List of coordinates of the path
+
+    Keyword Arguments;
+        index {int} -- index of  figure. If is None no figure is created and Island is set as background.  {Default: None}
+        [color {'hex'} -- color of displayed path.  {Default: '#FFFFFF'}]
+        [color {[int,int,int]} -- color of displayed path. is converted to HEX]
+        show {boolean} -- whether to immediately show the figure or not.  {Default: True}
+    """
+    # create figure if requested and add Island background
+    if index is not None:
+        display_island(index, show=False)
+    # convert color to hex
+    if not isinstance(color, str):
+        color = rgb2hex(color[0], color[1], color[2])
+    # display
+    plt.plot(path.x, path.y, color)
     plt.draw()
+    if show:
+        plt.show()
 
 
-def display_view(path, index, newfig=False):
-    if newfig:
+def display_island(index=None, f_color='#FFFFFF', show=True, fruits=None):
+    """ displays the island with fruit trees
+
+    Keyword Arguments;
+        index {int} -- index of  figure. If it is None no figure is created.  {Default: None}
+        [f_color {'hex'} -- color of fruit trees.  {Default: '#FFFFFF'}]
+        [f_color {[int,int,int]} -- color of fruit trees. is converted to HEX]
+        show {boolean} -- whether to immediately show the figure or not.  {Default: True}
+        fruits {List[Coordinates]} -- list of fruits
+    """
+    # create figure if requested
+    if index is not None:
         plt.figure(index)
-    ax = plt.gca()
-    plt.imshow(island.transpose())
-    color_step = 255 / len(path.path())
-    color = [color_step, color_step, color_step]
-    i = 0
-    for mvs in path.toMultipleDf():
-        rdm = mvs[0]
-        drt = mvs[1]
-        rdm = geo.reduce_path(rdm, mc.REDUCTION_RADIUS)
-        drt = geo.reduce_path(drt, mc.REDUCTION_RADIUS)
-        orig = mvs[1].iloc[0]
-        dest = mvs[1].iloc[-1]
-        view = mvs[1].iloc[0]
-        plt.axis('scaled')
-        plt.scatter(orig.x, orig.y, s=50, c="#0000FF")
-        plt.scatter(dest.x, dest.y, s=50, c="#FF0000")
-        plt.scatter(view.x, view.y, s=50, c="#00FF00")
-        plt.plot(rdm.x, rdm.y, c=rgb2hex(int(color[0]), int(color[1]), int(color[2])))
-        plt.plot(drt.x, drt.y, c=rgb2hex(int(color[0]), 0, 0))
-        color[0] = color[0] + color_step
-        color[1] = color[1] + color_step
-        color[2] = color[2] + color_step
-        i += 1
-    for f in fruits:
-        c = plt.Circle((f.x, f.y), radius=7, color="#FFFFFF")
-        ax.add_patch(c)
+    # convert color to hex
+    if not isinstance(f_color, str):
+        f_color = rgb2hex(f_color[0], f_color[1], f_color[2])
+    #  display island
+    plt.imshow(dp.Island().transpose())
+    # display fruits
+    if fruits is not None:
+        ax = plt.gca()
+        for f in fruits:
+            c = plt.Circle((f.x, f.y), radius=7, color=f_color)
+            ax.add_patch(c)
+    plt.axis('scaled')
     plt.draw()
+    # optional
+    if show:
+        plt.show()
 
 
-island = dp.parseisland()
-geo.ISLAND = island
-# fruits = sim.buildFruitTree(30, sim.Distr.UNIFORM)
-fruits = dp.parsefruittree()
-# print("fruit tree density: " + '{:3f}'.format(len(fruits) * 1000000 / np.count_nonzero(island)) + " tree / skm")
+def show():
+    plt.show()
 
-# DISPLAY ISLAND ONLY
-plt.figure(100)
-ax = plt.gca()
-plt.imshow(island.transpose())
-for f in fruits:
-    c = plt.Circle((f.x, f.y), radius=7, color="#FFFFFF")
-    ax.add_patch(c)
 
-plt.draw()
-data = dp.getmonkey()
-days = data.toStandard(fruits)
-display_memory(days[0])
-# monkeys = data.monkeys()
-# print("found " + str(len(monkeys)) + " monkeys")
-# days = data.dates(monkeys[0])
-# print("found " + str(len(days)) + " days")
-# points = data.points(monkeys[0], days[0])
-# print("found " + str(len(points)) + " points")
+# def display_memory(path, index, newfig=False):
+#     if newfig:
+#         plt.figure(index)
+#     ax = plt.gca()
+#     plt.imshow(island.transpose())
+#     color = [0, 0, 0]
+#     color_step = 255 / len(path.path())
+#     for mvs in path.toMultipleDf():
+#         drt = geo.reduce_path(mvs[1], mc.REDUCTION_RADIUS)
+#         orig = mvs[1].iloc[0]
+#         dest = mvs[1].iloc[-1]
+#         plt.axis('scaled')
+#         plt.scatter(orig.x, orig.y, s=50, c="#0000FF")
+#         plt.scatter(dest.x, dest.y, s=50, c="#FF0000")
+#         plt.plot(drt.x, drt.y, c=rgb2hex(int(color[0]), int(color[1]), int(color[2])))
+#         color[0] = color[0] + color_step
+#         color[1] = color[1] + color_step
+#         color[2] = color[2] + color_step
+#     for f in fruits:
+#         c = plt.Circle((f.x, f.y), radius=7, color="#FFFFFF")
+#         ax.add_patch(c)
+#     plt.draw()
+
+
+# def display_view(path, index, newfig=False):
+#     if newfig:
+#         plt.figure(index)
+#     ax = plt.gca()
+#     plt.imshow(island.transpose())
+#     color_step = 255 / len(path.path())
+#     color = [color_step, color_step, color_step]
+#     i = 0
+#     for mvs in path.toMultipleDf():
+#         rdm = mvs[0]
+#         drt = mvs[1]
+#         rdm = geo.reduce_path(rdm, mc.REDUCTION_RADIUS)
+#         drt = geo.reduce_path(drt, mc.REDUCTION_RADIUS)
+#         orig = mvs[1].iloc[0]
+#         dest = mvs[1].iloc[-1]
+#         view = mvs[1].iloc[0]
+#         plt.axis('scaled')
+#         plt.scatter(orig.x, orig.y, s=50, c="#0000FF")
+#         plt.scatter(dest.x, dest.y, s=50, c="#FF0000")
+#         plt.scatter(view.x, view.y, s=50, c="#00FF00")
+#         plt.plot(rdm.x, rdm.y, c=rgb2hex(int(color[0]), int(color[1]), int(color[2])))
+#         plt.plot(drt.x, drt.y, c=rgb2hex(int(color[0]), 0, 0))
+#         color[0] = color[0] + color_step
+#         color[1] = color[1] + color_step
+#         color[2] = color[2] + color_step
+#         i += 1
+#     for f in fruits:
+#         c = plt.Circle((f.x, f.y), radius=7, color="#FFFFFF")
+#         ax.add_patch(c)
+#     plt.draw()
 
 
 # plt.show()
@@ -168,5 +189,3 @@ display_memory(days[0])
 # else:
 #     display_memory(dtpath, index)
 # print('finished displaying read one')
-
-plt.show()

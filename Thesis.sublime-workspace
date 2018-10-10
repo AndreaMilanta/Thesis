@@ -4,6 +4,146 @@
 		"selected_items":
 		[
 			[
+				"a",
+				"arrayManipulation"
+			],
+			[
+				"swa",
+				"swapper"
+			],
+			[
+				"ma",
+				"maxDelta"
+			],
+			[
+				"exc",
+				"except"
+			],
+			[
+				"IS",
+				"Island\tfunction"
+			],
+			[
+				"disp",
+				"display\tfunction"
+			],
+			[
+				"fruit",
+				"fruits"
+			],
+			[
+				"date",
+				"datepath"
+			],
+			[
+				"DE",
+				"DEFAULT_DATE\tstatement"
+			],
+			[
+				"To",
+				"today\tfunction"
+			],
+			[
+				"stat",
+				"staticmethod\tclass"
+			],
+			[
+				"dat",
+				"datepath\tclass"
+			],
+			[
+				"set",
+				"set_fruits\tfunction"
+			],
+			[
+				"DEF",
+				"DEFAULT_DATE"
+			],
+			[
+				"DATE",
+				"DATE_DURATION_MIN\tstatement"
+			],
+			[
+				"R",
+				"RandomView"
+			],
+			[
+				"Rand",
+				"RandomMemory"
+			],
+			[
+				"sta",
+				"staticmethod\tclass"
+			],
+			[
+				"O",
+				"OptionalParamIsNoneException\tclass"
+			],
+			[
+				"_par",
+				"_parseisland\tfunction"
+			],
+			[
+				"islan",
+				"island_img\tstatement"
+			],
+			[
+				"isl",
+				"isla"
+			],
+			[
+				"Fl",
+				"False\tkeyword"
+			],
+			[
+				"I",
+				"Island"
+			],
+			[
+				"sc",
+				"STATICFILES_FINDERS"
+			],
+			[
+				"f",
+				"figure"
+			],
+			[
+				"str",
+				"straighRatio\tfunction"
+			],
+			[
+				"sep",
+				"sep_hang\tparam"
+			],
+			[
+				"cont",
+				"continue\tkeyword"
+			],
+			[
+				"ignor",
+				"ignore_hang\tparam"
+			],
+			[
+				"fruti",
+				"fruits"
+			],
+			[
+				"subpath",
+				"_subpaths\tstatement"
+			],
+			[
+				"fru",
+				"fruits\tparam"
+			],
+			[
+				"force",
+				"force_recompute"
+			],
+			[
+				"int",
+				"int_h\tparam"
+			],
+			[
 				"_subpaths",
 				"_subpaths\tstatement"
 			],
@@ -14,10 +154,6 @@
 			[
 				"HNG",
 				"FRT_HANG_RAD\tstatement"
-			],
-			[
-				"fruit",
-				"fruit_idx\tstatement"
 			],
 			[
 				"ad",
@@ -56,16 +192,8 @@
 				"ignore_t\tparam"
 			],
 			[
-				"set",
-				"set_time\tfunction"
-			],
-			[
 				"to",
 				"today\tfunction"
-			],
-			[
-				"dat",
-				"datetime\tclass"
 			],
 			[
 				"cl",
@@ -136,16 +264,8 @@
 				"FRUIT_RADIUS\tstatement"
 			],
 			[
-				"str",
-				"strAvg\tparam"
-			],
-			[
 				"st",
 				"strRatioAeSD\tfunction"
-			],
-			[
-				"disp",
-				"display_memory\tfunction"
 			],
 			[
 				"pts",
@@ -182,10 +302,6 @@
 			[
 				"id",
 				"id_val\tstatement"
-			],
-			[
-				"date",
-				"date_str\tstatement"
 			],
 			[
 				"da",
@@ -296,10 +412,6 @@
 				"rdm_index\tstatement"
 			],
 			[
-				"a",
-				"append\tfunction"
-			],
-			[
 				"in",
 				"inf\tinstance"
 			],
@@ -316,52 +428,15 @@
 	"buffers":
 	[
 		{
-			"file": "dataparser.py",
+			"file": "generator.py",
 			"settings":
 			{
-				"buffer_size": 8486,
-				"encoding": "UTF-8",
-				"line_ending": "Windows"
-			}
-		},
-		{
-			"file": "simulation.py",
-			"settings":
-			{
-				"buffer_size": 23078,
-				"encoding": "UTF-8",
-				"line_ending": "Windows"
-			}
-		},
-		{
-			"file": "geometry.py",
-			"settings":
-			{
-				"buffer_size": 18002,
-				"encoding": "UTF-8",
-				"line_ending": "Windows"
-			}
-		},
-		{
-			"file": "datepath.py",
-			"settings":
-			{
-				"buffer_size": 6220,
-				"encoding": "UTF-8",
-				"line_ending": "Windows"
-			}
-		},
-		{
-			"file": "monkeyconstants.py",
-			"settings":
-			{
-				"buffer_size": 2881,
-				"encoding": "UTF-8",
+				"buffer_size": 389,
 				"line_ending": "Windows"
 			}
 		}
 	],
-	"build_system": "Anaconda Python Builder",
+	"build_system": "Packages/Python/Python.sublime-build",
 	"build_system_choices":
 	[
 		[
@@ -383,6 +458,22 @@
 				"Anaconda Python Builder",
 				""
 			]
+		],
+		[
+			[
+				[
+					"Packages/Python/Python.sublime-build",
+					""
+				],
+				[
+					"Packages/Python/Python.sublime-build",
+					"Syntax Check"
+				]
+			],
+			[
+				"Packages/Python/Python.sublime-build",
+				""
+			]
 		]
 	],
 	"build_varint": "",
@@ -393,28 +484,48 @@
 		"selected_items":
 		[
 			[
-				":w",
-				":w - Save"
-			],
-			[
 				":W",
 				":w - Save"
 			],
 			[
-				"todo",
-				"TodoReview: Open Files"
+				":",
+				":$ - EOF"
 			],
 			[
-				"instal",
+				":w",
+				":w - Save"
+			],
+			[
+				":q",
+				"RegReplace: Quick Start Guide"
+			],
+			[
+				"term",
+				"Preferences: Terminus Key Bindings"
+			],
+			[
+				"ins",
 				"Package Control: Install Package"
+			],
+			[
+				"ter",
+				"Terminus: Toggle Panel"
 			],
 			[
 				"dis",
 				"Package Control: Disable Package"
 			],
 			[
-				"ins",
+				"pakage",
+				"Package Control: Remove Package"
+			],
+			[
+				"instal",
 				"Package Control: Install Package"
+			],
+			[
+				"todo",
+				"TodoReview: Open Files"
 			],
 			[
 				"fold",
@@ -427,10 +538,6 @@
 			[
 				"unf",
 				"Unfold Comments"
-			],
-			[
-				":",
-				":w - Save"
 			],
 			[
 				"inst",
@@ -448,6 +555,30 @@
 		"height": 126.0,
 		"history":
 		[
+			"import display",
+			"import test",
+			"exit()",
+			"exit",
+			"eixt()",
+			"quit()",
+			"test",
+			"test.py",
+			"python3.6 test.py",
+			"py test.py",
+			"python test.py",
+			"?",
+			"run",
+			"display trials",
+			"run test.py",
+			"test.py",
+			"trials",
+			"a",
+			"a = 1",
+			"a",
+			" a = 1",
+			"trials",
+			"python -u \"D:\\Projects\\Python\\Thesis\\test.py\"",
+			"Running \"python\" -u \"D:\\Projects\\Python\\Thesis\\test.py\"",
 			"clear()",
 			"cleatr"
 		]
@@ -467,17 +598,26 @@
 	],
 	"file_history":
 	[
+		"/D/Projects/Python/Thesis/test.py",
+		"/D/Projects/Python/Thesis/simulation.py",
+		"/D/Projects/Python/Thesis/generator.py",
+		"/D/Projects/Python/Thesis/display.py",
+		"/C/Users/Andrea/AppData/Roaming/Sublime Text 3/Packages/User/PythonBreakpoints.sublime-settings",
+		"/C/Users/Andrea/AppData/Roaming/Sublime Text 3/Packages/User/Python.sublime-build",
+		"/D/Projects/Python/Thesis/geometry.py",
+		"/D/Projects/Python/Thesis/monkeyconstants.py",
+		"/D/Projects/Python/Thesis/dataparser.py",
+		"/D/Projects/Python/Thesis/datepath.py",
+		"/D/Projects/Python/Thesis/monkeyfile.py",
+		"/D/Projects/Python/Thesis/monkeyexceptions.py",
+		"/D/Projects/Python/Thesis/Data/Simulated/View/11_20180426_info.csv",
+		"/D/Projects/Python/Thesis/display_old.py",
+		"/D/Downloads/gvr-unity-sdk-master/README.md",
 		"/D/Projects/Python/Thesis/datepath_old.py",
 		"/C/Users/Andrea/AppData/Roaming/Sublime Text 3/Packages/User/Default (Windows).sublime-keymap",
 		"/C/Users/Andrea/AppData/Roaming/Sublime Text 3/Packages/PyDOC/Default (Windows).sublime-keymap",
 		"/C/Users/Andrea/AppData/Roaming/Sublime Text 3/Packages/Anaconda/Default (Windows).sublime-keymap",
 		"/C/Users/Andrea/AppData/Roaming/Sublime Text 3/Packages/Fold Comments/Default (Windows).sublime-keymap",
-		"/D/Projects/Python/Thesis/display.py",
-		"/D/Projects/Python/Thesis/datepath.py",
-		"/D/Projects/Python/Thesis/geometry.py",
-		"/D/Projects/Python/Thesis/monkeyexceptions.py",
-		"/D/Projects/Python/Thesis/simulation.py",
-		"/D/Projects/Python/Thesis/monkeyfile.py",
 		"/D/Projects/Python/Thesis/monkeyclassifier.py",
 		"/D/Projects/MikroC/CockpitMikroC/.gitignore",
 		"/D/Projects/MikroC/GCU Austria 2017/libs/basic.h",
@@ -507,13 +647,15 @@
 	],
 	"find":
 	{
-		"height": 34.0
+		"height": 24.0
 	},
 	"find_in_files":
 	{
 		"height": 94.0,
 		"where_history":
 		[
+			"<current file>",
+			"<curre,<current file>",
 			""
 		]
 	},
@@ -522,6 +664,25 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			", , , ,",
+			" ",
+			"mc.LOAD_SIZE",
+			"add",
+			"sees",
+			"geo.dp",
+			"inwa",
+			"inwater",
+			"isvi",
+			"sees",
+			"isVisi",
+			"isvisi",
+			"_Island",
+			"timelessInit",
+			"dp.Island",
+			"_Island",
+			"island",
+			"ISLAND",
+			"MaxITera",
 			"subpath",
 			"        @",
 			"print",
@@ -542,6 +703,15 @@
 		"regex": false,
 		"replace_history":
 		[
+			"      ",
+			", ",
+			"mc.DEF_LOAD_SIZE",
+			"dp",
+			"island",
+			"dp.Island()",
+			"dp.Island",
+			"_Island",
+			""
 		],
 		"reverse": false,
 		"show_context": true,
@@ -552,289 +722,36 @@
 	"groups":
 	[
 		{
-			"selected": 3,
+			"selected": 0,
 			"sheets":
 			[
 				{
 					"buffer": 0,
-					"file": "dataparser.py",
-					"semi_transient": false,
+					"file": "generator.py",
+					"semi_transient": true,
 					"settings":
 					{
-						"buffer_size": 8486,
+						"buffer_size": 389,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								4451,
-								4451
+								0,
+								0
 							]
 						],
 						"settings":
 						{
-							"auto_complete_triggers":
-							[
-								{
-									"characters": ".",
-									"selector": "source.python - string - comment - constant.numeric"
-								},
-								{
-									"characters": ".",
-									"selector": "source.python - string - constant.numeric"
-								},
-								{
-									"characters": ".",
-									"selector": "source.python - string - constant.numeric"
-								},
-								{
-									"characters": ".",
-									"selector": "source.python - string - constant.numeric"
-								},
-								{
-									"characters": ".",
-									"selector": "source.python - string - constant.numeric"
-								}
-							],
-							"markdonw_live_preview_last_run": 1537791239.94,
-							"syntax": "Packages/Python/Python.sublime-syntax",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 261.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 4,
-					"type": "text"
-				},
-				{
-					"buffer": 1,
-					"file": "simulation.py",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 23078,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								22426,
-								22426
-							]
-						],
-						"settings":
-						{
-							"SL.14.region_keys":
-							[
-							],
-							"SL.19.region_keys":
-							[
-							],
-							"auto_complete_triggers":
-							[
-								{
-									"characters": ".",
-									"selector": "source.python - string - comment - constant.numeric"
-								},
-								{
-									"characters": ".",
-									"selector": "source.python - string - constant.numeric"
-								},
-								{
-									"characters": ".",
-									"selector": "source.python - string - constant.numeric"
-								},
-								{
-									"characters": ".",
-									"selector": "source.python - string - constant.numeric"
-								},
-								{
-									"characters": ".",
-									"selector": "source.python - string - constant.numeric"
-								}
-							],
-							"markdonw_live_preview_last_run": 1537965831.91,
-							"syntax": "Packages/Python/Python.sublime-syntax",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 7384.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 2,
-					"type": "text"
-				},
-				{
-					"buffer": 2,
-					"file": "geometry.py",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 18002,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								2958,
-								2958
-							]
-						],
-						"settings":
-						{
-							"SL.101.region_keys":
-							[
-							],
-							"auto_complete_triggers":
-							[
-								{
-									"characters": ".",
-									"selector": "source.python - string - comment - constant.numeric"
-								},
-								{
-									"characters": ".",
-									"selector": "source.python - string - constant.numeric"
-								},
-								{
-									"characters": ".",
-									"selector": "source.python - string - constant.numeric"
-								},
-								{
-									"characters": ".",
-									"selector": "source.python - string - constant.numeric"
-								}
-							],
-							"markdonw_live_preview_last_run": 1538131990.93,
-							"syntax": "Packages/Djaneiro/Syntaxes/Python Django.tmLanguage",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 3985.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 1,
-					"type": "text"
-				},
-				{
-					"buffer": 3,
-					"file": "datepath.py",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 6220,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								5633,
-								5633
-							]
-						],
-						"settings":
-						{
-							"SL.16.region_keys":
-							[
-							],
-							"SL.52.region_keys":
-							[
-							],
-							"auto_complete_triggers":
-							[
-								{
-									"characters": ".",
-									"selector": "source.python - string - comment - constant.numeric"
-								},
-								{
-									"characters": ".",
-									"selector": "source.python - string - constant.numeric"
-								},
-								{
-									"characters": ".",
-									"selector": "source.python - string - constant.numeric"
-								}
-							],
-							"markdonw_live_preview_last_run": 1538143806.84,
-							"syntax": "Packages/Djaneiro/Syntaxes/Python Django.tmLanguage",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 2082.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 0,
-					"type": "text"
-				},
-				{
-					"buffer": 4,
-					"file": "monkeyconstants.py",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 2881,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								1099,
-								1099
-							]
-						],
-						"settings":
-						{
-							"SL.17.region_keys":
-							[
-							],
-							"auto_complete_triggers":
-							[
-								{
-									"characters": ".",
-									"selector": "source.python - string - comment - constant.numeric"
-								},
-								{
-									"characters": ".",
-									"selector": "source.python - string - constant.numeric"
-								},
-								{
-									"characters": ".",
-									"selector": "source.python - string - constant.numeric"
-								},
-								{
-									"characters": ".",
-									"selector": "source.python - string - constant.numeric"
-								},
-								{
-									"characters": ".",
-									"selector": "source.python - string - constant.numeric"
-								},
-								{
-									"characters": ".",
-									"selector": "source.python - string - constant.numeric"
-								},
-								{
-									"characters": ".",
-									"selector": "source.python - string - constant.numeric"
-								}
-							],
-							"markdonw_live_preview_last_run": 1537791239.94,
+							"markdonw_live_preview_last_run": 1539184614.35,
 							"syntax": "Packages/Python/Python.sublime-syntax"
 						},
 						"translation.x": 0.0,
-						"translation.y": 356.0,
+						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 3,
+					"stack_index": 0,
 					"type": "text"
 				}
 			]
@@ -875,11 +792,19 @@
 	{
 		"height": 0.0
 	},
+	"output.Terminus":
+	{
+		"height": 241.0
+	},
 	"output.exec":
 	{
-		"height": 122.0
+		"height": 113.0
 	},
 	"output.find_results":
+	{
+		"height": 0.0
+	},
+	"output.mdpopups":
 	{
 		"height": 0.0
 	},
@@ -887,7 +812,7 @@
 	{
 		"height": 86.0
 	},
-	"pinned_build_system": "",
+	"pinned_build_system": "Packages/User/Python.sublime-build",
 	"project": "Thesis.sublime-project",
 	"replace":
 	{
@@ -929,7 +854,7 @@
 	"show_open_files": false,
 	"show_tabs": true,
 	"side_bar_visible": true,
-	"side_bar_width": 185.0,
+	"side_bar_width": 148.0,
 	"status_bar_visible": true,
 	"template_settings":
 	{

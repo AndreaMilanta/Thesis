@@ -4,12 +4,15 @@ Creates the simulated dataset.
 Each monkey date is generated as a list of Coordinates
 
 Variables:
-    island {array} -- island with height info for each coordinate
+    dp.Island() {array} -- dp.Island() with height info for each coordinate
 """
+import pdb
+
 import numpy as np
 from enum import Enum
 import random
 import math
+from datetime import timedelta
 
 import monkeyconstants as mc
 import dataparser as dp
@@ -32,9 +35,6 @@ class Distr(Enum):
     CLUSTERED = 2
 
 
-island = dp.parseisland()
-
-
 def _checkFruitTree(p):
     """Checks whether the given tree is valid or not
     """
@@ -42,9 +42,9 @@ def _checkFruitTree(p):
         return False
     elif p.y < 0:
         return False
-    elif p.x > island.shape[0] - 1:
+    elif p.x > dp.Island().shape[0] - 1:
         return False
-    elif p.y > island.shape[1] - 1:
+    elif p.y > dp.Island().shape[1] - 1:
         return False
     elif p.z == 0:
         return False
@@ -63,23 +63,23 @@ def _checkMinDist(p, centers, min_dist):
 
 def _createCoor(xy):
     """Creates a Coordinates object from a set of points
-    if the points are outside the island z=0
+    if the points are outside the dp.Island() z=0
     """
     try:
-        return geo.Coordinates(xy[0], xy[1], island[int(xy[0]), int(xy[1])])
+        return geo.Coordinates(xy[0], xy[1], dp.Island()[int(xy[0]), int(xy[1])])
     except IndexError:
         return geo.Coordinates(xy[0], xy[1], 0)
 
 
 def buildFruitTree(density, distr, sd_factor=3, mean=None, num_clast=4, min_dist=2000):
-    """Creates the fruit trees on the island
+    """Creates the fruit trees on the dp.Island()
 
     Creates and distributes fruit tree according to parameters
     Arguments:
         density {float} -- density of fruit tree in trees/km^2
-        distr {Distr} -- distribution of fruit trees on the island (UNIFORM, NORMAL, CLUSTERED)
-            NORMAL: median on the center of the island or mean, standard deviation = mean/sd_factor
-            CLUSTERED: creates num_clast clasters randomly (uniform) distributed over the island. each cluster has a normal distribution with sd = islandside/sd_factor*num_clast
+        distr {Distr} -- distribution of fruit trees on the dp.Island() (UNIFORM, NORMAL, CLUSTERED)
+            NORMAL: median on the center of the dp.Island() or mean, standard deviation = mean/sd_factor
+            CLUSTERED: creates num_clast clasters randomly (uniform) distributed over the dp.Island(). each cluster has a normal distribution with sd = dp.Island()side/sd_factor*num_clast
         sd_factor {float} -- factor representing mean wrt standard deviation, used to compute sd {default=3}
         mean {[int, int]} -- mean of normal distribution {default=None}
         num_clast {int} -- number of cluster {default=4}
@@ -89,17 +89,17 @@ def buildFruitTree(density, distr, sd_factor=3, mean=None, num_clast=4, min_dist
         List of Coordinates -- each row containes the coordinates of a fruit tree
     """
     fruits = []
-    area = np.count_nonzero(island)
+    area = np.count_nonzero(dp.Island())
     size = int(area / 1000000 * density)     # number of trees to compute
     # Compute Trees
     if distr == Distr.UNIFORM:
         while len(fruits) < size:
-            f = [random.randint(0, island.shape[0] - 1), random.randint(0, island.shape[1] - 1)]
-            if island[f[0], f[1]] > 0:
-                fruits.append(geo.Coordinates(f[0], f[1], island[f[0], f[1]]))
+            f = [random.randint(0, dp.Island().shape[0] - 1), random.randint(0, dp.Island().shape[1] - 1)]
+            if dp.Island()[f[0], f[1]] > 0:
+                fruits.append(geo.Coordinates(f[0], f[1], dp.Island()[f[0], f[1]]))
     elif distr == Distr.NORMAL:
-        if mean is None or mean[0] < 0 or mean[1] < 0 or mean[0] > island.shape[0] - 1 or mean[1] > island.shape[1] - 1:
-            mean = [island.shape[0] / 2, island.shape[1] / 2]
+        if mean is None or mean[0] < 0 or mean[1] < 0 or mean[0] > dp.Island().shape[0] - 1 or mean[1] > dp.Island().shape[1] - 1:
+            mean = [dp.Island().shape[0] / 2, dp.Island().shape[1] / 2]
         cov = [[math.pow(mean[0] / sd_factor, 2), 0], [0, math.pow(mean[1] / sd_factor, 2)]]    # covariance matrix. Axis are independent
         fruits = np.random.multivariate_normal(mean, cov, size)
         fruits = fruits.astype(int)
@@ -108,16 +108,16 @@ def buildFruitTree(density, distr, sd_factor=3, mean=None, num_clast=4, min_dist
     elif distr == Distr.CLUSTERED:
         clst = []
         while len(clst) < num_clast:
-            c = [random.randint(0, island.shape[0] - 1), random.randint(0, island.shape[1] - 1)]
-            if island[c[0], c[1]] > 0:
-                p = geo.Coordinates(c[0], c[1], island[c[0], c[1]])
+            c = [random.randint(0, dp.Island().shape[0] - 1), random.randint(0, dp.Island().shape[1] - 1)]
+            if dp.Island()[c[0], c[1]] > 0:
+                p = geo.Coordinates(c[0], c[1], dp.Island()[c[0], c[1]])
                 if not _checkMinDist(p, clst, min_dist):
                     continue
                 clst.append(p)
         for c in clst:
             c_fruits = []
             mean = [c.x, c.y]
-            cov = [[math.pow(island.shape[0] / (sd_factor * num_clast), 2), 0], [0, math.pow(island.shape[1] / (sd_factor * num_clast), 2)]]    # covariance matrix. Axis are independent
+            cov = [[math.pow(dp.Island().shape[0] / (sd_factor * num_clast), 2), 0], [0, math.pow(dp.Island().shape[1] / (sd_factor * num_clast), 2)]]    # covariance matrix. Axis are independent
             c_fruits = np.random.multivariate_normal(mean, cov, int(size / num_clast))
             c_fruits = c_fruits.astype(int)
             c_fruits = [_createCoor(x) for x in c_fruits]
@@ -144,21 +144,21 @@ def _createP2RPath(orig, speed, angle, fruits, ignores):
     path = [orig]                 # path only contains origin
     spds = np.array([])           # initialize speeds array
     agls = np.array([])           # initialize angles array
-    load_index = mc.LOAD_SIZE          # initialize loop counter for load size (decrementing)
+    load_index = mc.DEF_LOAD_SIZE          # initialize loop counter for load size (decrementing)
     angl_delta = mc.WATER_SHIFT   # additional angle delta to avoid water
     water_index = 0               # counter of water avoidance trials
     counter = 0                   # counter of all points computed
     valid_cnt = 0                 # counter of valid points computed
 
     # generation loop
-    f = p.sees(fruits, p, ignores)
+    f = p.sees(fruits, dp.Island(), p, ignores)
     # generation loop (continues until a tree is seen)
     while(f is None and counter < mc.MAX_ITERATIONS):
         # Compute speed and angles for the next LOAD_SIZE rounds.
-        if load_index == mc.LOAD_SIZE:
+        if load_index == mc.DEF_LOAD_SIZE:
             agl = np.random.normal(0, 360, 1)
-            spds = np.random.normal(speed[0], speed[1], mc.LOAD_SIZE)
-            agls = np.random.normal(agl, angle, mc.LOAD_SIZE)
+            spds = np.random.normal(speed[0], speed[1], mc.DEF_LOAD_SIZE)
+            agls = np.random.normal(agl, angle, mc.DEF_LOAD_SIZE)
             load_index = 0
         # Compute next point
         delta = geo.unit()
@@ -168,8 +168,8 @@ def _createP2RPath(orig, speed, angle, fruits, ignores):
         nxt = p.add(delta)
         counter = counter + 1                                                        # DEBUG!!!
         # Check if next point is on water or path goes through water
-        nxt.z = geo.ISLAND[int(nxt.x), int(nxt.y)]
-        if nxt.z == 0 or p.inWater(nxt):
+        nxt.z = dp.Island()[int(nxt.x), int(nxt.y)]
+        if nxt.z == 0 or p.inWater(nxt, dp.Island()):
             raise me.PathOnWaterException()                                 # If on water "Cancel"
             print("WARNING: direct path goes into water")
             if water_index > 180 / mc.WATER_SHIFT:
@@ -182,7 +182,7 @@ def _createP2RPath(orig, speed, angle, fruits, ignores):
             continue
         # add point to path
         path.append(nxt)                    # append new valid point to path
-        f = nxt.sees(fruits, p, ignores)    # check if fruit tree is visible from new point
+        f = nxt.sees(fruits, dp.Island(), p, ignores)    # check if fruit tree is visible from new point
         # handle loop variables
         p = nxt
         water_index = 0
@@ -191,7 +191,7 @@ def _createP2RPath(orig, speed, angle, fruits, ignores):
 
     # if max iterations reached throw exception
     if counter == mc.MAX_ITERATIONS:
-        raise me.MaxIterationsReached()
+        raise me.MaxIterationsReachedException()
     # if no tree found
     if f is None:
         print("No tree visible")
@@ -235,8 +235,8 @@ def _createP2PPath(orig, dest, speed, angle):
         nxt = p.add(delta)
         counter = counter + 1                                                        # DEBUG!!!
         # Check if next point is on water or path goes through water
-        nxt.z = geo.ISLAND[int(nxt.x), int(nxt.y)]
-        if nxt.z == 0 or p.inWater(nxt):
+        nxt.z = dp.Island()[int(nxt.x), int(nxt.y)]
+        if nxt.z == 0 or p.inWater(nxt, dp.Island()):
             raise me.PathOnWaterException()                     # Raise path on water Exception and stop path creation
             print("WARNING: direct path goes into water")
             # if water_index > 180 / WATER_SHIFT:
@@ -257,7 +257,7 @@ def _createP2PPath(orig, dest, speed, angle):
     # print("Direct Counter " + str(counter))                                       # DEBUG!!!
     # if max iterations reached throw exception
     if counter == mc.MAX_ITERATIONS:
-        raise me.MaxIterationsReached()
+        raise me.MaxIterationsReachedException()
     path.append(dest)
     return path
 
@@ -265,7 +265,15 @@ def _createP2PPath(orig, dest, speed, angle):
 def _createDirect(orig, dest):
     """Created direct path from orig to dest
     """
-    return _createP2PPath(orig, dest, [mc.DRT_VEL_EV, mc.DRT_VEL_SD], mc.DRT_ANG_SD)
+    trials = 0
+    while trials < 100:
+        try:
+            return _createP2PPath(orig, dest, [mc.DRT_VEL_EV, mc.DRT_VEL_SD], mc.DRT_ANG_SD)
+        except me.PathOnWaterException as powe:
+            trials += 1
+        except:
+            pass
+    return [orig]
 
 
 def _createRandom(orig, fruits, ignores):
@@ -304,17 +312,22 @@ def createViewPath(orig, fruits, ignores, split=False):
         return path.extend(direct)
 
 
-def createViewDate(orig, fruits, totaltime):
+def createViewDate(fruits, orig=None, totaltime=mc.DATE_DURATION_MIN, startTime=mc.INIT_TIME):
     """Computes the path for a date according to the view model
 
     Arguments:
         orig {Coordinates} -- starting point
         fruits {List[Coordinates]} -- set of fruit trees
         totaltime {float} -- duration of day in minutes
+        startTime {time} -- timestamp of first point.   {Default: mc.INIT_TIME}
 
     Returns:
         List[Coordinates] -- List of coordinates
     """
+    # Compute origin if none
+    if orig is None:
+        p = np.random.normal(2000, 500, [1, 2])[0]
+        orig = geo.Coordinates(p[0], p[1], dp.Island()[int(p[0]), int(p[1])])
     # Variable initialization
     tot_steps = totaltime * 60 / mc.DT  # Duration of day expressed as number of datapoints
     path = []           # path initially empty
@@ -322,6 +335,7 @@ def createViewDate(orig, fruits, totaltime):
     start = orig
     ignores = [start]   # add start to list of destination to ignore
     # generation loop
+    print("orig is " + str(orig.xyz))
     while curr_steps < tot_steps:
         curr_path = createViewPath(start, fruits, ignores)      # generate a path
         # if path goes on water
@@ -340,24 +354,35 @@ def createViewDate(orig, fruits, totaltime):
         # handle loop values
         curr_steps = curr_steps + len(curr_path)
 
-    # cut path to tot_step
+    # add timing
+    delta = timedelta(seconds=mc.DT)
+    time = startTime
+    for p in path[0:tot_steps]:
+        p.set_time(time.time())
+        time = time + delta
+    # cut to tot_steps
     return path[0:tot_steps]
 
 
-def createMemoryDate(orig, fruits, totaltime, max_mem_range=2000):
+def createMemoryDate(fruits, orig=None, totaltime=mc.DATE_DURATION_MIN, startTime=mc.INIT_TIME, max_mem_range=2000):
     """Computes the path for a date according to the memory model
 
     Arguments:
-        orig {Coordinates} -- starting point
         fruits {List[Coordinates]} -- set of fruit trees
-        totaltime {float} -- duration of day in minutes
 
     Keyword Arguments:
+        orig {Coordinates} -- starting point of hanging. If None choose random.  {Default: None}
+        totaltime {float} -- duration of day in minutes.  {Default: mc.DATE_DURATION_MIN}
+        startTime {time} -- timestamp of first point.   {Default: mc.INIT_TIME}
         max_mem_range {float} -- maximum bird's-eye distance from fruit tree to next fruit tree in path (default: {2000})
 
     Returns:
         List[Coordinates] -- List of coordinates
     """
+    # Compute origin if none
+    if orig is None:
+        p = np.random.normal(2000, 500, [1, 2])[0]
+        orig = geo.Coordinates(p[0], p[1], dp.Island()[int(p[0]), int(p[1])])
     # Variale initialization
     tot_steps = totaltime * 60 / mc.DT  # Duration of day expressed as number of datapoints
     path = []       # path is initially empty
@@ -402,7 +427,13 @@ def createMemoryDate(orig, fruits, totaltime, max_mem_range=2000):
         if curr_steps > tot_steps:
             break
 
-    # cut path to tot_step
+    # add timing
+    delta = timedelta(seconds=mc.DT)
+    time = startTime
+    for p in path[0:tot_steps]:
+        p.set_time(time.time())
+        time = time + delta
+    # cut to tot_steps
     return path[0:tot_steps]
 
 
@@ -411,7 +442,7 @@ def hangAround(orig, fruit, maxradius=mc.FRT_HANG_RAD, time=[mc.FRT_HANG_MINTIME
     """ Create hanging pattern around fruit tree
 
     Arguments:
-        orig {Coordinates} -- starting point of hanging
+        orig {Coordinates} -- starting point of hanging.
         fruit {Coordinates} -- fruit tree around which to hang
 
     Keyword Arguments:
@@ -426,7 +457,7 @@ def hangAround(orig, fruit, maxradius=mc.FRT_HANG_RAD, time=[mc.FRT_HANG_MINTIME
     """
     # Values initialization
     hangtime = int(np.random.uniform(time[0], time[0], 1))   # get random hang duration
-    tot_steps = hangtime * 60 / mc.DT  # Duration of hanging expressed as number of datapoints
+    tot_steps = int(hangtime * 60 / mc.DT)  # Duration of hanging expressed as number of datapoints
     path = []       # hanging path is initially empty
     curr_steps = 0      # step (datapoint) counter
     current = orig
@@ -449,7 +480,7 @@ def hangAround(orig, fruit, maxradius=mc.FRT_HANG_RAD, time=[mc.FRT_HANG_MINTIME
         if current.distance(fruit) < mc.FRT_HANG_RAD \
                 or (expand and not filter(lambda x: x < mc.FRT_HANG_RAD, current.distance(fruits))):
             current = nxt
-            path.add(current)
+            path.append(current)
             curr_steps = curr_steps + 1
         else:
             # regenerate random params
@@ -461,7 +492,7 @@ def hangAround(orig, fruit, maxradius=mc.FRT_HANG_RAD, time=[mc.FRT_HANG_MINTIME
 
     # check if overflow of iterations
     if trials >= mc.MAX_ITERATIONS:
-        raise me.MaxIterationsReached()
+        raise me.MaxIterationsReachedException()
     return path
 
 
