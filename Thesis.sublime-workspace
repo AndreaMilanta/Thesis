@@ -4,6 +4,14 @@
 		"selected_items":
 		[
 			[
+				"fruit",
+				"fruitsize"
+			],
+			[
+				"s",
+				"show"
+			],
+			[
 				"a",
 				"arrayManipulation"
 			],
@@ -26,10 +34,6 @@
 			[
 				"disp",
 				"display\tfunction"
-			],
-			[
-				"fruit",
-				"fruits"
 			],
 			[
 				"date",
@@ -431,7 +435,44 @@
 			"file": "generator.py",
 			"settings":
 			{
-				"buffer_size": 389,
+				"buffer_size": 513,
+				"encoding": "UTF-8",
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "simulation.py",
+			"settings":
+			{
+				"buffer_size": 24872,
+				"encoding": "UTF-8",
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "display.py",
+			"settings":
+			{
+				"buffer_size": 6735,
+				"encoding": "UTF-8",
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "datepath.py",
+			"settings":
+			{
+				"buffer_size": 15413,
+				"encoding": "UTF-8",
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "monkeyconstants.py",
+			"settings":
+			{
+				"buffer_size": 2976,
+				"encoding": "UTF-8",
 				"line_ending": "Windows"
 			}
 		}
@@ -488,12 +529,12 @@
 				":w - Save"
 			],
 			[
-				":",
-				":$ - EOF"
-			],
-			[
 				":w",
 				":w - Save"
+			],
+			[
+				":",
+				":$ - EOF"
 			],
 			[
 				":q",
@@ -598,6 +639,7 @@
 	],
 	"file_history":
 	[
+		"/D/Projects/Python/Thesis/datepath_old.py",
 		"/D/Projects/Python/Thesis/test.py",
 		"/D/Projects/Python/Thesis/simulation.py",
 		"/D/Projects/Python/Thesis/generator.py",
@@ -613,7 +655,6 @@
 		"/D/Projects/Python/Thesis/Data/Simulated/View/11_20180426_info.csv",
 		"/D/Projects/Python/Thesis/display_old.py",
 		"/D/Downloads/gvr-unity-sdk-master/README.md",
-		"/D/Projects/Python/Thesis/datepath_old.py",
 		"/C/Users/Andrea/AppData/Roaming/Sublime Text 3/Packages/User/Default (Windows).sublime-keymap",
 		"/C/Users/Andrea/AppData/Roaming/Sublime Text 3/Packages/PyDOC/Default (Windows).sublime-keymap",
 		"/C/Users/Andrea/AppData/Roaming/Sublime Text 3/Packages/Anaconda/Default (Windows).sublime-keymap",
@@ -647,7 +688,7 @@
 	],
 	"find":
 	{
-		"height": 24.0
+		"height": 34.0
 	},
 	"find_in_files":
 	{
@@ -664,6 +705,13 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"delta",
+			"time",
+			".time",
+			"time",
+			"curr_steps",
+			"orig is",
+			"origi is",
 			", , , ,",
 			" ",
 			"mc.LOAD_SIZE",
@@ -722,36 +770,365 @@
 	"groups":
 	[
 		{
-			"selected": 0,
+			"selected": 1,
 			"sheets":
 			[
 				{
 					"buffer": 0,
 					"file": "generator.py",
-					"semi_transient": true,
+					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 389,
+						"buffer_size": 513,
 						"regions":
 						{
+							"bp-34574180":
+							{
+								"flags": 16,
+								"icon": "Packages/Theme - Default/common/circle.png",
+								"regions":
+								[
+									[
+										193,
+										193
+									]
+								],
+								"scope": "invalid"
+							}
 						},
 						"selection":
 						[
 							[
-								0,
-								0
+								190,
+								190
 							]
 						],
 						"settings":
 						{
-							"markdonw_live_preview_last_run": 1539184614.35,
+							"markdonw_live_preview_last_run": 1539602069.85,
 							"syntax": "Packages/Python/Python.sublime-syntax"
 						},
 						"translation.x": 0.0,
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
+					"stack_index": 2,
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "simulation.py",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 24872,
+						"regions":
+						{
+							"bp-3ed4becb":
+							{
+								"flags": 16,
+								"icon": "Packages/Theme - Default/common/circle.png",
+								"regions":
+								[
+									[
+										15594,
+										15594
+									]
+								],
+								"scope": "invalid"
+							},
+							"bp-641c6130":
+							{
+								"flags": 16,
+								"icon": "Packages/Theme - Default/common/circle.png",
+								"regions":
+								[
+									[
+										12964,
+										13022
+									]
+								],
+								"scope": "invalid"
+							},
+							"bp-763b01c8":
+							{
+								"flags": 16,
+								"icon": "Packages/Theme - Default/common/circle.png",
+								"regions":
+								[
+									[
+										20173,
+										20235
+									]
+								],
+								"scope": "invalid"
+							},
+							"bp-a9899493":
+							{
+								"flags": 16,
+								"icon": "Packages/Theme - Default/common/circle.png",
+								"regions":
+								[
+									[
+										19443,
+										19443
+									]
+								],
+								"scope": "invalid"
+							},
+							"bp-b8500a06":
+							{
+								"flags": 16,
+								"icon": "Packages/Theme - Default/common/circle.png",
+								"regions":
+								[
+									[
+										15417,
+										15417
+									]
+								],
+								"scope": "invalid"
+							},
+							"bp-bf1499e5":
+							{
+								"flags": 16,
+								"icon": "Packages/Theme - Default/common/circle.png",
+								"regions":
+								[
+									[
+										20137,
+										20137
+									]
+								],
+								"scope": "invalid"
+							},
+							"bp-d022ae2e":
+							{
+								"flags": 16,
+								"icon": "Packages/Theme - Default/common/circle.png",
+								"regions":
+								[
+									[
+										18738,
+										18738
+									]
+								],
+								"scope": "invalid"
+							},
+							"bp-d8271174":
+							{
+								"flags": 16,
+								"icon": "Packages/Theme - Default/common/circle.png",
+								"regions":
+								[
+									[
+										19188,
+										19188
+									]
+								],
+								"scope": "invalid"
+							},
+							"bp-ee1e9606":
+							{
+								"flags": 16,
+								"icon": "Packages/Theme - Default/common/circle.png",
+								"regions":
+								[
+									[
+										16744,
+										16744
+									]
+								],
+								"scope": "invalid"
+							},
+							"bp-f77a97b5":
+							{
+								"flags": 16,
+								"icon": "Packages/Theme - Default/common/circle.png",
+								"regions":
+								[
+									[
+										16700,
+										16700
+									]
+								],
+								"scope": "invalid"
+							}
+						},
+						"selection":
+						[
+							[
+								19099,
+								19099
+							]
+						],
+						"settings":
+						{
+							"SL.33.region_keys":
+							[
+							],
+							"markdonw_live_preview_last_run": 1539602246.53,
+							"syntax": "Packages/Python/Python.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 5412.0,
+						"zoom_level": 1.0
+					},
 					"stack_index": 0,
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "display.py",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 6735,
+						"regions":
+						{
+							"bp-4e998ccd":
+							{
+								"flags": 16,
+								"icon": "Packages/Theme - Default/common/circle.png",
+								"regions":
+								[
+									[
+										1339,
+										1339
+									]
+								],
+								"scope": "invalid"
+							},
+							"bp-bc2112d3":
+							{
+								"flags": 16,
+								"icon": "Packages/Theme - Default/common/circle.png",
+								"regions":
+								[
+									[
+										1311,
+										1311
+									]
+								],
+								"scope": "invalid"
+							}
+						},
+						"selection":
+						[
+							[
+								334,
+								334
+							]
+						],
+						"settings":
+						{
+							"SL.82.region_keys":
+							[
+							],
+							"markdonw_live_preview_last_run": 1539606083.94,
+							"syntax": "Packages/Python/Python.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 156.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "datepath.py",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 15413,
+						"regions":
+						{
+							"bp-b0d3784e":
+							{
+								"flags": 16,
+								"icon": "Packages/Theme - Default/common/circle.png",
+								"regions":
+								[
+									[
+										3511,
+										3511
+									]
+								],
+								"scope": "invalid"
+							},
+							"bp-ecc6c163":
+							{
+								"flags": 16,
+								"icon": "Packages/Theme - Default/common/circle.png",
+								"regions":
+								[
+									[
+										2742,
+										2742
+									]
+								],
+								"scope": "invalid"
+							}
+						},
+						"selection":
+						[
+							[
+								13374,
+								13374
+							]
+						],
+						"settings":
+						{
+							"SL.41.region_keys":
+							[
+							],
+							"markdonw_live_preview_last_run": 1539602724.66,
+							"syntax": "Packages/Python/Python.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 4033.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 4,
+					"type": "text"
+				},
+				{
+					"buffer": 4,
+					"file": "monkeyconstants.py",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 2976,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1702,
+								1702
+							]
+						],
+						"settings":
+						{
+							"SL.32.region_keys":
+							[
+							],
+							"markdonw_live_preview_last_run": 1539602244.43,
+							"syntax": "Packages/Python/Python.sublime-syntax"
+						},
+						"translation.x": 0.0,
+						"translation.y": 670.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 3,
 					"type": "text"
 				}
 			]

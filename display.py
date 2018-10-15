@@ -9,6 +9,7 @@ Variables:
 from matplotlib import pyplot as plt
 from colormap import rgb2hex
 import dataparser as dp
+import monkeyconstants as mc
 
 
 def display(path, index=None, color='#FFFFFF', show=True):
@@ -32,13 +33,15 @@ def display(path, index=None, color='#FFFFFF', show=True):
     if not isinstance(color, str):
         color = rgb2hex(color[0], color[1], color[2])
     # display
-    plt.plot(path.x, path.y, color)
+    px = list(p.x for p in path)
+    py = list(p.y for p in path)
+    plt.plot(px, py, color)
     plt.draw()
     if show:
         plt.show()
 
 
-def display_island(index=None, f_color='#FFFFFF', show=True, fruits=None):
+def display_island(index=None, f_color='#FFFFFF', show=True, fruits=None, fruitsize=mc.FRUIT_RADIUS):
     """ displays the island with fruit trees
 
     Keyword Arguments;
@@ -60,7 +63,7 @@ def display_island(index=None, f_color='#FFFFFF', show=True, fruits=None):
     if fruits is not None:
         ax = plt.gca()
         for f in fruits:
-            c = plt.Circle((f.x, f.y), radius=7, color=f_color)
+            c = plt.Circle((f.x, f.y), radius=fruitsize/2, color=f_color)
             ax.add_patch(c)
     plt.axis('scaled')
     plt.draw()

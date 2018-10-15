@@ -12,7 +12,7 @@ import numpy as np
 from enum import Enum
 import random
 import math
-from datetime import timedelta
+from datetime import date, datetime, time, timedelta
 
 import monkeyconstants as mc
 import dataparser as dp
@@ -335,6 +335,7 @@ def createViewDate(fruits, orig=None, totaltime=mc.DATE_DURATION_MIN, startTime=
     start = orig
     ignores = [start]   # add start to list of destination to ignore
     # generation loop
+    import pdb; pdb.set_trace()  # breakpoint 641c6130 //
     print("orig is " + str(orig.xyz))
     while curr_steps < tot_steps:
         curr_path = createViewPath(start, fruits, ignores)      # generate a path
@@ -356,10 +357,10 @@ def createViewDate(fruits, orig=None, totaltime=mc.DATE_DURATION_MIN, startTime=
 
     # add timing
     delta = timedelta(seconds=mc.DT)
-    time = startTime
+    dtime = datetime.combine(date.today(),startTime)
     for p in path[0:tot_steps]:
-        p.set_time(time.time())
-        time = time + delta
+        p.set_time(dtime.time())
+        dtime = dtime + delta
     # cut to tot_steps
     return path[0:tot_steps]
 
@@ -384,9 +385,8 @@ def createMemoryDate(fruits, orig=None, totaltime=mc.DATE_DURATION_MIN, startTim
         p = np.random.normal(2000, 500, [1, 2])[0]
         orig = geo.Coordinates(p[0], p[1], dp.Island()[int(p[0]), int(p[1])])
     # Variale initialization
-    tot_steps = totaltime * 60 / mc.DT  # Duration of day expressed as number of datapoints
+    tot_steps = int(totaltime * 60 / mc.DT)  # Duration of day expressed as number of datapoints
     path = []       # path is initially empty
-    curr_steps = 0      # step (datapoint) counter
     start = orig
     ignores = [start]   # add start to list of destination to ignore
     curr_plan = 0       # counter of planned steps (shortest path)
@@ -418,21 +418,21 @@ def createMemoryDate(fruits, orig=None, totaltime=mc.DATE_DURATION_MIN, startTim
             ignores.append(start)
             start = curr_path[-1]
             # add hanging around fruit tree
-            curr_path = hangAround(start, start, fruits=fruits)
+            curr_path = hangAround(start, start, fruits=fruits, expand=False)
             path.extend(curr_path)
             ignores.append(start)
             start = curr_path[-1]
-            if curr_steps > tot_steps:
+            if len(path) > tot_steps:
                 break
-        if curr_steps > tot_steps:
+        if len(path) > tot_steps:
             break
 
     # add timing
     delta = timedelta(seconds=mc.DT)
-    time = startTime
+    dtime = datetime.combine(date.today(),startTime)
     for p in path[0:tot_steps]:
-        p.set_time(time.time())
-        time = time + delta
+        p.set_time(dtime.time())
+        dtime = dtime + delta
     # cut to tot_steps
     return path[0:tot_steps]
 
@@ -465,8 +465,12 @@ def hangAround(orig, fruit, maxradius=mc.FRT_HANG_RAD, time=[mc.FRT_HANG_MINTIME
 
     # generate randomic params
     spds = np.random.normal(vel[0], vel[1], tot_steps)  # list of speeds for each datapoint
-    agls = np.random.uniform(0, 360, tot_steps)         # list of angles for each datapoint
+    agls = np.random.uniform(180, 360, tot_steps)         # list of angles for each datapoint
     # noise = np.random.uniform(0, 2, tot_steps)          # random noise
+
+    # TODO
+    # print spds e agls per capire come mai non hanga
+    #
     noise = 1      # null noise. Currently deemed not necessary
 
     # generation loop
@@ -478,7 +482,7 @@ def hangAround(orig, fruit, maxradius=mc.FRT_HANG_RAD, time=[mc.FRT_HANG_MINTIME
         nxt = current.add(delta)
         # Check if next point is close to fruit tree or if next point is close to any fruit tree and expand
         if current.distance(fruit) < mc.FRT_HANG_RAD \
-                or (expand and not filter(lambda x: x < mc.FRT_HANG_RAD, current.distance(fruits))):
+                or (expand and filter(lambda x: x < mc.FRT_HANG_RAD, current.distance(fruits))):
             current = nxt
             path.append(current)
             curr_steps = curr_steps + 1
@@ -492,7 +496,9 @@ def hangAround(orig, fruit, maxradius=mc.FRT_HANG_RAD, time=[mc.FRT_HANG_MINTIME
 
     # check if overflow of iterations
     if trials >= mc.MAX_ITERATIONS:
+        import pdb; pdb.set_trace()  # breakpoint 763b01c8 //
         raise me.MaxIterationsReachedException()
+    print("hang length: " + str(len(path)))
     return path
 
 
