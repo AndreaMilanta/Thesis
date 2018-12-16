@@ -11,19 +11,50 @@ import monkeyconstants as mc
 class Coordinates:
     """Represents a point coordinate with time information
     """
+    @property
+    def iz(self):
+        return int(self.z)
+
+    @property
+    def xy(self):
+        return [self.x, self.y]
+
+    @property
+    def xz(self):
+        return [self.x, self.z]
+
+    @property
+    def yz(self):
+        return [self.x, self.z]
+
+    @property
+    def xiz(self):
+        return [self.x, int(self.z)]
+
+    @property
+    def yiz(self):
+        return [self.x, int(self.z)]
+
+    @property
+    def xyz(self):
+        return [self.x, self.y, self.z]
+
+    @property
+    def xyiz(self):
+        return [self.x, self.y, int(self.z)]
+
+    @property
+    def xyzt(self):
+        return [self.x, self.y, self.z, self.time]
+
+    @property
+    def xyizt(self):
+        return [self.x, self.y, int(self.z), self.time]
 
     def __init__(self, x, y, z, time=None):
         self.x = x
         self.y = y
         self.z = z
-        self.iz = int(z)
-        self.xy = [x, y]
-        self.xz = [x, z]
-        self.yz = [y, z]
-        self.xiz = [x, int(z)]
-        self.yiz = [y, int(z)]
-        self.xyz = [x, y, z]
-        self.xyiz = [x, y, int(z)]
         self.set_time(time)
 
     def __eq__(self, other):
@@ -33,14 +64,18 @@ class Coordinates:
         return self.__str__()
 
     def __str__(self):
-        return str(self.xyz)
+        if (self.time is None):
+            return str(f"[{self.x:.2f}, {self.y:.2f}, {self.z:.2f}]")
+        else:
+            return str(f"[{self.x:.2f}, {self.y:.2f}, {self.z:.2f} - {self.time}]")
+
+    def clone(self):
+        return Coordinates(self.x, self.y, self.z, time=self.time)
 
     def set_time(self, time):
         """Assign a timestamp to point
         """
         self.time = time
-        self.xyzt = [self.x, self.y, self.z, self.time]
-        self.xyizt = [self.x, self.y, int(self.z), self.time]
 
     def equals(self, p, ignore_z=False, ignore_t=True):
         """determines whether 2 points are equals
@@ -48,15 +83,20 @@ class Coordinates:
         Keyword Arguments:
             ignore_z {bool} -- ignore z in the comparison (default: {False})
         """
+        if p is None:
+            return False
         return self.x == p.x and self.y == p.y and (ignore_z or self.z == p.z) and (ignore_t or self.time == p.time)
 
-    def distance(self, p, ignore_z=False):
-        """Euclidean distance from the parameter point
+    def distance(self, p, ignore_z=False, noneValue=None):
+        """ Euclidean distance from the parameter point
 
         Keyword Arguments:
             ignore_z {Boolean} -- ignore z dimension and work only on xy plane projection (default: False)
+            noneValue {float}  -- value to return if parameter point is None. (default: None)
         """
         # Case p is list of points
+        if p is None:
+            return noneValue;
         if isinstance(p, list):
             distances = []                      # array of distances
             for point in p:
@@ -158,51 +198,82 @@ class Coordinates:
         sin = math.sqrt(1 - math.pow(cos, 2))
         return [sin, cos]
 
-    def diff(self, p, ignore_z=False):
+    def diff(self, p, ignore_z=False, inplace=True):
         """Return the vector of the difference between p and caller
 
         Keyword Arguments:
             ignore_z {bool} -- ignore z in the computation (default: {False})
-
-        Returns:
-            [Coordinates] -- Point representing the vector of the difference
+            inplace {bool} -- modify caller  {Default: True}
         """
         if ignore_z:
+            if inplace:
+                self.x = p.x - self.x
+                self.y = p.y - self.y
+                self.z = 0
             return Coordinates(p.x - self.x, p.y - self.y, 0)
         else:
+            if inplace:
+                self.x = p.x - self.x
+                self.y = p.y - self.y
+                self.z = p.z - self.z
             return Coordinates(p.x - self.x, p.y - self.y, p.z - self.z)
 
-    def add(self, p, ignore_z=False):
+    def add(self, p, ignore_z=False, inplace=True):
         """Return the point resulting in the sum of p and caller
 
         Keyword Arguments:
             ignore_z {bool} -- ignore z in the computation (default: {False})
+            inplace {bool} -- modify caller  {Default: True}
         """
         if ignore_z:
+            if inplace:
+                self.x += p.x
+                self.y += p.y
             return Coordinates(p.x + self.x, p.y + self.y, 0)
         else:
+            if inplace:
+                self.x += p.x
+                self.y += p.y
+                self.z += p.z
             return Coordinates(p.x + self.x, p.y + self.y, p.z + self.z)
 
-    def scale(self, factor):
+    def scale(self, factor, inplace=True):
         """Scales the caller's coordinates of factor
-        """
-        self.x = self.x * factor
-        self.y = self.y * factor
-        self.z = self.z * factor
-        return Coordinates(self.x, self.y, self.z)
 
-    def rotate(self, deg):
+        Arguments:
+            factor {float} -- scaling factor
+
+        Keyword Arguments:
+            inplace {bool} -- modify caller  {Default: True}
+        """
+        if inplace:
+            self.x = self.x * factor
+            self.y = self.y * factor
+            self.z = self.z * factor
+            return Coordinates(self.x, self.y, self.z)
+        else:
+            return Coordinates(self.x * factor, self.y * factor, self.z * factor)
+
+    def rotate(self, deg, inplace=True):
         """Rotates the vector of deg degrees (0-360°)
 
         Positive deg is counterclockwise rotation
         Negative deg is clockwise rotation
+
+        Arguments:
+            deg {float} -- rotation angle
+
+        Keyword Arguments:
+            inplace {bool} -- modify caller  {Default: True}
         """
         sin = math.sin(math.radians(-deg))
         cos = math.cos(math.radians(-deg))
         matrix = np.array([[cos, -sin], [sin, cos]])
         coor = np.array([self.x, self.y])
         rot_coor = matrix.dot(coor)
-        self = Coordinates(rot_coor[0], rot_coor[1], self.z)
+        if inplace:
+            self.x = rot_coor[0]
+            self.y = rot_coor[1]
         return Coordinates(rot_coor[0], rot_coor[1], self.z)
 
     def within(self, pts, dest, radius, ignore_z=False, stop_on_found=True):
@@ -261,7 +332,7 @@ class Coordinates:
         """
         # sin = math.sin(mc.FOV / 2)
         cos = math.cos(mc.FOV / 2)
-        cont = self.add(previous.diff(self))
+        cont = self.add(previous.diff(self, inplace=False), inplace=False)
         # lst = filter(lambda x: self.distance(x) < mc.VIEW_MAX_RANGE, fruits)
         # lst = filter(lambda x: self.distance(x) < mc.VIEW_MIN_RANGE or
         #              (self.distance(x) < mc.VIEW_MAX_RANGE and abs(cont.angle(x, self, ignore_z=True)[0]) < sin and
@@ -294,8 +365,11 @@ class Coordinates:
         Returns:
             visible {Boolean} -- The point is visible
         """
+        # check if parameter is None
+        if p is None:
+            return False
         # check if fruit tree too close
-        delta = self.diff(p)
+        delta = self.diff(p, inplace=False)
         dist = delta.mag()
         if(dist < min_range):
             # print("Tree too close found")             # DEBUG!!!!
@@ -304,13 +378,13 @@ class Coordinates:
         # check if p in FOV if next available
         if next is not None:
             cos = math.cos(FOV / 2)
-            cont = self.add(self.diff(next))
+            cont = self.add(self.diff(next, inplace=False), inplace=False)
             if not cont.angle(p, self, ignore_z=True)[1] < -cos:
                 return False
 
         # check if visible
         dist -= min_range
-        unit = delta.scale(1 / dist)
+        unit = delta.scale(1 / dist, inplace=False)
         steps = 0
         temp = self
         while steps < dist:
@@ -363,14 +437,14 @@ class Coordinates:
         Returns:
             bool -- true if path goes through water
         """
-        delta = self.diff(p)
+        delta = self.diff(p, inplace=False)
         dist = delta.mag()
-        unit = delta.scale(1 / dist)
+        delta.scale(1 / dist)
         steps = 0
         temp = self
         while steps < dist:
             steps = steps + 1
-            temp = temp.add(unit)
+            temp.add(delta, inplace=True)
             tl = [math.ceil(temp.x), math.floor(temp.y)]
             tr = [math.ceil(temp.x), math.ceil(temp.y)]
             br = [math.floor(temp.x), math.ceil(temp.y)]

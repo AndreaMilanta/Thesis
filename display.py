@@ -12,7 +12,7 @@ import dataparser as dp
 import monkeyconstants as mc
 
 
-def display(path, index=None, color='#FFFFFF', show=True):
+def display(path, index=None, color='#FFFFFF', show=True, block=True):
     """ displays a path
 
     if a valid index is passed, the image is created with the island as background
@@ -25,7 +25,10 @@ def display(path, index=None, color='#FFFFFF', show=True):
         [color {'hex'} -- color of displayed path.  {Default: '#FFFFFF'}]
         [color {[int,int,int]} -- color of displayed path. is converted to HEX]
         show {boolean} -- whether to immediately show the figure or not.  {Default: True}
+        block {boolean} -- whether the figure blocks the excution.  {Default: True}
     """
+    # reset block
+    plt.ioff()
     # create figure if requested and add Island background
     if index is not None:
         display_island(index, show=False)
@@ -37,11 +40,16 @@ def display(path, index=None, color='#FFFFFF', show=True):
     py = list(p.y for p in path)
     plt.plot(px, py, color)
     plt.draw()
+    # optional
     if show:
+        if block:
+            plt.ioff()
+        else:
+            plt.ion()
         plt.show()
 
 
-def display_island(index=None, f_color='#FFFFFF', show=True, fruits=None, fruitsize=mc.FRUIT_RADIUS):
+def display_island(index=None, f_color='#FFFFFF', show=True, fruits=None, fruitsize=mc.FRUIT_RADIUS, block=True):
     """ displays the island with fruit trees
 
     Keyword Arguments;
@@ -50,7 +58,10 @@ def display_island(index=None, f_color='#FFFFFF', show=True, fruits=None, fruits
         [f_color {[int,int,int]} -- color of fruit trees. is converted to HEX]
         show {boolean} -- whether to immediately show the figure or not.  {Default: True}
         fruits {List[Coordinates]} -- list of fruits
+        block {boolean} -- whether the figure blocks the excution.  {Default: True}
     """
+    # reset block
+    plt.ioff()
     # create figure if requested
     if index is not None:
         plt.figure(index)
@@ -61,18 +72,63 @@ def display_island(index=None, f_color='#FFFFFF', show=True, fruits=None, fruits
     plt.imshow(dp.Island().transpose())
     # display fruits
     if fruits is not None:
+        display_fruits(fruits, color=f_color, show=False, fruitsize=fruitsize, block=False)
+    plt.axis('scaled')
+    plt.draw()
+    # optional
+    if show:
+        if block:
+            plt.ioff()
+        else:
+            plt.ion()
+        plt.show()
+
+
+def display_fruits(fruits, index=None, color='#FFFFFF', show=True, fruitsize=mc.FRUIT_RADIUS*2, block=True):
+    """ displays fruit trees
+
+    Keyword Arguments;
+        index {int} -- index of  figure. If it is None no figure is created.  {Default: None}
+        [f_color {'hex'} -- color of fruit trees.  {Default: '#FFFFFF'}]
+        [f_color {[int,int,int]} -- color of fruit trees. is converted to HEX]
+        show {boolean} -- whether to immediately show the figure or not.  {Default: True}
+        block {boolean} -- whether the figure blocks the excution.  {Default: True}
+    """
+    # reset block
+    plt.ioff()
+    # create figure if requested
+    if index is not None:
+        plt.figure(index)
+    # convert color to hex
+    if not isinstance(color, str):
+        color = rgb2hex(color[0], color[1], color[2])
+    # display fruits
+    if fruits is not None:
         ax = plt.gca()
         for f in fruits:
-            c = plt.Circle((f.x, f.y), radius=fruitsize/2, color=f_color)
+            c = plt.Circle((f.x, f.y), radius=fruitsize/2, color=color)
             ax.add_patch(c)
     plt.axis('scaled')
     plt.draw()
     # optional
     if show:
+        if block:
+            plt.ioff()
+        else:
+            plt.ion()
         plt.show()
 
 
-def show():
+def show(block=True):
+    """ shows waiting figures
+
+    Keyword Arguments_
+        block {boolean} -- whether the figure blocks the excution.  {Default: True}
+    """
+    if block:
+        plt.ioff()
+    else:
+        plt.ion()
     plt.show()
 
 

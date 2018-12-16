@@ -25,6 +25,7 @@ class datepath:
 
 # STATIC VARIABLES
     _ID = 0
+    Island = None
 
 # ---------PRIVATE VARIABLES-----------------------------------#
     # _label     # classification label
@@ -57,6 +58,7 @@ class datepath:
         else:
             return datepath.RandomView(fruits, orig=orig, date=date, monkey=monkey)
 
+    @staticmethod
     def RandomMemory(fruits, orig=None, date=mc.DEFAULT_DATE, monkey=None):
         """ generate a random "memory model" datepath
 
@@ -75,7 +77,7 @@ class datepath:
         dtp = datepath(path, date=date, monkey=monkey, label=mc.cls.MEMORY, fruits=fruits)
         return dtp
 
-
+    @staticmethod
     def RandomView(fruits, orig=None, date=mc.DEFAULT_DATE, monkey=None):
         """ generate a random "view model" datepath
 
@@ -113,37 +115,54 @@ class datepath:
         self._label = label
         self._date = date     # date
         if monkey is None:
-            self.set_monkey(datepath._ID)
+            self._monkey = datepath._ID
             datepath._ID += 1
         else:
-            self.set_monkey(monkey)
+            self._monkey = monkey
         self._fruits = fruits
         self._subpaths = []
 
-
-# ---------SETTERS-----------------------------------#
-    def set_date(self, d):
-        self._date = d
-
-    def set_monkey(self, monkey):
-        self._monkey = monkey
-
-    def set_fruits(self, fruits):
-        self._fruits = fruits
-
-
-# ---------GETTERS-----------------------------------#
+# ---------PROPERTIES-----------------------------------#
+    # Date
+    @property
     def date(self):
         return self._date
+    @date.setter
+    def date(self, value):
+        self._date = value
 
+    # Monkey
+    @property
     def monkey(self):
         return self._monkey
+    @monkey.setter
+    def monkey(self, value):
+        self._monkey = value
 
+    # ID
+    @property
+    def id(self):
+        """ returns unique id made of monkyeyymmdd
+            e.g. monkey 11 of 10/12/2018 => 1120181210
+        """
+        return self._date.day + self._date.month * 100 + self._date.year * 10000 + self._monkey 100000000
+
+    # Label
+    @property
     def label(self):
         return self._label
 
+    # path
+    @property
     def path(self):
         return self._path
+
+# ---------SETTERS and GETTERS----------------------------------#
+    def clear_label(self):
+        self._label = mc.cls.TBD;
+
+    def set_fruits(self, fruits):
+        self._fruits = fruits
 
     def subpaths(self, fruits=None, force_recompute=False):
         """ returns list of subpath descriptors
@@ -153,7 +172,7 @@ class datepath:
         """
         # compute/update subpaths
         if force_recompute or not self._subpaths:
-            if fruits is None:
+            if fruits is None and self._fruits is None:
                 raise me.OptionalParamIsNoneException()
             self._computeSubpaths(fruits)
         return self._subpaths
@@ -177,18 +196,17 @@ class datepath:
             else:
                 raise me.OptionalParamIsNoneException()
         if filename is None:
-            fname = str(self._monkey) + '_' + str(self._date.replace('-', ''))
-        filename = folderpath + fname.split('.')[0] + '.csv'              # Force filetype to .csv
-        fname_info = folderpath + fname.split('.')[0] + '_info.csv'
+            filename = '{:02}'.format(self._monkey) + '_' + self._date.strftime('%Y%m%d')
+        fullpath = folderpath + filename.split('.')[0] + '.csv'              # Force filetype to .csv
+        fpath_info = folderpath + filename.split('.')[0] + '_info.csv'
         # Write info file
         header_info = ['start', 'viewpoint', 'end']
-        with open(fname_info, 'w', newline='') as csvfile:
-            writer = csv.writer(csvfile)
-            writer.writerow(header_info)
-            writer.writerows(self.subpaths())
+        df_info = pd.DataFrame(self.subpaths(), columns=header_info)
+        df_info.to_csv(fpath_info, na_rep=None, header=True, index=False)
         # Write data file
         df = self.toDataframe()
-        df.to_csv(filename, na_rep='None', float_format='%.3f', header=True, index=False)
+        print("DATAFRAME")
+        df.to_csv(fullpath, na_rep=None, float_format='%.3f', header=True, index=False)
 
 
     def fullsubpaths(self, fruits=None, sep_hang=False, force_recompute=False):
@@ -220,6 +238,7 @@ class datepath:
                 points = self._path[sbp[0]:sbp[2]]
                 view = sbp[1]
                 subpaths.add(Subpath(points, view, None))    # if sep_hang subpath.hang is always None
+
         # case travel and hanging all together
         else:
             idx = 0
@@ -248,9 +267,9 @@ class datepath:
         """
         header = ['x', 'y', 'h', 'ts']
         if int_h:
-            return pd.DataFrame(map(lambda x: x.xyizt, self._path), columns=header)
+            return pd.DataFrame(list(map(lambda x: x.xyizt, self._path)), columns=header)
         else:
-            return pd.DataFrame(map(lambda x: x.xyzt, self._path), columns=header)
+            return pd.DataFrame(list(map(lambda x: x.xyzt, self._path)), columns=header)
 
     def toMultipleDf(self, int_h=True):
         """returns a dataframe for each fruit-fruit path
@@ -286,41 +305,56 @@ class datepath:
 
         Keyword Arguments:
             fruits {list[coordinates]} -- list of fruit trees. If None default is used  {Default: None}
-            force_recompute {boolean} -- force recompute of subpath.  {Default: False}
         """
         # Value initialization
         self._subpaths = [[0, None, None]]   # reset subpaths
-        frt_visited = [[0, -1]]           # list of fruits visited by the path [path_index, fruit_index]
-        # check which fruit list to use
+        frt_visited = [[0, None]]           # list of fruits visited by the path [path_index, fruit_index]
+        # check which fruit list to use and update self._fruits
         if fruits is None:
             fruits = self._fruits
+        else:
+            self._fruits = fruits;
 
         # loop on the whole path and identify fruit trees. Ignore same fruit tree repeated sequentially
         for idx in range(1, len(self._path)):
             min = self._path[idx].minDistance(fruits)
             if min[0] < mc.FRUIT_RADIUS and min[1] != frt_visited[-1][1]:
-                frt_visited.add([idx, min[1]])
+                frt_visited.append([idx, min[1]])
+        frt_visited.append([len(self._path), None])        # add last fruit tree a Infinite distance
+        del frt_visited[0]        # delete [0,None]
+        print("frt_visited:")
+        print(frt_visited)
 
         # loop on each step, distinguish hanging and moving and compute viewpoints
-        frt_idx = 1
+        frt_idx = 0
         hanging = False
-        for idx in range(frt_visited[1][0] + 1, len(self._path)):
+        # for idx in range(frt_visited[1][0] + 1, len(self._path)-1):
+        for idx in range(0, len(self._path)-1):
             # case hanging (check if finished)
-            if hanging and self._path[idx].distance(fruits[frt_visited[frt_idx][1]]) > mc.FRT_HANG_RAD:
+            if hanging and self._path[idx].distance(frt_visited[frt_idx][1], noneValue=float('Inf')) > mc.FRT_HANG_RAD*2:
                 hanging = False
-                frt_idx = frt_idx + 1
+                frt_idx += 1
                 self._subpaths[-1][2] = idx
+                self._subpaths.append([idx+1, None, None])
             # case not hanging and viewpoint not found (looking for viewpoint)
-            elif not hanging and self._subpaths[-1][1] is None:
-                if self._path[idx].isVisible(self._path[frt_visited[frt_idx][0]], next=self._path[idx + 1]):
-                    self._subpaths[-1][1] = idx
-            # case not hanging (check if arrived to destination)
-            elif not hanging and idx == frt_visited[frt_idx][0]:
-                hanging = True
-                self._subpaths.add([idx, None, None])
+            elif not hanging:
+                if self._subpaths[-1][1] is None:
+                    # if self._path[idx].isVisible(self._path[frt_visited[frt_idx][0]], datepath.Island, next=self._path[idx + 1]):
+                    if self._path[idx].isVisible(frt_visited[frt_idx][1], datepath.Island, next=self._path[idx + 1]):
+                        self._subpaths[-1][1] = idx
+                # case not hanging (check if arrived to destination). Could happen right after previous case
+                if idx == frt_visited[frt_idx][0]:
+                    hanging = True
+                    self._subpaths[-1][2] = idx
+                    print("-------REACHED TREEE " + str(frt_idx) + " -----------")
+                    self._subpaths.append([idx, None, None])
+            # print("idx:" + str(idx) + " - frt_idx:" + str(frt_idx) + " - hanging:" + str(hanging) + " - dist:" + str(self._path[idx].distance(frt_visited[frt_idx][1], noneValue=float('Inf'))))
         # force last subpath to end on last point
         self._subpaths[-1][2] = len(self._path) - 1
-
+        if self._subpaths[-2][1] is None and self._subpaths[-1][1] is None:
+            self._subpaths[-1][1] = len(self._path) - 1
+        print("self._subpaths")
+        print(self._subpaths)
 
 
 # ---------FEATURE EXTRACTION-----------------------------------#

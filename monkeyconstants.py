@@ -49,10 +49,10 @@ DT = 120             # delta t between points (in seconds)
 INIT_TIME = time(hour=8, minute=0, second=0)  # initial time of data acquisition -- 08:00:00 am
 
 # SPEEDS (m/s)
-DRT_VEL_EV = 1      # Expected Value of velocity for direct case (m/s)
-DRT_VEL_SD = 0.1    # Standard Deviation of velocity for direct case (m/s)
-RDM_VEL_EV = 0.5    # Expected Value of velocity for random case (m/s)
-RDM_VEL_SD = 0.2    # Standard Deviation of velocity for random case (m/s)
+DRT_VEL_EV = 0.5      # Expected Value of velocity for direct case (m/s)
+DRT_VEL_SD = 0.05    # Standard Deviation of velocity for direct case (m/s)
+RDM_VEL_EV = 0.3    # Expected Value of velocity for random case (m/s)
+RDM_VEL_SD = 0.1    # Standard Deviation of velocity for random case (m/s)
 HNG_VEL_EV = 0.02   # Expected Value of velocity during hanging (m/s)
 HNG_VEL_SD = 0.0   # Standard Deviation of velocity during hanging (m/s)
 
@@ -65,8 +65,8 @@ PLANNING_STEPS = 50  # Number of next steps for which shortest path is computed
 MIN_FRUIT_DIST = 50  # Minimum distance between two consecutive fruit tree on a path
 
 # HANGING
-FRT_HANG_MINTIME = 10       # minimum number of minutes the monkey hangs at a fruit tree
-FRT_HANG_MAXTIME = 30        # maximum of minutes the monkey hangs at a fruit tree
+FRT_HANG_MINTIME = 30       # minimum number of minutes the monkey hangs at a fruit tree
+FRT_HANG_MAXTIME = 60        # maximum of minutes the monkey hangs at a fruit tree
 FRT_HANG_RAD = FRUIT_RADIUS * 1.5  # radius of hanging zone for the monkey
 
 # WATER AVOIDANCE
@@ -78,5 +78,5 @@ MAX_WATER_TRIES = 5     # Number of tries in one direction when avoiding water
 # ---------------------PERFORMANCE--------------------------#
 
 # SIMULATION
-MAX_ITERATIONS = 10000  # MAximum number of iteration to try and complete a path before giving up
+MAX_ITERATIONS = 100  # Maximum number of iteration to try and complete a path before giving up
 DEF_LOAD_SIZE = 10  # default amount of speed and angle data to compute at once

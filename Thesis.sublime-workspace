@@ -4,6 +4,110 @@
 		"selected_items":
 		[
 			[
+				"class",
+				"classifier"
+			],
+			[
+				"id",
+				"identifier"
+			],
+			[
+				"D",
+				"DataFrame"
+			],
+			[
+				"str",
+				"straightAvg"
+			],
+			[
+				"tot",
+				"tot_steps"
+			],
+			[
+				"set",
+				"set_time"
+			],
+			[
+				"to",
+				"tot_steps"
+			],
+			[
+				"na",
+				"na_rep"
+			],
+			[
+				"ex",
+				"expand"
+			],
+			[
+				"N",
+				"None"
+			],
+			[
+				"sub",
+				"subpaths"
+			],
+			[
+				"pa",
+				"PathOnWaterException"
+			],
+			[
+				"P",
+				"PathOnWaterException"
+			],
+			[
+				"co",
+				"counter"
+			],
+			[
+				"ran",
+				"Random"
+			],
+			[
+				"F",
+				"False"
+			],
+			[
+				"d",
+				"display_island"
+			],
+			[
+				"bo",
+				"block"
+			],
+			[
+				"fr",
+				"fruitsize"
+			],
+			[
+				"f",
+				"f_color"
+			],
+			[
+				"n",
+				"not"
+			],
+			[
+				"di",
+				"display_fruits"
+			],
+			[
+				"M",
+				"MaxIterationsReachedException"
+			],
+			[
+				"curr",
+				"curr_fruits"
+			],
+			[
+				"p",
+				"property\tNew Property"
+			],
+			[
+				"in",
+				"inplace"
+			],
+			[
 				"fruit",
 				"fruitsize"
 			],
@@ -56,10 +160,6 @@
 				"datepath\tclass"
 			],
 			[
-				"set",
-				"set_fruits\tfunction"
-			],
-			[
 				"DEF",
 				"DEFAULT_DATE"
 			],
@@ -106,14 +206,6 @@
 			[
 				"sc",
 				"STATICFILES_FINDERS"
-			],
-			[
-				"f",
-				"figure"
-			],
-			[
-				"str",
-				"straighRatio\tfunction"
 			],
 			[
 				"sep",
@@ -180,10 +272,6 @@
 				"VIEW_MIN_RANGE"
 			],
 			[
-				"curr",
-				"curr_fruit\tstatement"
-			],
-			[
 				"frut",
 				"fruit"
 			],
@@ -194,10 +282,6 @@
 			[
 				"ignr",
 				"ignore_t\tparam"
-			],
-			[
-				"to",
-				"today\tfunction"
 			],
 			[
 				"cl",
@@ -218,10 +302,6 @@
 			[
 				"distan",
 				"distances"
-			],
-			[
-				"tot",
-				"tot_steps\tstatement"
 			],
 			[
 				"no",
@@ -292,20 +372,12 @@
 				"ratiolist\tstatement"
 			],
 			[
-				"F",
-				"False\tkeyword"
-			],
-			[
 				"path",
 				"pathActLength\tfunction"
 			],
 			[
 				"datepa",
 				"datepath\tclass"
-			],
-			[
-				"id",
-				"id_val\tstatement"
 			],
 			[
 				"da",
@@ -360,14 +432,6 @@
 				"points_drt"
 			],
 			[
-				"pa",
-				"_path\tstatement"
-			],
-			[
-				"D",
-				"DatePath\tclass"
-			],
-			[
 				"time",
 				"timedelta\tclass"
 			],
@@ -400,10 +464,6 @@
 				"hour"
 			],
 			[
-				"fr",
-				"fruits\tparam"
-			],
-			[
 				"cur",
 				"curr_path\tstatement"
 			],
@@ -414,10 +474,6 @@
 			[
 				"rd",
 				"rdm_index\tstatement"
-			],
-			[
-				"in",
-				"inf\tinstance"
 			],
 			[
 				"ign",
@@ -435,25 +491,7 @@
 			"file": "generator.py",
 			"settings":
 			{
-				"buffer_size": 513,
-				"encoding": "UTF-8",
-				"line_ending": "Windows"
-			}
-		},
-		{
-			"file": "simulation.py",
-			"settings":
-			{
-				"buffer_size": 24872,
-				"encoding": "UTF-8",
-				"line_ending": "Windows"
-			}
-		},
-		{
-			"file": "display.py",
-			"settings":
-			{
-				"buffer_size": 6735,
+				"buffer_size": 1533,
 				"encoding": "UTF-8",
 				"line_ending": "Windows"
 			}
@@ -462,7 +500,7 @@
 			"file": "datepath.py",
 			"settings":
 			{
-				"buffer_size": 15413,
+				"buffer_size": 17015,
 				"encoding": "UTF-8",
 				"line_ending": "Windows"
 			}
@@ -471,7 +509,15 @@
 			"file": "monkeyconstants.py",
 			"settings":
 			{
-				"buffer_size": 2976,
+				"buffer_size": 2977,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "monkeyclassifier.py",
+			"settings":
+			{
+				"buffer_size": 1949,
 				"encoding": "UTF-8",
 				"line_ending": "Windows"
 			}
@@ -525,11 +571,11 @@
 		"selected_items":
 		[
 			[
-				":W",
+				":w",
 				":w - Save"
 			],
 			[
-				":w",
+				":W",
 				":w - Save"
 			],
 			[
@@ -635,25 +681,43 @@
 	},
 	"expanded_folders":
 	[
-		"/D/Projects/Python/Thesis"
+		"/D/Projects/Python/Thesis",
+		"/D/Projects/Python/Thesis/Data",
+		"/D/Projects/Python/Thesis/Data/Simulated",
+		"/D/Projects/Python/Thesis/Data/Simulated/Memory"
 	],
 	"file_history":
 	[
+		"/D/Projects/KiCad/libraries/KiCad-footprints/.git/config",
+		"/D/Projects/Python/Thesis/simulation.py",
+		"/D/Projects/Python/Thesis/geometry.py",
+		"/D/Projects/Python/Thesis/display.py",
+		"/D/Projects/Python/Thesis/monkeyconstants.py",
+		"/D/Projects/Python/Thesis/datepath.py",
+		"/D/Projects/Python/Thesis/Data/Simulated/Memory/00_20181129.csv",
+		"/D/Projects/Arduino/Motion Detector/.gitignore",
+		"/C/Users/Andrea/.ssh/known_hosts",
+		"/D/OneDrive - Politecnico di Milano/Documents/University/ASP/USES4/USES4_TestFolder/MassaLombarda_20180723/20180723/Log001.txt",
+		"/C/Users/Andrea/AppData/LocalLow/DefaultCompany/Thesis/Results/Results_20181113_054158.txt",
+		"/C/Users/Andrea/AppData/LocalLow/DefaultCompany/Thesis/Results/Results_20181112_053735.txt",
+		"/C/Users/Andrea/AppData/LocalLow/DefaultCompany/Thesis/Results/Results_20181112_053603.txt",
+		"/C/Users/Andrea/AppData/LocalLow/DefaultCompany/Thesis/Results/Results_20181112_052946.txt",
+		"/D/Projects/Python/Thesis/Data/Simulated/Memory/0_20181027.csv",
+		"/D/Projects/Python/Thesis/display_old.py",
+		"/D/Projects/Python/Thesis/generator.py",
+		"/D/Projects/Python/Thesis/Data/Simulated/Memory/0_20181027_info.csv",
+		"/D/Projects/Python/Thesis/Data/Simulated/Memory/1_20181027_info.csv",
+		"/D/Projects/Python/Thesis/dataparser.py",
+		"/D/Projects/Python/Thesis/Data/Simulated/Memory/3_20181027_info.csv",
+		"/D/Projects/Python/Thesis/Data/Simulated/Memory/0_20180320.csv",
+		"/D/OneDrive - Politecnico di Milano/Documents/University/ASP/USES4/USES4_TestFolder/MassaLombarda3_20180723/20180724/GpsLog 1-12.txt",
 		"/D/Projects/Python/Thesis/datepath_old.py",
 		"/D/Projects/Python/Thesis/test.py",
-		"/D/Projects/Python/Thesis/simulation.py",
-		"/D/Projects/Python/Thesis/generator.py",
-		"/D/Projects/Python/Thesis/display.py",
 		"/C/Users/Andrea/AppData/Roaming/Sublime Text 3/Packages/User/PythonBreakpoints.sublime-settings",
 		"/C/Users/Andrea/AppData/Roaming/Sublime Text 3/Packages/User/Python.sublime-build",
-		"/D/Projects/Python/Thesis/geometry.py",
-		"/D/Projects/Python/Thesis/monkeyconstants.py",
-		"/D/Projects/Python/Thesis/dataparser.py",
-		"/D/Projects/Python/Thesis/datepath.py",
 		"/D/Projects/Python/Thesis/monkeyfile.py",
 		"/D/Projects/Python/Thesis/monkeyexceptions.py",
 		"/D/Projects/Python/Thesis/Data/Simulated/View/11_20180426_info.csv",
-		"/D/Projects/Python/Thesis/display_old.py",
 		"/D/Downloads/gvr-unity-sdk-master/README.md",
 		"/C/Users/Andrea/AppData/Roaming/Sublime Text 3/Packages/User/Default (Windows).sublime-keymap",
 		"/C/Users/Andrea/AppData/Roaming/Sublime Text 3/Packages/PyDOC/Default (Windows).sublime-keymap",
@@ -666,7 +730,6 @@
 		"/D/Projects/MikroC/GCU Austria 2017/libs/dspic.h",
 		"/C/Users/Andrea/AppData/Roaming/Sublime Text 3/Packages/Anaconda/Anaconda.sublime-settings",
 		"/C/Users/Andrea/AppData/Roaming/Sublime Text 3/Packages/User/Anaconda.sublime-settings",
-		"/D/Projects/Python/Thesis/Data/Simulated/Memory/0_20180320.csv",
 		"/D/Projects/Python/Thesis/Data/Simulated/View/0_20180320_info.csv",
 		"/D/Projects/Python/Thesis/Data/Simulated/View/0_20180320.csv",
 		"/C/Users/Andrea/AppData/Roaming/Sublime Text 3/Packages/User/Python.sublime-settings",
@@ -688,7 +751,7 @@
 	],
 	"find":
 	{
-		"height": 34.0
+		"height": 24.0
 	},
 	"find_in_files":
 	{
@@ -705,6 +768,17 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"print",
+			"idx",
+			"print",
+			"hangaro",
+			"fruits",
+			"clone",
+			".y",
+			".x",
+			".x ",
+			"TODO",
+			"TOD",
 			"delta",
 			"time",
 			".time",
@@ -751,6 +825,8 @@
 		"regex": false,
 		"replace_history":
 		[
+			"._y",
+			"._x",
 			"      ",
 			", ",
 			"mc.DEF_LOAD_SIZE",
@@ -770,7 +846,7 @@
 	"groups":
 	[
 		{
-			"selected": 1,
+			"selected": 3,
 			"sheets":
 			[
 				{
@@ -779,356 +855,129 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 513,
+						"buffer_size": 1533,
 						"regions":
 						{
-							"bp-34574180":
-							{
-								"flags": 16,
-								"icon": "Packages/Theme - Default/common/circle.png",
-								"regions":
-								[
-									[
-										193,
-										193
-									]
-								],
-								"scope": "invalid"
-							}
 						},
 						"selection":
 						[
 							[
-								190,
-								190
+								532,
+								532
 							]
 						],
 						"settings":
 						{
-							"markdonw_live_preview_last_run": 1539602069.85,
-							"syntax": "Packages/Python/Python.sublime-syntax"
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 2,
-					"type": "text"
-				},
-				{
-					"buffer": 1,
-					"file": "simulation.py",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 24872,
-						"regions":
-						{
-							"bp-3ed4becb":
-							{
-								"flags": 16,
-								"icon": "Packages/Theme - Default/common/circle.png",
-								"regions":
-								[
-									[
-										15594,
-										15594
-									]
-								],
-								"scope": "invalid"
-							},
-							"bp-641c6130":
-							{
-								"flags": 16,
-								"icon": "Packages/Theme - Default/common/circle.png",
-								"regions":
-								[
-									[
-										12964,
-										13022
-									]
-								],
-								"scope": "invalid"
-							},
-							"bp-763b01c8":
-							{
-								"flags": 16,
-								"icon": "Packages/Theme - Default/common/circle.png",
-								"regions":
-								[
-									[
-										20173,
-										20235
-									]
-								],
-								"scope": "invalid"
-							},
-							"bp-a9899493":
-							{
-								"flags": 16,
-								"icon": "Packages/Theme - Default/common/circle.png",
-								"regions":
-								[
-									[
-										19443,
-										19443
-									]
-								],
-								"scope": "invalid"
-							},
-							"bp-b8500a06":
-							{
-								"flags": 16,
-								"icon": "Packages/Theme - Default/common/circle.png",
-								"regions":
-								[
-									[
-										15417,
-										15417
-									]
-								],
-								"scope": "invalid"
-							},
-							"bp-bf1499e5":
-							{
-								"flags": 16,
-								"icon": "Packages/Theme - Default/common/circle.png",
-								"regions":
-								[
-									[
-										20137,
-										20137
-									]
-								],
-								"scope": "invalid"
-							},
-							"bp-d022ae2e":
-							{
-								"flags": 16,
-								"icon": "Packages/Theme - Default/common/circle.png",
-								"regions":
-								[
-									[
-										18738,
-										18738
-									]
-								],
-								"scope": "invalid"
-							},
-							"bp-d8271174":
-							{
-								"flags": 16,
-								"icon": "Packages/Theme - Default/common/circle.png",
-								"regions":
-								[
-									[
-										19188,
-										19188
-									]
-								],
-								"scope": "invalid"
-							},
-							"bp-ee1e9606":
-							{
-								"flags": 16,
-								"icon": "Packages/Theme - Default/common/circle.png",
-								"regions":
-								[
-									[
-										16744,
-										16744
-									]
-								],
-								"scope": "invalid"
-							},
-							"bp-f77a97b5":
-							{
-								"flags": 16,
-								"icon": "Packages/Theme - Default/common/circle.png",
-								"regions":
-								[
-									[
-										16700,
-										16700
-									]
-								],
-								"scope": "invalid"
-							}
-						},
-						"selection":
-						[
-							[
-								19099,
-								19099
-							]
-						],
-						"settings":
-						{
-							"SL.33.region_keys":
-							[
-							],
-							"markdonw_live_preview_last_run": 1539602246.53,
+							"markdonw_live_preview_last_run": 1543501493.3,
 							"syntax": "Packages/Python/Python.sublime-syntax",
 							"tab_size": 4,
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 5412.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 0,
-					"type": "text"
-				},
-				{
-					"buffer": 2,
-					"file": "display.py",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 6735,
-						"regions":
-						{
-							"bp-4e998ccd":
-							{
-								"flags": 16,
-								"icon": "Packages/Theme - Default/common/circle.png",
-								"regions":
-								[
-									[
-										1339,
-										1339
-									]
-								],
-								"scope": "invalid"
-							},
-							"bp-bc2112d3":
-							{
-								"flags": 16,
-								"icon": "Packages/Theme - Default/common/circle.png",
-								"regions":
-								[
-									[
-										1311,
-										1311
-									]
-								],
-								"scope": "invalid"
-							}
-						},
-						"selection":
-						[
-							[
-								334,
-								334
-							]
-						],
-						"settings":
-						{
-							"SL.82.region_keys":
-							[
-							],
-							"markdonw_live_preview_last_run": 1539606083.94,
-							"syntax": "Packages/Python/Python.sublime-syntax",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 156.0,
+						"translation.y": 81.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 1,
 					"type": "text"
 				},
 				{
-					"buffer": 3,
+					"buffer": 1,
 					"file": "datepath.py",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 15413,
+						"buffer_size": 17015,
 						"regions":
 						{
-							"bp-b0d3784e":
-							{
-								"flags": 16,
-								"icon": "Packages/Theme - Default/common/circle.png",
-								"regions":
-								[
-									[
-										3511,
-										3511
-									]
-								],
-								"scope": "invalid"
-							},
-							"bp-ecc6c163":
-							{
-								"flags": 16,
-								"icon": "Packages/Theme - Default/common/circle.png",
-								"regions":
-								[
-									[
-										2742,
-										2742
-									]
-								],
-								"scope": "invalid"
-							}
 						},
 						"selection":
 						[
 							[
-								13374,
-								13374
+								1050,
+								1050
 							]
 						],
 						"settings":
 						{
+							"SL.14.region_keys":
+							[
+							],
 							"SL.41.region_keys":
 							[
 							],
-							"markdonw_live_preview_last_run": 1539602724.66,
+							"markdonw_live_preview_last_run": 1543502964.21,
 							"syntax": "Packages/Python/Python.sublime-syntax",
 							"tab_size": 4,
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 4033.0,
+						"translation.y": 411.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 4,
+					"stack_index": 3,
 					"type": "text"
 				},
 				{
-					"buffer": 4,
+					"buffer": 2,
 					"file": "monkeyconstants.py",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 2976,
+						"buffer_size": 2977,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								1702,
-								1702
+								2787,
+								2787
 							]
 						],
 						"settings":
 						{
-							"SL.32.region_keys":
-							[
-							],
-							"markdonw_live_preview_last_run": 1539602244.43,
+							"markdonw_live_preview_last_run": 1543504845.54,
 							"syntax": "Packages/Python/Python.sublime-syntax"
 						},
 						"translation.x": 0.0,
-						"translation.y": 670.0,
+						"translation.y": 633.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 3,
+					"stack_index": 2,
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "monkeyclassifier.py",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 1949,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1946,
+								1946
+							]
+						],
+						"settings":
+						{
+							"SL.19.region_keys":
+							[
+							],
+							"markdonw_live_preview_last_run": 1543839776.45,
+							"syntax": "Packages/Python/Python.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 546.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
 					"type": "text"
 				}
 			]
@@ -1171,7 +1020,7 @@
 	},
 	"output.Terminus":
 	{
-		"height": 241.0
+		"height": 227.0
 	},
 	"output.exec":
 	{
@@ -1231,7 +1080,7 @@
 	"show_open_files": false,
 	"show_tabs": true,
 	"side_bar_visible": true,
-	"side_bar_width": 148.0,
+	"side_bar_width": 204.0,
 	"status_bar_visible": true,
 	"template_settings":
 	{

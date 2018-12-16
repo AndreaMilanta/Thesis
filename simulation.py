@@ -140,7 +140,7 @@ def _createP2RPath(orig, speed, angle, fruits, ignores):
         [List[Coordinates], Coordinate] -- List of points of the path and seen fruit tree
     """
     # values initialization
-    p = orig                      # set last point of path to origin
+    p = orig.clone()                      # set last point of path to origin
     path = [orig]                 # path only contains origin
     spds = np.array([])           # initialize speeds array
     agls = np.array([])           # initialize angles array
@@ -165,29 +165,32 @@ def _createP2RPath(orig, speed, angle, fruits, ignores):
         dist = mc.DT * spds[load_index]
         delta.scale(dist / delta.mag())
         delta = delta.rotate(agls[load_index])
-        nxt = p.add(delta)
+        nxt = p.add(delta, inplace=False)
         counter = counter + 1                                                        # DEBUG!!!
         # Check if next point is on water or path goes through water
-        nxt.z = dp.Island()[int(nxt.x), int(nxt.y)]
+        try:
+            nxt.z = dp.Island()[int(nxt.x), int(nxt.y)]
+        except IndexError:
+            nxt.z = 0
         if nxt.z == 0 or p.inWater(nxt, dp.Island()):
+            print("WARNING: random path goes into water from " + str(orig))
             raise me.PathOnWaterException()                                 # If on water "Cancel"
-            print("WARNING: direct path goes into water")
-            if water_index > 180 / mc.WATER_SHIFT:
-                angl_delta = -mc.WATER_SHIFT
-                water_index = 0
-            else:
-                angl_delta = angl_delta + mc.WATER_SHIFT
-            water_index = water_index + 1
-            agls[load_index] = agls[load_index] + angl_delta
-            continue
+            # if water_index > 180 / mc.WATER_SHIFT:
+            #     angl_delta = -mc.WATER_SHIFT
+            #     water_index = 0
+            # else:
+            #     angl_delta = angl_delta + mc.WATER_SHIFT
+            # water_index = water_index + 1
+            # agls[load_index] = agls[load_index] + angl_delta
+            # continue
         # add point to path
         path.append(nxt)                    # append new valid point to path
         f = nxt.sees(fruits, dp.Island(), p, ignores)    # check if fruit tree is visible from new point
         # handle loop variables
         p = nxt
         water_index = 0
-        load_index = load_index + 1
-        valid_cnt = valid_cnt + 1
+        load_index += 1
+        valid_cnt += 1
 
     # if max iterations reached throw exception
     if counter == mc.MAX_ITERATIONS:
@@ -221,32 +224,37 @@ def _createP2PPath(orig, dest, speed, angle):
     water_index = 0
     counter = 0                                                                     # DEBUG!!!!
     # generation loop until almost there or MAX_ITERATIONS
-    while(p.distance(dest) > mc.DT * speed[0] and counter < mc.MAX_ITERATIONS):
+    while(p.distance(dest) > mc.DT * speed[0] / 2 and counter < mc.MAX_ITERATIONS):
         # Compute speed and angles for the next LOAD_SIZE rounds.
         if index == LOAD_SIZE:
             spds = np.random.normal(speed[0], speed[1], LOAD_SIZE)
             agls = np.random.normal(0, angle, LOAD_SIZE)
             index = 0
         # Compute next point
-        delta = p.diff(dest)
+        delta = p.diff(dest, inplace=False)
         dist = mc.DT * spds[index]
         delta.scale(dist / delta.mag())
-        delta = delta.rotate(agls[index])
-        nxt = p.add(delta)
+        delta.rotate(agls[index])
+        nxt = p.add(delta, inplace=False)
         counter = counter + 1                                                        # DEBUG!!!
         # Check if next point is on water or path goes through water
         nxt.z = dp.Island()[int(nxt.x), int(nxt.y)]
+        # if nxt.z == 0 or p.inWater(nxt, dp.Island()):
         if nxt.z == 0 or p.inWater(nxt, dp.Island()):
+            # if nxt.z == 0:
+            #     print("WARNING: direct path into water from " + str(orig) + " towards " + str(nxt))
+            # else:
+            #     print("WARNING: direct path into water from " + str(orig))
+            # print("WARNING: direct path into water")
             raise me.PathOnWaterException()                     # Raise path on water Exception and stop path creation
-            print("WARNING: direct path goes into water")
             # if water_index > 180 / WATER_SHIFT:
             #     angl_delta = -WATER_SHIFT
             #     water_index = 0
             # else:
-            angl_delta = angl_delta + mc.WATER_SHIFT
-            water_index = water_index + 1
-            agls[index] = agls[index] + angl_delta
-            continue
+            # angl_delta = angl_delta + mc.WATER_SHIFT
+            # water_index = water_index + 1
+            # agls[index] = agls[index] + angl_delta
+            # continue
         # add point to path
         path.append(nxt)
         # handle loop variables
@@ -258,7 +266,7 @@ def _createP2PPath(orig, dest, speed, angle):
     # if max iterations reached throw exception
     if counter == mc.MAX_ITERATIONS:
         raise me.MaxIterationsReachedException()
-    path.append(dest)
+    # path.append(dest)
     return path
 
 
@@ -266,26 +274,21 @@ def _createDirect(orig, dest):
     """Created direct path from orig to dest
     """
     trials = 0
-    while trials < 100:
+    while trials < 10:
         try:
             return _createP2PPath(orig, dest, [mc.DRT_VEL_EV, mc.DRT_VEL_SD], mc.DRT_ANG_SD)
-        except me.PathOnWaterException as powe:
+        except me.PathOnWaterException:
             trials += 1
-        except:
-            pass
-    return [orig]
-
+    raise me.PathOnWaterException()
 
 def _createRandom(orig, fruits, ignores):
     """Create random path from orig to first tree seen
     """
     return _createP2RPath(orig, [mc.RDM_VEL_EV, mc.RDM_VEL_SD], mc.RDM_ANG_SD, fruits, ignores)
 
-
 def createViewPath(orig, fruits, ignores, split=False):
     """Creates a view-model path
 
-    Arguments:
         orig {Coordinates} -- starting point
         fruits {List[Coordinates]} -- set of fruit trees coordinates
         ignores {List[Coordinates]} -- set of fruit trees to ignore: already visited
@@ -296,20 +299,11 @@ def createViewPath(orig, fruits, ignores, split=False):
     Returns:
         [List[Coordinates], List[Coordinates]] -- tuple containing the random path to the viewpoint and the direct path to the fruit tree
     """
-    rdm = _createRandom(orig, fruits, ignores)
-    if rdm[1] is None:
-        if split:
-            return rdm
-        else:
-            return None
-    path = rdm[0]
-    dest = rdm[1]
+    [path, dest] = _createRandom(orig, fruits, ignores)
     viewpoint = path[-1]
     direct = _createDirect(viewpoint, dest)
-    if split:
-        return [path, direct]
-    else:
-        return path.extend(direct)
+    path.extend(direct)
+    return path
 
 
 def createViewDate(fruits, orig=None, totaltime=mc.DATE_DURATION_MIN, startTime=mc.INIT_TIME):
@@ -326,34 +320,42 @@ def createViewDate(fruits, orig=None, totaltime=mc.DATE_DURATION_MIN, startTime=
     """
     # Compute origin if none
     if orig is None:
-        p = np.random.normal(2000, 500, [1, 2])[0]
+        p = np.random.normal(2500, 500, [1, 2])[0]
         orig = geo.Coordinates(p[0], p[1], dp.Island()[int(p[0]), int(p[1])])
+
     # Variable initialization
-    tot_steps = totaltime * 60 / mc.DT  # Duration of day expressed as number of datapoints
+    tot_steps = int(totaltime * 60 / mc.DT)  # Duration of day expressed as number of datapoints
     path = []           # path initially empty
     curr_steps = 0      # step (datapoint) counter
     start = orig
     ignores = [start]   # add start to list of destination to ignore
+    counter = 0
+
     # generation loop
-    import pdb; pdb.set_trace()  # breakpoint 641c6130 //
-    print("orig is " + str(orig.xyz))
-    while curr_steps < tot_steps:
-        curr_path = createViewPath(start, fruits, ignores)      # generate a path
+    print("orig is " + str(orig))
+    while curr_steps < tot_steps  and counter < mc.MAX_ITERATIONS:
+        try:
+            curr_path = createViewPath(start, fruits, ignores)      # generate a path
         # if path goes on water
-        if curr_path is None:
+        except me.PathOnWaterException:
             #  return None            # GIVE UP
+            counter += 1
             continue                # try again
         # add new subpath to path and fruit tree to ignores
         path.extend(curr_path)
         ignores.append(start)
-        start = curr_path[-1]
+        start = curr_path[-1 ]
         # add hanging around fruit tree
-        curr_path = hangAround(start, start, fruits=fruits)
+        curr_path = hangAround(start, start, fruits=fruits, expand=False)
         path.extend(curr_path)
         ignores.append(start)
         start = curr_path[-1]
         # handle loop values
         curr_steps = curr_steps + len(curr_path)
+
+    # if max iterations reached throw exception
+    if counter == mc.MAX_ITERATIONS:
+        raise me.MaxIterationsReachedException()
 
     # add timing
     delta = timedelta(seconds=mc.DT)
@@ -405,21 +407,24 @@ def createMemoryDate(fruits, orig=None, totaltime=mc.DATE_DURATION_MIN, startTim
             curr_fruits.append(fruits[rdm_index])
             ignores.append(fruits[rdm_index])
         curr_fruits.remove(start)
+        # print("curr_fruits: " + str(curr_fruits))
         curr_fruits = geo.shortestPath(start, curr_fruits)      # sort fruits along shortest path
         # create sequential path to each fruit tree
         for f in curr_fruits:
-            curr_path = _createDirect(start, f)
+            try:
+                curr_path = _createDirect(start, f)
             # if path goes on water
-            if curr_path is None:
+            except me.PathOnWaterException:
                 #  return None            # GIVE UP overall
                 continue                # skip tree
             # add new subpath to path and fruit tree to ignores
+            # print("path: " + str(len(curr_path)))
             path.extend(curr_path)
-            ignores.append(start)
+            # ignores.append(start)
             start = curr_path[-1]
             # add hanging around fruit tree
             curr_path = hangAround(start, start, fruits=fruits, expand=False)
-            path.extend(curr_path)
+            path.extend(curr_path[0:-2])
             ignores.append(start)
             start = curr_path[-1]
             if len(path) > tot_steps:
@@ -427,14 +432,23 @@ def createMemoryDate(fruits, orig=None, totaltime=mc.DATE_DURATION_MIN, startTim
         if len(path) > tot_steps:
             break
 
+    # print("ignores: " + str(ignores))
+
     # add timing
     delta = timedelta(seconds=mc.DT)
     dtime = datetime.combine(date.today(),startTime)
-    for p in path[0:tot_steps]:
+
+    validpath = path[0:tot_steps]
+    for p in validpath:
         p.set_time(dtime.time())
+        print(str(p) + " - dtime: " + str(dtime.time()))
         dtime = dtime + delta
+    print("After time assignment")
+    for p in validpath:
+        print(p)
     # cut to tot_steps
-    return path[0:tot_steps]
+    # return path[0:tot_steps]
+    return validpath;
 
 
 def hangAround(orig, fruit, maxradius=mc.FRT_HANG_RAD, time=[mc.FRT_HANG_MINTIME, mc.FRT_HANG_MAXTIME],
@@ -456,7 +470,7 @@ def hangAround(orig, fruit, maxradius=mc.FRT_HANG_RAD, time=[mc.FRT_HANG_MINTIME
         List[Coordinates] -- hanging path
     """
     # Values initialization
-    hangtime = int(np.random.uniform(time[0], time[0], 1))   # get random hang duration
+    hangtime = int(np.random.uniform(time[0], time[1], 1))   # get random hang duration
     tot_steps = int(hangtime * 60 / mc.DT)  # Duration of hanging expressed as number of datapoints
     path = []       # hanging path is initially empty
     curr_steps = 0      # step (datapoint) counter
@@ -465,12 +479,9 @@ def hangAround(orig, fruit, maxradius=mc.FRT_HANG_RAD, time=[mc.FRT_HANG_MINTIME
 
     # generate randomic params
     spds = np.random.normal(vel[0], vel[1], tot_steps)  # list of speeds for each datapoint
-    agls = np.random.uniform(180, 360, tot_steps)         # list of angles for each datapoint
+    agls = np.random.uniform(0, 360, tot_steps)         # list of angles for each datapoint
     # noise = np.random.uniform(0, 2, tot_steps)          # random noise
 
-    # TODO
-    # print spds e agls per capire come mai non hanga
-    #
     noise = 1      # null noise. Currently deemed not necessary
 
     # generation loop
@@ -479,9 +490,9 @@ def hangAround(orig, fruit, maxradius=mc.FRT_HANG_RAD, time=[mc.FRT_HANG_MINTIME
         delta = geo.unit()
         delta.scale(mc.DT * spds[curr_steps] * noise)
         delta.rotate(agls[curr_steps] * noise)
-        nxt = current.add(delta)
+        nxt = current.add(delta, inplace=False)
         # Check if next point is close to fruit tree or if next point is close to any fruit tree and expand
-        if current.distance(fruit) < mc.FRT_HANG_RAD \
+        if nxt.distance(fruit) <= mc.FRT_HANG_RAD \
                 or (expand and filter(lambda x: x < mc.FRT_HANG_RAD, current.distance(fruits))):
             current = nxt
             path.append(current)
@@ -498,7 +509,7 @@ def hangAround(orig, fruit, maxradius=mc.FRT_HANG_RAD, time=[mc.FRT_HANG_MINTIME
     if trials >= mc.MAX_ITERATIONS:
         import pdb; pdb.set_trace()  # breakpoint 763b01c8 //
         raise me.MaxIterationsReachedException()
-    print("hang length: " + str(len(path)))
+    # print("hang: " + str(len(path)))
     return path
 
 
