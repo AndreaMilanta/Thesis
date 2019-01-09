@@ -343,12 +343,14 @@ def createViewDate(fruits, orig=None, totaltime=mc.DATE_DURATION_MIN, startTime=
             continue                # try again
         # add new subpath to path and fruit tree to ignores
         path.extend(curr_path)
-        ignores.append(start)
         start = curr_path[-1 ]
+        ignores.append(start)
+        # start = curr_path[-1 ]
+        curr_steps = curr_steps + len(curr_path)
         # add hanging around fruit tree
         curr_path = hangAround(start, start, fruits=fruits, expand=False)
         path.extend(curr_path)
-        ignores.append(start)
+        # ignores.append(start)
         start = curr_path[-1]
         # handle loop values
         curr_steps = curr_steps + len(curr_path)
