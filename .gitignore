@@ -10,3 +10,6 @@ __pycache__/
 
 # sublime stuff
 *.sublime*
+
+# Cloud9
+*.c9
