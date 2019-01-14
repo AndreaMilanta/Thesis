@@ -580,11 +580,11 @@
 		"selected_items":
 		[
 			[
-				":W",
+				":w",
 				":w - Save"
 			],
 			[
-				":w",
+				":W",
 				":w - Save"
 			],
 			[
@@ -694,6 +694,10 @@
 	],
 	"file_history":
 	[
+		"/D/Projects/Python/Thesis/.gitignore",
+		"/D/Projects/Matlab/Lynx4/DigitalMap/.gitignore",
+		"/D/Projects/Matlab/Lynx4/DigitalMap/.gitignore.txt",
+		"/D/Projects/Matlab/Lynx4/DigitalMap/.git/config",
 		"/D/Projects/KiCad/libraries/KiCad-footprints/.git/config",
 		"/D/Projects/Python/Thesis/simulation.py",
 		"/D/Projects/Python/Thesis/geometry.py",
