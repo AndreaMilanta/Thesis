@@ -14,7 +14,7 @@ import geometry as geo
 
 # CONSTANTS
 DELTA_X_FRT = -50   # shift on x axis for gps conversion of fruit tree data
-DELTA_Y_FRT = -45   # shift on y axis for gps conversion of fruit tree data
+DELTA_Y_FRT = -45   # shift on y axis for gps conversion off ruit tree data
 DELTA_X_MON = -50   # shift on x axis for gps conversion of monkey movement data
 DELTA_Y_MON = -45   # shift on y axis for gps conversion of monkey movement data
 
