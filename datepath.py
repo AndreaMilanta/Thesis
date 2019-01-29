@@ -37,7 +37,9 @@ class datepath:
     # #           hang subpaths are identified by second element (view) being None
 
 
+# --------------------------------------------------------#
 # ---------RANDOM GENERATORS------------------------------#
+#
     @staticmethod
     def Random(fruits, orig=None, date=mc.DEFAULT_DATE, monkey=None):
         """ generate a random datepath
@@ -97,7 +99,9 @@ class datepath:
         return dtp
 
 
+# --------------------------------------------------------#
 # ---------CONSTRUCTORS-----------------------------------#
+#
     def __init__(self, path, date=mc.DEFAULT_DATE, monkey=None, label=mc.cls.TBD, fruits=None):
         """ constructor
 
@@ -122,7 +126,10 @@ class datepath:
         self._fruits = fruits
         self._subpaths = []
 
-# ---------PROPERTIES-----------------------------------#
+
+# --------------------------------------------------------#
+# ---------PROPERTIES-------------------------------------#
+#
     # Date
     @property
     def date(self):
@@ -145,7 +152,7 @@ class datepath:
         """ returns unique id made of monkyeyymmdd
             e.g. monkey 11 of 10/12/2018 => 1120181210
         """
-        return self._date.day + self._date.month * 100 + self._date.year * 10000 + self._monkey 100000000
+        return self._date.day + self._date.month * 100 + self._date.year * 10000 + self._monkey * 100000000
 
     # Label
     @property
@@ -157,7 +164,15 @@ class datepath:
     def path(self):
         return self._path
 
-# ---------SETTERS and GETTERS----------------------------------#
+    # filename
+    @property
+    def filename(self):
+        return '{:02}'.format(self._monkey) + '_' + self._date.strftime('%Y%m%d')
+    
+
+# --------------------------------------------------------#
+# ---------SETTERS and GETTERS----------------------------#
+#
     def clear_label(self):
         self._label = mc.cls.TBD;
 
@@ -178,7 +193,9 @@ class datepath:
         return self._subpaths
 
 
-# --------------REPRESENTATION----------------------------------------#
+# --------------------------------------------------------#
+# --------------REPRESENTATION----------------------------#
+#
     def savecsv(self, filename=None, folderpath=None):
         """ save path to file as csv
 
@@ -196,7 +213,7 @@ class datepath:
             else:
                 raise me.OptionalParamIsNoneException()
         if filename is None:
-            filename = '{:02}'.format(self._monkey) + '_' + self._date.strftime('%Y%m%d')
+            filename = self.filename
         fullpath = folderpath + filename.split('.')[0] + '.csv'              # Force filetype to .csv
         fpath_info = folderpath + filename.split('.')[0] + '_info.csv'
         # Write info file
@@ -205,7 +222,6 @@ class datepath:
         df_info.to_csv(fpath_info, na_rep=None, header=True, index=False)
         # Write data file
         df = self.toDataframe()
-        print("DATAFRAME")
         df.to_csv(fullpath, na_rep=None, float_format='%.3f', header=True, index=False)
 
 
@@ -255,6 +271,31 @@ class datepath:
                 subpaths.add(Subpath(points, self._subpaths[-1][1], self._subpaths[-1][2]))
         # return list of subpaths
         return subpaths
+
+
+    def getDataframeRow(self):
+        """Returns row of dataframe describing datepth
+
+        Return:
+            {dict} -- row of header as dictionary
+        """
+        # init dictionary
+        row = dict()
+        row[mc.ID] = self.filename
+        row[mc.CLASS] = int(self.label)
+        row[mc.LENGTH] = len(self.path)
+        strratio = self.strRatioAeSD()
+        row[mc.STR_A] = strratio[0]
+        row[mc.STR_SD] = strratio[1]
+        speeds = self.speedAeSD()
+        row[mc.SPD_A] = speeds[0]
+        row[mc.SPD_SD] = speeds[1]
+        lengths = self.sublenghtAeSD()
+        row[mc.LEN_A] = lengths[0]
+        row[mc.LEN_SD] = lengths[1]
+        row[mc.SUBNUM] = self.subnumber()
+        return row
+
 
     def toDataframe(self, int_h=True):
         """returns a dataframe for the whole day
@@ -322,8 +363,8 @@ class datepath:
                 frt_visited.append([idx, min[1]])
         frt_visited.append([len(self._path), None])        # add last fruit tree a Infinite distance
         del frt_visited[0]        # delete [0,None]
-        print("frt_visited:")
-        print(frt_visited)
+        # print("frt_visited:")
+        # print(frt_visited)
 
         # loop on each step, distinguish hanging and moving and compute viewpoints
         frt_idx = 0
@@ -346,18 +387,24 @@ class datepath:
                 if idx == frt_visited[frt_idx][0]:
                     hanging = True
                     self._subpaths[-1][2] = idx
-                    print("-------REACHED TREEE " + str(frt_idx) + " -----------")
+                    # print("-------REACHED TREEE " + str(frt_idx) + " -----------")
                     self._subpaths.append([idx, None, None])
             # print("idx:" + str(idx) + " - frt_idx:" + str(frt_idx) + " - hanging:" + str(hanging) + " - dist:" + str(self._path[idx].distance(frt_visited[frt_idx][1], noneValue=float('Inf'))))
         # force last subpath to end on last point
-        self._subpaths[-1][2] = len(self._path) - 1
-        if self._subpaths[-2][1] is None and self._subpaths[-1][1] is None:
-            self._subpaths[-1][1] = len(self._path) - 1
-        print("self._subpaths")
-        print(self._subpaths)
+        try:
+            self._subpaths[-1][2] = len(self._path) - 1
+            if self._subpaths[-2][1] is None and self._subpaths[-1][1] is None:
+                self._subpaths[-1][1] = len(self._path) - 1
+        except:
+            print("error on subpath computation")
+            print(self._subpaths)
+        # print("self._subpaths")
+        # print(self._subpaths)
 
 
+# --------------------------------------------------------#
 # ---------FEATURE EXTRACTION-----------------------------------#
+#
     def strRatioList(self, ignore_hang=True, sep_hang=False):
         """Return the straight ratio of the whole path and the list of straight ratio for each subpath of the date
 
@@ -372,29 +419,114 @@ class datepath:
 
         # case hang ignored or separate
         if ignore_hang or sep_hang:
-            for sbp in self._subpaths:
+            for sbp in self.subpaths():
                 if sbp[1] is None and ignore_hang:
                     continue
-                ratiolist.append(geo.straighRatio(self._path[sbp[0]:sbp[2]]))
+                ratiolist.append(geo.straighRatio(self.path[sbp[0]:sbp[2]]))
         # case hang considered but not separate
         else:
             idx = 0
             # loop on pairs travel+hanging
-            while idx < len(self._subpaths) - 1:
-                ratiolist.append(geo.straighRatio(self._path[self._subpaths[idx][0]:self._subpaths[idx + 1][2]]))
+            while idx < len(self.subpaths()) - 1:
+                ratiolist.append(geo.straighRatio(self.path[self._subpaths[idx][0]:self._subpaths[idx + 1][2]]))
             # consider last travel if present
-            if len(self._subpaths) % 2 == 0:
-                ratiolist.append(geo.straighRatio(self._path[self._subpaths[-1][0]:self._subpaths[-1][2]]))
+            if len(self._subpaths) % 2 == 1:
+                ratiolist.append(geo.straighRatio(self.path[self._subpaths[-1][0]:self._subpaths[-1][2]]))
         # return overall ratio and list
         return (geo.straighRatio(self._path), ratiolist)
 
-
-
-    def strRatioAeSD(self):
+    def strRatioAeSD(self, ignore_hang=True, sep_hang=False):
         """Returns average and standard deviation of straightness ratio of the subpath of the movement of the day
+
+        Keyword Arguments:
+            ignore_hang {boolean} -- ignore hanging, consider only travel subpaths  {Default: True}
+            sep_hang {boolean} -- consider hanging as indipendent subpaths (ignored if ignore_hang is True)  {Default: False}
 
         Return:
             {(float, float)} -- average ([0]) and standard deviation ([1]) of straightness ratio
         """
-        arr = np.array(self.strRatioList()[1])
+        arr = np.array(self.strRatioList(ignore_hang=ignore_hang, sep_hang=sep_hang)[1])
         return (np.mean(arr, axis=0), np.std(arr, axis=0))
+
+    def speedAeSD(self, ignore_hang=True, sep_hang=False):
+        """Returns average and standard deviation of speed during the day
+
+        Keyword Arguments:
+            ignore_hang {boolean} -- ignore hanging, consider only travel subpaths  {Default: True}
+            sep_hang {boolean} -- consider hanging as indipendent subpaths (ignored if ignore_hang is True)  {Default: False}
+
+        Return:
+            {(float, float)} -- average ([0]) and standard deviation ([1]) of speed
+        """
+        speeds = []
+        # case hang ignored or separate
+        if ignore_hang or sep_hang:
+            for sbp in self.subpaths():
+                if len(self.subpaths()) > 1 and sbp[1] is None and ignore_hang:
+                    continue
+                speeds.extend(geo.getSpeeds(self._path[sbp[0]:sbp[2]]))
+        # case hang considered but not separate
+        else:
+            idx = 0
+            # loop on pairs travel+hanging
+            while idx < len(self.subpaths()) - 1:
+                speeds.extend(geo.getSpeeds(self.path[self._subpaths[idx][0]:self._subpaths[idx + 1][2]]))
+            # consider last travel if present
+            if len(self._subpaths) % 2 == 1:
+                speeds.extend(geo.getSpeeds(self.path[self._subpaths[-1][0]:self._subpaths[-1][2]]))
+        # return average and standard deviation
+        spds = np.array(speeds)
+        return (np.mean(spds, axis=0), np.std(spds, axis=0))
+
+    def sublenghtAeSD(self, ignore_hang=True, sep_hang=False):
+        """Returns average and standard deviation of length of subpaths
+
+        Keyword Arguments:
+            ignore_hang {boolean} -- ignore hanging, consider only travel subpaths  {Default: True}
+            sep_hang {boolean} -- consider hanging as indipendent subpaths (ignored if ignore_hang is True)  {Default: False}
+
+        Return:
+            {(float, float)} -- average ([0]) and standard deviation ([1]) of subpaths' length
+        """
+        lengths = []
+        # case hang ignored or separate
+        if ignore_hang or sep_hang:
+            for sbp in self.subpaths():
+                if len(self.subpaths()) > 1 and sbp[1] is None and ignore_hang:
+                    continue
+                lengths.append(sbp[2] - sbp[0])
+        # case hang considered but not separate
+        else:
+            idx = 0
+            # loop on pairs travel+hanging
+            while idx < len(self.subpaths()) - 1:
+                lengths.append(self._subpaths[idx+1][2] - self._subpaths[idx][0])
+            # consider last travel if present
+            if len(self._subpaths) % 2 == 1:
+                lengths.append(self._subpaths[-1][2] - self._subpaths[-1][0])
+        # return average and standard deviation
+        lgts = np.array(lengths)
+        return (np.mean(lgts, axis=0), np.std(lgts, axis=0))
+
+    def subnumber(self, ignore_hang=True, sep_hang=False):
+        """Returns number of subpaths
+
+        Keyword Arguments:
+            ignore_hang {boolean} -- ignore hanging, consider only travel subpaths  {Default: True}
+            sep_hang {boolean} -- consider hanging as indipendent subpaths (ignored if ignore_hang is True)  {Default: False}
+
+        Return:
+            {int} -- number of subpaths
+        """
+        number = 0
+        # case hang ignored or separate
+        if ignore_hang or sep_hang:
+            for sbp in self.subpaths():
+                if len(self.subpaths()) > 1 and sbp[1] is None and ignore_hang:
+                    continue
+                number = number + 1
+        # case hang considered but not separate
+        else:
+            number = len(self.subpaths())
+        # return number
+        return number

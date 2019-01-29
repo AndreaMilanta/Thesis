@@ -332,7 +332,7 @@ def createViewDate(fruits, orig=None, totaltime=mc.DATE_DURATION_MIN, startTime=
     counter = 0
 
     # generation loop
-    print("orig is " + str(orig))
+    # print("orig is " + str(orig))
     while curr_steps < tot_steps  and counter < mc.MAX_ITERATIONS:
         try:
             curr_path = createViewPath(start, fruits, ignores)      # generate a path
@@ -397,15 +397,24 @@ def createMemoryDate(fruits, orig=None, totaltime=mc.DATE_DURATION_MIN, startTim
     rdm_index = int(np.random.uniform(0, len(fruits), 1))   # get random fruit tree index
 
     # print("tot_steps = " + str(tot_steps))                # DEBUG!!!
-
+    iterations = 0
     # external loop. Required if mc.PLANNING_STEPS are not enough to reach tot_steps
     while True:
+        iterations = iterations + 1
+        print("\t\t" + str(iterations))
+        # if max iterations reached throw exception
+        if iterations == mc.MAX_ITERATIONS:
+            raise me.MaxIterationsReachedException()
         # randomly draw mc.PLANNING_STEPS fruit trees that will be visited
         curr_fruits = [start]   # list of fruit tree that I will visit
         for curr_plan in range(0, mc.PLANNING_STEPS):
+            fruititer = 0
             while fruits[rdm_index].minDistance(curr_fruits)[0] > max_mem_range \
                     or fruits[rdm_index].minDistance(curr_fruits)[0] < mc.MIN_FRUIT_DIST or fruits[rdm_index] in ignores:
                 rdm_index = int(np.random.uniform(0, len(fruits), 1))
+                fruititer = fruititer + 1
+                if fruititer == 50:
+                    raise me.MaxIterationsReachedException()
             curr_fruits.append(fruits[rdm_index])
             ignores.append(fruits[rdm_index])
         curr_fruits.remove(start)
@@ -417,6 +426,7 @@ def createMemoryDate(fruits, orig=None, totaltime=mc.DATE_DURATION_MIN, startTim
                 curr_path = _createDirect(start, f)
             # if path goes on water
             except me.PathOnWaterException:
+                print("PathOnWaterException")
                 #  return None            # GIVE UP overall
                 continue                # skip tree
             # add new subpath to path and fruit tree to ignores
@@ -434,22 +444,17 @@ def createMemoryDate(fruits, orig=None, totaltime=mc.DATE_DURATION_MIN, startTim
         if len(path) > tot_steps:
             break
 
-    # print("ignores: " + str(ignores))
-
     # add timing
+    validpath = path[0:tot_steps]
     delta = timedelta(seconds=mc.DT)
     dtime = datetime.combine(date.today(),startTime)
-
-    validpath = path[0:tot_steps]
     for p in validpath:
         p.set_time(dtime.time())
-        print(str(p) + " - dtime: " + str(dtime.time()))
         dtime = dtime + delta
-    print("After time assignment")
-    for p in validpath:
-        print(p)
-    # cut to tot_steps
-    # return path[0:tot_steps]
+
+    if iterations > 1:
+        print("memory validpath len: " + str(len(validpath)))
+
     return validpath;
 
 

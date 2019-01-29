@@ -558,8 +558,11 @@ def pathCrowLenght(path, ignore_z=False):
     Keyword Arguments:
         ignore_z {Boolean} -- ignore z dimension and work only on xy plane projection (default: False)
     """
-    return path[0].distance(path[-1], ignore_z)
-
+    lgt = path[0].distance(path[-1], ignore_z)
+    if lgt > 0:
+        return lgt
+    else:
+        return 1
 
 def straighRatio(path, ignore_z=False):
     """Returns the degree of straightness of the path given as the ratio between the crow distance and the actual path distance
@@ -572,4 +575,56 @@ def straighRatio(path, ignore_z=False):
     Keyword Arguments:
         ignore_z {Boolean} -- ignore z dimension and work only on xy plane projection (default: False)
     """
-    return pathCrowLenght(path, ignore_z) / pathActLength(path, ignore_z)
+    # check minimum path length
+    if len(path) < 2:
+        return 0
+    try:
+        return pathCrowLenght(path, ignore_z) / pathActLength(path, ignore_z)
+    except:
+        print("pathActLength error")
+        print("\tpath: " + str(path))
+        return 0
+
+def getSpeeds(path, dt=mc.DT, ignore_z=False):
+    """Returns speed of monkey (m/s) at each step 
+
+    Arguments:
+        path {List[Coordinates]} -- path
+
+    Keyword Arguments:
+        dt {float} -- time distance between two consecutive points in seconds  (default: mc.DT)
+        ignore_z {Boolean} -- ignore z dimension and work only on xy plane projection (default: False)
+
+    Returns:
+        {List[float]} -- list of speed. Length(speed) = Length(path) - 1
+    """
+    # check minimum path length
+    if len(path) < 2:
+        return [0]
+    # init empty list
+    speeds = np.empty((len(path) - 1))
+    # loop on each path from 0 to len-1
+    for i in range(0,len(path)-1):
+        speeds[i] = path[i].distance(path[i+1]) / dt
+    return speeds
+
+def speedAeSD(path, dt=mc.DT, ignore_z=False):
+    """Returns average and standard deviation of speed of monkey (m/s) at each step 
+
+    Arguments:
+        path {List[Coordinates]} -- path
+
+    Keyword Arguments:
+        dt {float} -- time distance between two consecutive points in seconds  (default: mc.DT)
+        ignore_z {Boolean} -- ignore z dimension and work only on xy plane projection (default: False)
+
+    Returns:
+        {(float, float)} -- average ([0]) and standard deviation ([1]) of path speed
+    """
+    # check minimum path length
+    if len(path) < 2:
+        return [0, 0]
+    # compute
+    spds = np.array(getSpeeds(dt=dt, ignore_z=ignore_z))
+    return (np.mean(spds, axis=0), np.std(spds, axis=0))
+

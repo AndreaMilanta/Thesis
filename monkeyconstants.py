@@ -18,13 +18,24 @@ class cls(Enum):
     MEMORY = 1
     VIEW = 2
 
+    def __int__(self):
+        return self.value
+
+    def __str__(self):
+        if self.value == MEMORY:
+            return "Memory"
+        elif self.value == VIEW:
+            return "View"
+        else:
+            return "Undefined"
 
 # PATH
 HERE = os.path.dirname(__file__)
-FRUIT_PATH = HERE + "\Data\FruitTrees.csv"
-ISLAND_PATH = HERE + "\Data\IslandPic.png"
-MONKEY_PATH = HERE + "\Data\AllChibi.csv"
-SIM_PATH = HERE + "\Data\Simulated\\"
+DATA = HERE + "\\Data\\"
+FRUIT_PATH = DATA + "FruitTrees.csv"
+ISLAND_PATH = DATA + "IslandPic.png"
+MONKEY_PATH = DATA + "AllChibi.csv"
+SIM_PATH = DATA + "Simulated\\"
 MEMORY_PATH = SIM_PATH + "Memory\\"
 VIEW_PATH = SIM_PATH + "View\\"
 
@@ -45,7 +56,7 @@ FOV = 360               # Field of View of a monkey
 # -------------------------SIMULATION----------------------#
 
 # TIME
-DT = 120             # delta t between points (in seconds)
+DT = 8*60             # delta t between points (in seconds)
 INIT_TIME = time(hour=8, minute=0, second=0)  # initial time of data acquisition -- 08:00:00 am
 
 # SPEEDS (m/s)
@@ -80,3 +91,25 @@ MAX_WATER_TRIES = 5     # Number of tries in one direction when avoiding water
 # SIMULATION
 MAX_ITERATIONS = 100  # Maximum number of iteration to try and complete a path before giving up
 DEF_LOAD_SIZE = 10  # default amount of speed and angle data to compute at once
+
+
+# ----------------------------------------------------------#
+# ---------------------HEADERS------------------------------#
+
+DFNAME = "main" + str(int(DT/60))+"h.csv"
+DFPATH = DATA + DFNAME
+
+# Dataframe Dictionare
+ID = 'id'
+LENGTH = 'Length'
+SUBNUM = 'Subnumber'
+STR_A = 'StraightnessAvg'
+STR_SD = 'StraightnessSD'
+SPD_A = 'SpeedAvg'
+SPD_SD = 'SpeedSD'
+LEN_A = 'SublengthAvg'
+LEN_SD = 'SublengthSD'
+CLASS = 'y'
+
+HEADER = [ID, LENGTH, SUBNUM, STR_A, STR_SD, \
+          SPD_A, SPD_SD, LEN_A, LEN_SD, CLASS]
