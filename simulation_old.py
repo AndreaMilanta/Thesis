@@ -141,7 +141,6 @@ def _createP2RPath(orig, speed, angle, fruits, ignores):
     """
     # values initialization
     p = orig.clone()                      # set last point of path to origin
-    # arr = [None]*100                  # initializer
     path = [orig]                 # path only contains origin
     spds = np.array([])           # initialize speeds array
     agls = np.array([])           # initialize angles array

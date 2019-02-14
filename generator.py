@@ -15,6 +15,7 @@ NUM_TRIES = 10000
 STEPSIZE = 50
 CLF = int(255 / max([1, NUM_TRIES-1]))
 dtp.datepath.Island = dp.Island()
+geo.Coordinates.Island = dp.Island()
 rows = []
 disprequired = False
 basemonkey = 0    # base monkey ID
@@ -26,7 +27,8 @@ steps = int(NUM_TRIES / STEPSIZE)
 # disp.display_fruits(dp.Fruits(), fruitsize=3, show=True, block=False)
 for j in range(0,steps): 
     basemonkey = STEPSIZE * j
-    for i in range(0, STEPSIZE):
+    i = 0
+    while i < STEPSIZE:
         try:
             rdm = np.random.uniform(0,1)
             start = time.process_time()
@@ -48,6 +50,7 @@ for j in range(0,steps):
                 # disp.display(path.path, show=True, color=col, block=False)
             else:
                 rows.append(row)
+                i += 1
                 # path.savecsv();
         except Exception as e:
             finish = time.process_time()
@@ -68,7 +71,6 @@ for j in range(0,steps):
     rows = [];
 
 quit();
-
 
 
 # MEMORY GENERATOR, DISPLAY and SAVE

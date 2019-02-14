@@ -3,6 +3,7 @@ import numpy as np
 import random
 from collections import namedtuple
 import csv
+from datetime import date, datetime, time, timedelta
 
 import monkeyexceptions as me
 import monkeyconstants as mc
@@ -102,6 +103,24 @@ class datepath:
 # --------------------------------------------------------#
 # ---------CONSTRUCTORS-----------------------------------#
 #
+    @staticmethod
+    def FromCsv(csvpath, fruits, date=mc.DEFAULT_DATE, monkey=None, delimiter=',', quotechar='"'):
+        path = []
+        with open(csvpath, 'rb') as csvfile:
+            csvreader = csv.reader(csvfile, delimiter=delimiter, quotechar=quotechar)
+            dtm = datetime.strptime(csvreader[0][2], '%Y-%m-%d %H:%M:%S.%f')
+            date = dtm.date
+            for row in csvreader:
+                x = row[12]
+                y = row[13]
+                z = row[14]
+                dtm = datetime.strptime(row[2], '%Y-%m-%d %H:%M:%S.%f')
+                path.append(x,y,z,dtm.time)
+
+        dtp = datepath(path, date=date, monkey=monkey, fruits=fruits)
+        return dtp
+
+
     def __init__(self, path, date=mc.DEFAULT_DATE, monkey=None, label=mc.cls.TBD, fruits=None):
         """ constructor
 
@@ -115,6 +134,7 @@ class datepath:
             fruits {List[Coordinates]} -- list of fruit tree.  {Default: None}
 
         """
+        # internal
         self._path = path
         self._label = label
         self._date = date     # date
@@ -124,7 +144,17 @@ class datepath:
         else:
             self._monkey = monkey
         self._fruits = fruits
-        self._subpaths = []
+        self._visitedTrees = dict()
+        self._passedbyTrees = dict()
+        self._missedTrees = dict()
+
+        # features
+        self._subdistsAvg = None
+        self._subdistsSD = None
+        self._subdistsFano = None
+        self._visitedAvg = None
+        self._visitedSD = None
+        self._fruitsZtest = None
 
 
 # --------------------------------------------------------#
@@ -168,6 +198,116 @@ class datepath:
     @property
     def filename(self):
         return '{:02}'.format(self._monkey) + '_' + self._date.strftime('%Y%m%d')
+
+    # visitedtrees
+    @property
+    def visitedTrees(self, misseddist=mc.MISSED_MAX_DIST, minvisittimes=mc.MIN_VISIT_TIMES):
+        """sets and returns visited trees 
+            visitedTrees = dict(indexfruit, indexpath) -- where indexfruit is index of fruit in self._fruits and 
+                      indexpath is the index in self._path of the first time the monkey reaches the fruit tree
+
+        Keyword Arguments:
+            misseddist {float} -- distance from tree within which a tree is considered missed if not visited
+            minvisittimes {int} -- minimum number of visits to a tree for the tree to be considered visited and not passedby
+        """
+        if not self._visitedTrees:
+            self._getMeaningfulTrees(misseddist, minvisittimes)
+        return self._visitedTrees
+    
+    # missedtrees visible
+    @property
+    def missedTrees(self, misseddist=mc.MISSED_MAX_DIST, minvisittimes=mc.MIN_VISIT_TIMES):
+        """sets and returns missed trees AKA trees close by which are visible 
+            missedTrees = dict(indexfruit, mindist) -- where indexfruit is index of fruit in self._fruits and 
+                                mindist is the minimum distance from the path when the tree is visible
+
+        Keyword Arguments:
+            misseddist {float} -- distance from tree within which a tree is considered missed if not visited
+            minvisittimes {int} -- minimum number of visits to a tree for the tree to be considered visited and not passedby
+        """
+        if not self._missedTrees:
+            self._getMeaningfulTrees(misseddist, minvisittimes)
+        return self._missedTrees
+    
+    # passedby visible
+    @property
+    def passedbyTrees(self, misseddist=mc.MISSED_MAX_DIST, minvisittimes=mc.MIN_VISIT_TIMES):
+        """sets and returns passedby trees AKA trees which were visited only briefly (less than minvisittimes) 
+            visitedTrees =dict(indexfruit, indexpath) -- where indexfruit is index of fruit in self._fruits and 
+                      indexpath is the index in self._path of the first time the monkey reaches the fruit tree
+
+        Keyword Arguments:
+            misseddist {float} -- distance from tree within which a tree is considered missed if not visited
+            minvisittimes {int} -- minimum number of visits to a tree for the tree to be considered visited and not passedby
+        """
+        if not self._passedbyTrees:
+            self._getMeaningfulTrees(misseddist, minvisittimes)
+        return self._passedbyTrees
+
+    #.............FEATURES PROPERTY......................#
+    # visitedNum
+    @property
+    def visitedNum(self):
+        return len(self.visitedTrees)
+    
+    # missedNum
+    @property
+    def missedNum(self):
+        return len(self.missedTrees)
+
+    # passedbyNum
+    @property
+    def passedbyNum(self):
+        return len(self.passedbyTrees)
+
+    # subdistsAvg
+    @property
+    def subdistsAvg(self):
+        if self._subdistsAvg is None:
+            self._getsubdistsAeSDeF()
+        return self._subdistsAvg
+    
+    # subdistsSD
+    @property
+    def subdistsSD(self):
+        if self._subdistsSD is None:
+            self._getsubdistsAeSDeF()
+        return self._subdistsSD
+
+    # subdistsFano
+    @property
+    def subdistsFano(self):
+        if self._subdistsFano is None:
+            self._getsubdistsAeSDeF()
+        return self._subdistsFano
+
+    # visitedAvg
+    @property
+    def visitedAvg(self):
+        if self._visitedAvg is None:
+            self._getvisitedAeSD()
+        return self._visitedAvg
+
+    # visitedSD
+    @property
+    def visitedSD(self):
+        if self._visitedSD is None:
+            self._getvisitedAeSD()
+        return self._visitedSD
+
+    # visitedVar
+    @property
+    def visitedVar(self):
+        if self._visitedSD is None:
+            self._getvisitedAeSD()
+        return self._visitedSD * self._visitedSD
+
+    # visited
+    @property
+    def fruitsZtest(self):
+        if self._fruitsZtest is None:
+            self._getfruitsZtest()
+        return self._fruitsZtest
     
 
 # --------------------------------------------------------#
@@ -178,19 +318,6 @@ class datepath:
 
     def set_fruits(self, fruits):
         self._fruits = fruits
-
-    def subpaths(self, fruits=None, force_recompute=False):
-        """ returns list of subpath descriptors
-
-        List of tuples [start, view, end] where each element is the index of the corresponding datapoint in path.
-        Hang subpaths are identified by second element (view) being None
-        """
-        # compute/update subpaths
-        if force_recompute or not self._subpaths:
-            if fruits is None and self._fruits is None:
-                raise me.OptionalParamIsNoneException()
-            self._computeSubpaths(fruits)
-        return self._subpaths
 
 
 # --------------------------------------------------------#
@@ -224,55 +351,6 @@ class datepath:
         df = self.toDataframe()
         df.to_csv(fullpath, na_rep=None, float_format='%.3f', header=True, index=False)
 
-
-    def fullsubpaths(self, fruits=None, sep_hang=False, force_recompute=False):
-        """returns list of all subpath as namedtuple Subpath
-
-        Subpath: points {List[Coordinates]}    # list of Coordinates of the subpath
-                 view {int}                # index of viewpoint in subpath
-                 hang {int}                # index of first hanging moment in subpath (if sep_hang this is always None)
-
-        Keyword Arguments:
-            fruits {list[coordinates]} -- list of fruit trees. If None default is used  {Default: None}
-            sep_hang {boolean} -- whether hanging is returned as separate subpath or included. If True Subpath.hang = None.  {Default: False}
-            force_recompute {boolean} -- force recompute of subpath.  {Default: False}
-
-        Returns:
-            subpaths {[Subpath]} -- list of subpaths
-        """
-        # values and type initialization
-        Subpath = namedtuple('Subpath', ['points', 'view', 'hang'])
-        subpaths = []
-        idx = 0
-        # compute/update subpaths
-        if force_recompute or not self._subpaths:
-            self._computeSubpaths(fruits)
-
-        # case travel and hanging separate
-        if sep_hang:
-            for sbp in self._subpaths:
-                points = self._path[sbp[0]:sbp[2]]
-                view = sbp[1]
-                subpaths.add(Subpath(points, view, None))    # if sep_hang subpath.hang is always None
-
-        # case travel and hanging all together
-        else:
-            idx = 0
-            # loop on pairs travel + hanging
-            while idx < len(self._subpaths) - 1:
-                points = self._path[self._subpaths[idx][0]:self._subpaths[idx + 1][2]]
-                view = self._subpaths[idx][1]
-                hang = self._subpaths[idx + 1][0]
-                subpaths.add(Subpath(points, view, hang))
-                idx = idx + 2
-            # add last subpath if it is travel
-            if len(self._subpaths) % 2 == 0:
-                points = self._path[self._subpaths[-1][0]:self._subpaths[-1][2]]
-                subpaths.add(Subpath(points, self._subpaths[-1][1], self._subpaths[-1][2]))
-        # return list of subpaths
-        return subpaths
-
-
     def getDataframeRow(self):
         """Returns row of dataframe describing datepth
 
@@ -281,21 +359,21 @@ class datepath:
         """
         # init dictionary
         row = dict()
+        # set features
         row[mc.ID] = self.filename
-        row[mc.CLASS] = int(self.label)
         row[mc.LENGTH] = len(self.path)
-        strratio = self.strRatioAeSD()
-        row[mc.STR_A] = strratio[0]
-        row[mc.STR_SD] = strratio[1]
-        speeds = self.speedAeSD()
-        row[mc.SPD_A] = speeds[0]
-        row[mc.SPD_SD] = speeds[1]
-        lengths = self.sublenghtAeSD()
-        row[mc.LEN_A] = lengths[0]
-        row[mc.LEN_SD] = lengths[1]
-        row[mc.SUBNUM] = self.subnumber()
+        row[mc.VIS_NUM] = self.visitedNum
+        row[mc.MISS_NUM] = self.missedNum
+        row[mc.PBY_NUM] = self.passedbyNum
+        row[mc.SUBDIST_AVG] = self.subdistsAvg
+        row[mc.SUBDIST_SD] = self.subdistsSD
+        row[mc.SUBDIST_FANO] = self.subdistsFano
+        row[mc.VISDIST_AVG] = self.visitedAvg
+        row[mc.VISDIST_SD] = self.visitedSD
+        row[mc.FRUIT_ZTEST] = self.fruitsZtest
+        # target class        
+        row[mc.CLASS] = int(self.label)
         return row
-
 
     def toDataframe(self, int_h=True):
         """returns a dataframe for the whole day
@@ -312,221 +390,132 @@ class datepath:
         else:
             return pd.DataFrame(list(map(lambda x: x.xyzt, self._path)), columns=header)
 
-    def toMultipleDf(self, int_h=True):
-        """returns a dataframe for each fruit-fruit path
-
-        Keyword Arguments:
-            int_h {boolean} -- whether h is returned as original value (False) or nearest integer (True).  {Default: True}
-
-        Returns:
-            List[[dataframe, dataframe]] -- coordinates (x,y,h) and timestamp (ts); no date. Same standard structure
-                                            if 'hanging' second dataframe is None
-        """
-        moves = []
-        header = ['x', 'y', 'h', 'ts']
-        for seg in self._subpaths:
-            # case hanging
-            if seg[1] is None:
-                if int_h:
-                    moves.append([pd.DataFrame(map(lambda x: x.xyizt, self._path[seg[0]: seg[2] - 1]), columns=header), None])
-                else:
-                    moves.append([pd.DataFrame(map(lambda x: x.xyzt, self._path[seg[0]: seg[2] - 1]), columns=header), None])
-            # case moving to fruit tree
-            else:
-                if int_h:
-                    moves.append([pd.DataFrame(map(lambda x: x.xyizt, self._path[seg[0]: seg[1] - 1]), columns=header),
-                                  pd.DataFrame(map(lambda x: x.xyizt, self._path[seg[1]: seg[2]]), columns=header)])
-                else:
-                    moves.append([pd.DataFrame(map(lambda x: x.xyzt, self._path[seg[0]: seg[1] - 1]), columns=header),
-                                  pd.DataFrame(map(lambda x: x.xyzt, self._path[seg[1]: seg[2]]), columns=header)])
-        return moves
-
-    def _computeSubpaths(self, fruits=None):
-        """ computes subpaths from current path, given the provided list of fruit trees
-
-        Keyword Arguments:
-            fruits {list[coordinates]} -- list of fruit trees. If None default is used  {Default: None}
-        """
-        # Value initialization
-        self._subpaths = [[0, None, None]]   # reset subpaths
-        frt_visited = [[0, None]]           # list of fruits visited by the path [path_index, fruit_index]
-        # check which fruit list to use and update self._fruits
-        if fruits is None:
-            fruits = self._fruits
-        else:
-            self._fruits = fruits;
-
-        # loop on the whole path and identify fruit trees. Ignore same fruit tree repeated sequentially
-        for idx in range(1, len(self._path)):
-            min = self._path[idx].minDistance(fruits)
-            if min[0] < mc.FRUIT_RADIUS and min[1] != frt_visited[-1][1]:
-                frt_visited.append([idx, min[1]])
-        frt_visited.append([len(self._path), None])        # add last fruit tree a Infinite distance
-        del frt_visited[0]        # delete [0,None]
-        # print("frt_visited:")
-        # print(frt_visited)
-
-        # loop on each step, distinguish hanging and moving and compute viewpoints
-        frt_idx = 0
-        hanging = False
-        # for idx in range(frt_visited[1][0] + 1, len(self._path)-1):
-        for idx in range(0, len(self._path)-1):
-            # case hanging (check if finished)
-            if hanging and self._path[idx].distance(frt_visited[frt_idx][1], noneValue=float('Inf')) > mc.FRT_HANG_RAD*2:
-                hanging = False
-                frt_idx += 1
-                self._subpaths[-1][2] = idx
-                self._subpaths.append([idx+1, None, None])
-            # case not hanging and viewpoint not found (looking for viewpoint)
-            elif not hanging:
-                if self._subpaths[-1][1] is None:
-                    # if self._path[idx].isVisible(self._path[frt_visited[frt_idx][0]], datepath.Island, next=self._path[idx + 1]):
-                    if self._path[idx].isVisible(frt_visited[frt_idx][1], datepath.Island, next=self._path[idx + 1]):
-                        self._subpaths[-1][1] = idx
-                # case not hanging (check if arrived to destination). Could happen right after previous case
-                if idx == frt_visited[frt_idx][0]:
-                    hanging = True
-                    self._subpaths[-1][2] = idx
-                    # print("-------REACHED TREEE " + str(frt_idx) + " -----------")
-                    self._subpaths.append([idx, None, None])
-            # print("idx:" + str(idx) + " - frt_idx:" + str(frt_idx) + " - hanging:" + str(hanging) + " - dist:" + str(self._path[idx].distance(frt_visited[frt_idx][1], noneValue=float('Inf'))))
-        # force last subpath to end on last point
-        try:
-            self._subpaths[-1][2] = len(self._path) - 1
-            if self._subpaths[-2][1] is None and self._subpaths[-1][1] is None:
-                self._subpaths[-1][1] = len(self._path) - 1
-        except:
-            print("error on subpath computation")
-            print(self._subpaths)
-        # print("self._subpaths")
-        # print(self._subpaths)
-
 
 # --------------------------------------------------------#
-# ---------FEATURE EXTRACTION-----------------------------------#
+# --------------SUPPORT FEATURE EXTRACTION----------------#
 #
-    def strRatioList(self, ignore_hang=True, sep_hang=False):
-        """Return the straight ratio of the whole path and the list of straight ratio for each subpath of the date
+    def _getMeaningfulTrees(self, misseddist=mc.MISSED_MAX_DIST, minvisittimes=mc.MIN_VISIT_TIMES):
+        """ computes visitedTrees, missedTrees, missedVisibleTrees and passbyTrees
 
-        Keyword Arguments:
-            ignore_hang {boolean} -- ignore hanging, consider only travel subpaths  {Default: True}
-            sep_hang {boolean} -- consider hanging as indipendent subpaths (ignored if ignore_hang is True)  {Default: False}
+            Keyword Arguments:
+                misseddist {float} -- distance from tree within which a tree is considered missed if not visited
+                minvisittimes {int} -- minimum number of visits to a tree for the tree to be considered visited and not passedby
+        """ 
+        # reset dicts
+        self._visitedTrees = dict()
+        self._passedbyTrees = dict()
+        self._missedTrees = dict()
+        
+        print("before computation - visited:" + str(self._visitedTrees))
 
-        Returns:
-            {(float, List[float])} -- overall straight ratio, straight ratio of each subpath
+        # loop on points        
+        for idx, point in enumerate(self._path):
+            fdists = point.distance(self._fruits)
+            minf, idf = min((val, idf) for (idf, val) in enumerate(fdists))
+            # case tree reached
+            if minf <= mc.FRUIT_RADIUS:
+                # add point to fruit ref (create one if first time fruittree is met)
+                if idf in self._visitedTrees:
+                    self._visitedTrees[idf].append(idx)
+                else:
+                    self._visitedTrees[idf] = [idx];
+                # remove fruit from missed
+                if idf in self._missedTrees:
+                    del self._missedTrees[idf]
+
+            # case tree visible and missed (close but not yet visited)
+            elif minf < misseddist and idx<len(self._path)-1 \
+              and idf not in self._visitedTrees \
+              and (idf not in self._missedTrees or self._path[self._missedTrees[idf]].distance(self._fruits[idf]) > minf) \
+              and point.isVisible(self._fruits[idf], self.Island, next=self._path[idx+1]):
+                self._missedTrees[idf] = idx
+
+        # distinguish between visits and passby
+        bypasskeys = []
+        for fruit in self._visitedTrees:
+            visitlen = len(self._visitedTrees[fruit])   # get number of visits
+            self._visitedTrees[fruit] = min(self._visitedTrees[fruit])  # maintain only first contact
+            # case passby: add to _passedbyTrees
+            if visitlen < minvisittimes:
+                self._passedbyTrees[fruit] = self._visitedTrees[fruit]
+        # remove bypassed from visited
+        for key in self._passedbyTrees.keys():
+            del self._visitedTrees[key]
+
+        print("after - visited:" + str(self._visitedTrees))
+        print("\t\tmissed:" + str(self._missedTrees))
+        print("\t\tpassedby:" + str(self._passedbyTrees))
+
+    def _getsubdistsAeSDeF(self):
+        """ sets and returns average, sd and fano factor (burstiness) of distances of subpaths
+
+            Return:
+                {(float, float, float)} -- average ([0]) standard deviation ([1]) and fano factor([2]) of subpaths' length
         """
-        ratiolist = []
+        # sort visited in visiting order
+        visited = list(self.visitedTrees.values()).sort()
+        # init vars
+        distances = np.empty(len(visited) + 1);
+        counter = 0
+        start = 0
+        # loop on all visited trees
+        for vis in visited:
+            dist = 0
+            for i in range(start, vis):
+                dist += self._path[i].distance(self._path[i+1])
+            distances[counter] = dist
+            start = vis
+            counter += 1
+        # add distance from last visited tree to end
+        for i in range(start, len(self._path)-1):
+            dist += self._path[i].distance(self._path[i+1])
+            distances[counter] = dist
+        # compute average and standard deviation
+        self._subdistsAvg = np.mean(distances, axis=0)
+        self._subdistsSD = np.std(distances, axis=0)
+        self._subdistsFano = std * std / mean         # fano factor
+        return (self._subdistsAvg, self._subdistsSD, self._subdistsFano)
 
-        # case hang ignored or separate
-        if ignore_hang or sep_hang:
-            for sbp in self.subpaths():
-                if sbp[1] is None and ignore_hang:
-                    continue
-                ratiolist.append(geo.straighRatio(self.path[sbp[0]:sbp[2]]))
-        # case hang considered but not separate
-        else:
-            idx = 0
-            # loop on pairs travel+hanging
-            while idx < len(self.subpaths()) - 1:
-                ratiolist.append(geo.straighRatio(self.path[self._subpaths[idx][0]:self._subpaths[idx + 1][2]]))
-            # consider last travel if present
-            if len(self._subpaths) % 2 == 1:
-                ratiolist.append(geo.straighRatio(self.path[self._subpaths[-1][0]:self._subpaths[-1][2]]))
-        # return overall ratio and list
-        return (geo.straighRatio(self._path), ratiolist)
+    def _getvisitedAeSD(self):
+        """ sets and returns average and standard deviation of distances between visited trees
 
-    def strRatioAeSD(self, ignore_hang=True, sep_hang=False):
-        """Returns average and standard deviation of straightness ratio of the subpath of the movement of the day
-
-        Keyword Arguments:
-            ignore_hang {boolean} -- ignore hanging, consider only travel subpaths  {Default: True}
-            sep_hang {boolean} -- consider hanging as indipendent subpaths (ignored if ignore_hang is True)  {Default: False}
-
-        Return:
-            {(float, float)} -- average ([0]) and standard deviation ([1]) of straightness ratio
+            Return:
+                {(float, float)} -- average ([0]) and standard deviation ([1]) of distances between visited trees
         """
-        arr = np.array(self.strRatioList(ignore_hang=ignore_hang, sep_hang=sep_hang)[1])
-        return (np.mean(arr, axis=0), np.std(arr, axis=0))
+        # get visited trees from indices
+        visited = [self._fruits[i] for i in self.visitedTrees.keys()]
+        ntocompare = len(visited)
+        distances = np.empty(mc.comb(ntocompare,2))
+        # loop on all visited trees
+        for idf in range(len(visited)-1):
+            distances[counter:counter+ntocompare] = visited[idf].distance(visited[idf+1:])
+            counter += ntocompare
+            ntocompare -= 1
+        # compute average and standard deviation
+        self._visitedAvg = np.mean(distances, axis=0)
+        self._visitedSD = np.std(distances, axis=0)
+        return (self._visitedAvg, self._visitedSD)
 
-    def speedAeSD(self, ignore_hang=True, sep_hang=False):
-        """Returns average and standard deviation of speed during the day
+    def _getfruitsZtest(self):
+        """ sets and returns the result of the Ztest between the fruits distribution and the visited distribution
 
-        Keyword Arguments:
-            ignore_hang {boolean} -- ignore hanging, consider only travel subpaths  {Default: True}
-            sep_hang {boolean} -- consider hanging as indipendent subpaths (ignored if ignore_hang is True)  {Default: False}
-
-        Return:
-            {(float, float)} -- average ([0]) and standard deviation ([1]) of speed
+            Return:
+                {float} -- result of the Z test
         """
-        speeds = []
-        # case hang ignored or separate
-        if ignore_hang or sep_hang:
-            for sbp in self.subpaths():
-                if len(self.subpaths()) > 1 and sbp[1] is None and ignore_hang:
-                    continue
-                speeds.extend(geo.getSpeeds(self._path[sbp[0]:sbp[2]]))
-        # case hang considered but not separate
-        else:
-            idx = 0
-            # loop on pairs travel+hanging
-            while idx < len(self.subpaths()) - 1:
-                speeds.extend(geo.getSpeeds(self.path[self._subpaths[idx][0]:self._subpaths[idx + 1][2]]))
-            # consider last travel if present
-            if len(self._subpaths) % 2 == 1:
-                speeds.extend(geo.getSpeeds(self.path[self._subpaths[-1][0]:self._subpaths[-1][2]]))
-        # return average and standard deviation
-        spds = np.array(speeds)
-        return (np.mean(spds, axis=0), np.std(spds, axis=0))
+        # computes fruit distribution
+        ntocompare = len(self._fruits)
+        distances = np.empty(mc.comb(ntocompare,2))
+        # loop on all trees trees
+        for (idf, fruit) in enumerate(self._fruits):
+            if ntocompare == 0:
+                break
+            distances[counter:counter+ntocompare] = fruit.distance(self._fruits[idf+1:])
+            counter += ntocompare
+            ntocompare -= 1
+        # compute average and standard deviation
+        fruitAvg = np.mean(distances, axis=0)
+        fruisSD = np.std(distances, axis=0)
 
-    def sublenghtAeSD(self, ignore_hang=True, sep_hang=False):
-        """Returns average and standard deviation of length of subpaths
-
-        Keyword Arguments:
-            ignore_hang {boolean} -- ignore hanging, consider only travel subpaths  {Default: True}
-            sep_hang {boolean} -- consider hanging as indipendent subpaths (ignored if ignore_hang is True)  {Default: False}
-
-        Return:
-            {(float, float)} -- average ([0]) and standard deviation ([1]) of subpaths' length
-        """
-        lengths = []
-        # case hang ignored or separate
-        if ignore_hang or sep_hang:
-            for sbp in self.subpaths():
-                if len(self.subpaths()) > 1 and sbp[1] is None and ignore_hang:
-                    continue
-                lengths.append(sbp[2] - sbp[0])
-        # case hang considered but not separate
-        else:
-            idx = 0
-            # loop on pairs travel+hanging
-            while idx < len(self.subpaths()) - 1:
-                lengths.append(self._subpaths[idx+1][2] - self._subpaths[idx][0])
-            # consider last travel if present
-            if len(self._subpaths) % 2 == 1:
-                lengths.append(self._subpaths[-1][2] - self._subpaths[-1][0])
-        # return average and standard deviation
-        lgts = np.array(lengths)
-        return (np.mean(lgts, axis=0), np.std(lgts, axis=0))
-
-    def subnumber(self, ignore_hang=True, sep_hang=False):
-        """Returns number of subpaths
-
-        Keyword Arguments:
-            ignore_hang {boolean} -- ignore hanging, consider only travel subpaths  {Default: True}
-            sep_hang {boolean} -- consider hanging as indipendent subpaths (ignored if ignore_hang is True)  {Default: False}
-
-        Return:
-            {int} -- number of subpaths
-        """
-        number = 0
-        # case hang ignored or separate
-        if ignore_hang or sep_hang:
-            for sbp in self.subpaths():
-                if len(self.subpaths()) > 1 and sbp[1] is None and ignore_hang:
-                    continue
-                number = number + 1
-        # case hang considered but not separate
-        else:
-            number = len(self.subpaths())
-        # return number
-        return number
+        # compute Z test
+        self._fruitsZtest = abs(self.visitedAvg - fruitAvg) / math.sqrt(fruitSD * fruitSD + self.visitedVar)
+        return (self._fruitsZtest)

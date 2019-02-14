@@ -4,16 +4,124 @@
 		"selected_items":
 		[
 			[
+				"Isla",
+				"Island"
+			],
+			[
+				"is",
+				"island"
+			],
+			[
+				"min",
+				"min_range"
+			],
+			[
+				"non",
+				"noneValue"
+			],
+			[
+				"ign",
+				"ignore_z"
+			],
+			[
+				"fruit",
+				"fruitsZtest"
+			],
+			[
+				"visi",
+				"visitedSD"
+			],
+			[
+				"subds",
+				"subdistsFano"
+			],
+			[
+				"subdis",
+				"subdistsSD"
+			],
+			[
+				"subd",
+				"subdistsAvg"
+			],
+			[
+				"pass",
+				"passedbyNum"
+			],
+			[
+				"miss",
+				"missedNum"
+			],
+			[
+				"VIS",
+				"VIS_NUM"
+			],
+			[
+				"SUB",
+				"SUBDIST_FANO"
+			],
+			[
+				"SU",
+				"SUBDIST_AVG"
+			],
+			[
+				"fru",
+				"fruitSD"
+			],
+			[
+				"_fr",
+				"_fruitsZtest"
+			],
+			[
+				"_",
+				"_getfruitsZtest"
+			],
+			[
+				"_get",
+				"_getvisitedAeSD"
+			],
+			[
+				"_ge",
+				"_getsubdistsAeSDeF"
+			],
+			[
+				"_S",
+				"_sublengthFano"
+			],
+			[
+				"_su",
+				"_sublengthSD"
+			],
+			[
+				"dst",
+				"distance"
+			],
+			[
+				"visit",
+				"visitedtrees"
+			],
+			[
+				"by",
+				"bypasskeys"
+			],
+			[
+				"_mis",
+				"_missedTrees"
+			],
+			[
+				"missed",
+				"misseddist"
+			],
+			[
+				"date",
+				"datetime"
+			],
+			[
 				"val",
 				"value_counts"
 			],
 			[
 				"base",
 				"basemonkey"
-			],
-			[
-				"fruit",
-				"fruititer"
 			],
 			[
 				"sp",
@@ -212,10 +320,6 @@
 				"Island\tfunction"
 			],
 			[
-				"date",
-				"datepath"
-			],
-			[
 				"DE",
 				"DEFAULT_DATE\tstatement"
 			],
@@ -296,10 +400,6 @@
 				"_subpaths\tstatement"
 			],
 			[
-				"fru",
-				"fruits\tparam"
-			],
-			[
 				"force",
 				"force_recompute"
 			],
@@ -322,10 +422,6 @@
 			[
 				"ad",
 				"add"
-			],
-			[
-				"visi",
-				"visited_fruits\tstatement"
 			],
 			[
 				"mi",
@@ -418,120 +514,61 @@
 			[
 				"pts",
 				"pts_list\tstatement"
-			],
-			[
-				"pt",
-				"pts_list\tstatement"
-			],
-			[
-				"cu",
-				"curr_orig\tstatement"
-			],
-			[
-				"dt",
-				"dtpath\tstatement"
-			],
-			[
-				"ra",
-				"ratiolist\tstatement"
-			],
-			[
-				"path",
-				"pathActLength\tfunction"
-			],
-			[
-				"datepa",
-				"datepath\tclass"
-			],
-			[
-				"da",
-				"datetime\tclass"
-			],
-			[
-				"info",
-				"info_str\tstatement"
-			],
-			[
-				"inf",
-				"info_str\tstatement"
-			],
-			[
-				"skip",
-				"skiprows\tparam"
-			],
-			[
-				"datep",
-				"date_parser\tparam"
-			],
-			[
-				"true",
-				"True\tkeyword"
-			],
-			[
-				"par",
-				"parseSTDDate\tfunction"
-			],
-			[
-				"rea",
-				"read_csv"
-			],
-			[
-				"r",
-				"reader\tstatement"
-			],
-			[
-				"VI",
-				"VIEW_PATH\tstatement"
-			],
-			[
-				"MEM",
-				"MEMORY_PATH\tstatement"
-			],
-			[
-				"min",
-				"min_range\tparam"
-			],
-			[
-				"poi",
-				"points_drt"
-			],
-			[
-				"time",
-				"timedelta\tclass"
-			],
-			[
-				"clas",
-				"classmethod\tclass"
-			],
-			[
-				"se",
-				"set_id\tfunction"
-			],
-			[
-				"cla",
-				"classmethod\tclass"
-			],
-			[
-				"singl",
-				"single_date"
 			]
 		]
 	},
 	"buffers":
 	[
 		{
-			"file": "monkeyconstants.py",
+			"file": "datepath.py",
 			"settings":
 			{
-				"buffer_size": 3658,
+				"buffer_size": 19805,
+				"encoding": "UTF-8",
 				"line_ending": "Windows"
 			}
 		},
 		{
-			"file": "Data/main.csv",
+			"file": "dataparser.py",
 			"settings":
 			{
-				"buffer_size": 525570,
+				"buffer_size": 9260,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "geometry.py",
+			"settings":
+			{
+				"buffer_size": 24330,
+				"encoding": "UTF-8",
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "simulation.py",
+			"settings":
+			{
+				"buffer_size": 26020,
+				"encoding": "UTF-8",
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "generator.py",
+			"settings":
+			{
+				"buffer_size": 3186,
+				"encoding": "UTF-8",
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "monkeyconstants.py",
+			"settings":
+			{
+				"buffer_size": 4959,
+				"encoding": "UTF-8",
 				"line_ending": "Windows"
 			}
 		}
@@ -584,12 +621,20 @@
 		"selected_items":
 		[
 			[
+				":w",
+				":w - Save"
+			],
+			[
 				":W",
 				":w - Save"
 			],
 			[
-				":w",
+				":a",
 				":w - Save"
+			],
+			[
+				"live ",
+				"MarkdownLivePreview: Edit Current File"
 			],
 			[
 				":",
@@ -699,23 +744,29 @@
 	],
 	"file_history":
 	[
-		"/D/Projects/Python/Thesis/classifier.py",
-		"/D/Projects/Python/BigDada/BankMarketing.py",
+		"/D/Projects/Python/Thesis/simulation_old.py",
 		"/D/Projects/Python/Thesis/generator.py",
-		"/D/Projects/Python/Thesis/monkeyclassifier.py",
+		"/D/Projects/Python/Thesis/classifier.py",
+		"/D/Projects/Python/Thesis/Data/main4h.csv",
 		"/D/Projects/Python/Thesis/simulation.py",
-		"/D/Projects/Python/Thesis/datepath.py",
-		"/D/Projects/Python/Thesis/Data/Simulated/Memory/1257_20190122.csv",
-		"/D/Projects/Python/Thesis/Data/main.csv",
-		"/D/Projects/Python/Thesis/monkeyconstants.py",
 		"/D/Projects/Python/Thesis/geometry.py",
+		"/D/Projects/Python/Thesis/datepath.py",
+		"/D/Projects/Python/Thesis/Data/AllChibi.csv",
+		"/D/Projects/Python/Thesis/datepath_old.py",
+		"/D/Projects/Matlab/Lynx4/DigitalMap/Documentation/Storage Standard.md",
+		"/D/Projects/Python/Thesis/Data/main8h.csv",
+		"/D/Projects/Python/Thesis/dataparser.py",
+		"/D/Projects/Python/Thesis/Data/main.csv",
+		"/D/Projects/Python/BigDada/BankMarketing.py",
+		"/D/Projects/Python/Thesis/monkeyclassifier.py",
+		"/D/Projects/Python/Thesis/Data/Simulated/Memory/1257_20190122.csv",
+		"/D/Projects/Python/Thesis/monkeyconstants.py",
 		"/D/Projects/Python/Thesis/Data/Simulated/View/99_20190122_info.csv",
 		"/D/Projects/Python/Thesis/Data/Simulated/View/00_20190122.csv",
 		"/D/Projects/Python/Thesis/Data/Simulated/View/00_20190121.csv",
 		"/D/Projects/Python/Thesis/Data/Simulated/View/03_20190121_info.csv",
 		"/D/Projects/Python/Thesis/Data/Simulated/View/03_20190121.csv",
 		"/D/Projects/Python/Thesis/Data/Simulated/Memory/87_20190121_info.csv",
-		"/D/Projects/Python/Thesis/dataparser.py",
 		"/D/Projects/Python/Thesis/.gitignore",
 		"/D/Projects/Matlab/Lynx4/DigitalMap/.gitignore",
 		"/D/Projects/Matlab/Lynx4/DigitalMap/.gitignore.txt",
@@ -737,7 +788,6 @@
 		"/D/Projects/Python/Thesis/Data/Simulated/Memory/3_20181027_info.csv",
 		"/D/Projects/Python/Thesis/Data/Simulated/Memory/0_20180320.csv",
 		"/D/OneDrive - Politecnico di Milano/Documents/University/ASP/USES4/USES4_TestFolder/MassaLombarda3_20180723/20180724/GpsLog 1-12.txt",
-		"/D/Projects/Python/Thesis/datepath_old.py",
 		"/D/Projects/Python/Thesis/test.py",
 		"/C/Users/Andrea/AppData/Roaming/Sublime Text 3/Packages/User/PythonBreakpoints.sublime-settings",
 		"/C/Users/Andrea/AppData/Roaming/Sublime Text 3/Packages/User/Python.sublime-build",
@@ -776,7 +826,7 @@
 	],
 	"find":
 	{
-		"height": 24.0
+		"height": 34.0
 	},
 	"find_in_files":
 	{
@@ -793,6 +843,8 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"Island",
+			"sublength",
 			"print",
 			"REACHED_TRE",
 			"print",
@@ -852,6 +904,7 @@
 		"regex": false,
 		"replace_history":
 		[
+			"subdists",
 			"._y",
 			"._x",
 			"      ",
@@ -873,70 +926,217 @@
 	"groups":
 	[
 		{
-			"selected": 0,
+			"selected": 3,
 			"sheets":
 			[
 				{
 					"buffer": 0,
-					"file": "monkeyconstants.py",
+					"file": "datepath.py",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 3658,
+						"buffer_size": 19805,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								198,
-								198
+								14604,
+								14604
 							]
 						],
 						"settings":
 						{
-							"SL.55.region_keys":
+							"SL.65.region_keys":
 							[
 							],
-							"markdonw_live_preview_last_run": 1548676120.23,
+							"markdonw_live_preview_last_run": 1550156124.11,
 							"syntax": "Packages/Python/Python.sublime-syntax",
 							"tab_size": 4,
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 0.0,
+						"translation.y": 5956.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 2,
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "dataparser.py",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 9260,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								874,
+								874
+							]
+						],
+						"settings":
+						{
+							"SL.147.region_keys":
+							[
+							],
+							"markdonw_live_preview_last_run": 1550167304.21,
+							"syntax": "Packages/Python/Python.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 174.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 3,
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "geometry.py",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 24330,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								3840,
+								3840
+							]
+						],
+						"settings":
+						{
+							"SL.111.region_keys":
+							[
+							],
+							"markdonw_live_preview_last_run": 1550161998.93,
+							"syntax": "Packages/Python/Python.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 7428.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "simulation.py",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 26020,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								4170,
+								4168
+							]
+						],
+						"settings":
+						{
+							"SL.130.region_keys":
+							[
+							],
+							"markdonw_live_preview_last_run": 1550163544.72,
+							"syntax": "Packages/Python/Python.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 1866.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 0,
 					"type": "text"
 				},
 				{
-					"buffer": 1,
-					"file": "Data/main.csv",
+					"buffer": 4,
+					"file": "generator.py",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 525570,
+						"buffer_size": 3186,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								36,
-								36
+								379,
+								379
 							]
 						],
 						"settings":
 						{
-							"markdonw_live_preview_last_run": 1548673881.31,
-							"syntax": "Packages/Text/Plain text.tmLanguage"
+							"SL.148.region_keys":
+							[
+							],
+							"markdonw_live_preview_last_run": 1550167353.34,
+							"syntax": "Packages/Python/Python.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 0.0,
+						"translation.y": 135.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 1,
+					"stack_index": 4,
+					"type": "text"
+				},
+				{
+					"buffer": 5,
+					"file": "monkeyconstants.py",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 4959,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1463,
+								1463
+							]
+						],
+						"settings":
+						{
+							"SL.13.region_keys":
+							[
+							],
+							"SL.27.region_keys":
+							[
+							],
+							"SL.55.region_keys":
+							[
+							],
+							"markdonw_live_preview_last_run": 1549586598.28,
+							"syntax": "Packages/Python/Python.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 564.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 5,
 					"type": "text"
 				}
 			]
@@ -1001,7 +1201,7 @@
 	"project": "Thesis.sublime-project",
 	"replace":
 	{
-		"height": 44.0
+		"height": 64.0
 	},
 	"save_all_on_build": true,
 	"select_file":

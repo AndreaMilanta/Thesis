@@ -46,11 +46,12 @@ import monkeyconstants as mc
 #                                                       #
 # --------------- LOAD DATASET ------------------------ #
 #
-csvpath = mc.DATA + "main.csv"
+csvpath = mc.DATA + "main4h.csv"
 df = pd.read_csv(csvpath, sep=',')
 
 # drop non-meaningful features
 df.drop("id", axis=1, inplace=True)
+df.drop("Length", axis=1, inplace=True)
 
 #                                                       #
 # --------------- FEATURE HANDLING -------------------- #
@@ -71,14 +72,14 @@ print(df["y"].value_counts())
 print("\ndataset percentage balance after dropping null values:")
 print(df["y"].value_counts() / len(df))
 
-# correlation matrix
-crmtx = df.corr();
-
 # drop dependent features
-df.drop("Subnumber", axis=1, inplace=True)
-df.drop("StraightnessSD", axis=1, inplace=True)
+# df.drop("Subnumber", axis=1, inplace=True)
+# df.drop("StraightnessSD", axis=1, inplace=True)
+# df.drop("SpeedAvg", axis=1, inplace=True)
 df.drop("SpeedSD", axis=1, inplace=True)
 
+# correlation matrix
+crmtx = df.corr();
 
 #                                                       #
 #------------ CLASSIFICATION X-VALIDATION --------------#
@@ -130,26 +131,25 @@ print("\nRandom Forest:\n\taccuracy: %2.2f \n\tprecision: %2.2f\n\trecall: %2.2f
 # for f in range(x_train.shape[1]):
 #     print("\t%d. feature %d (%f)" % (f + 1, indices[f], importances[indices[f]]))
 
-# correlation matrix
-plt.figure()
-sns.heatmap(crmtx,annot=True,cmap='RdYlGn',linewidths=0.2,annot_kws={'size':20})
-fig=plt.gcf()
-fig.set_size_inches(18,15)
-plt.xticks(fontsize=14)
-plt.yticks(fontsize=14)
-
+# # correlation matrix
+# f, ax = plt.subplots(figsize=(12, 8))
+# sns.heatmap(crmtx,annot=True,cmap='RdYlGn',linewidths=0.2,annot_kws={'size':20})
+# plt.subplots_adjust(left=0.15, right=0.99, bottom=0.25, top=1)
+# plt.xticks(fontsize=12)
+# plt.yticks(fontsize=14)
 
 # Plot the feature importances of the forest
 def feature_importance_graph(indices, importances, feature_names):
-    plt.figure(figsize=(12,6))
+    f, ax = plt.subplots(figsize=(12, 8))
     plt.title("Determining Feature importances \n with DecisionTreeClassifier", fontsize=18)
+    plt.subplots_adjust(left=0.15, right=0.94, bottom=0.11, top=0.90)
     plt.barh(range(len(indices)), importances[indices], color='#31B173',  align="center")
     plt.yticks(range(len(indices)), feature_names[indices], rotation='horizontal',fontsize=14)
     plt.ylim([-1, len(indices)])
     # plt.axhline(y=1.85, xmin=0.21, xmax=0.952, color='k', linewidth=3, linestyle='--')
-feature_importance_graph(indices, importances, feature_names)
+# feature_importance_graph(indices, importances, feature_names)
 
-# Logistic Regression confusion matrix
+# # Logistic Regression confusion matrix
 lr_conf = confusion_matrix(y_train, lr_pred)
 f, ax = plt.subplots(figsize=(12, 8))
 sns.heatmap(lr_conf, annot=True, fmt="d", linewidths=.5, ax=ax)
@@ -159,7 +159,7 @@ ax.set_yticks(np.arange(lr_conf.shape[0]) + 0.5, minor=False)
 ax.set_xticklabels(['View(0)\npredicted', 'Memory(1)\npredicted'], fontsize=16)
 ax.set_yticklabels(['View(0)\nreal', 'Memory(1)\nreal'], fontsize=16, rotation=360)
 
-# Decision Tree confusion matrix
+# # Decision Tree confusion matrix
 dt_conf = confusion_matrix(y_train, dt_pred)
 f, ax = plt.subplots(figsize=(12, 8))
 sns.heatmap(dt_conf, annot=True, fmt="d", linewidths=.5, ax=ax)
@@ -169,7 +169,7 @@ ax.set_yticks(np.arange(dt_conf.shape[0]) + 0.5, minor=False)
 ax.set_xticklabels(['View(0)\npredicted', 'Memory(1)\npredicted'], fontsize=16)
 ax.set_yticklabels(['View(0)\nreal', 'Memory(1)\nreal'], fontsize=16, rotation=360)
 
-# Logistic Regression confusion matrix
+# # Logistic Regression confusion matrix
 rf_conf = confusion_matrix(y_train, rf_pred)
 f, ax = plt.subplots(figsize=(12, 8))
 sns.heatmap(rf_conf, annot=True, fmt="d", linewidths=.5, ax=ax)

@@ -9,8 +9,16 @@ import monkeyconstants as mc
 
 
 class Coordinates:
+    Island = None;
+
     """Represents a point coordinate with time information
     """
+    def __init__(self, x, y, z, time=None):
+        self.x = x
+        self.y = y
+        self.z = z
+        self.set_time(time)
+        
     @property
     def iz(self):
         return int(self.z)
@@ -51,12 +59,6 @@ class Coordinates:
     def xyizt(self):
         return [self.x, self.y, int(self.z), self.time]
 
-    def __init__(self, x, y, z, time=None):
-        self.x = x
-        self.y = y
-        self.z = z
-        self.set_time(time)
-
     def __eq__(self, other):
         return self.equals(other)
 
@@ -71,6 +73,15 @@ class Coordinates:
 
     def clone(self):
         return Coordinates(self.x, self.y, self.z, time=self.time)
+
+    def resetz(self):
+        """recomputes z from Island
+        """
+        if Coordinates.Island is not None:
+            try:
+                self.z = Coordinates.Island[int(self.x), int(self.y)]
+            except IndexError:
+                self.z = 0
 
     def set_time(self, time):
         """Assign a timestamp to point
@@ -89,10 +100,16 @@ class Coordinates:
 
     def distance(self, p, ignore_z=False, noneValue=None):
         """ Euclidean distance from the parameter point
+        Arguments:
+            p {Coordinates / [Coordinates]} -- point or list of points to measure the distance from 
 
         Keyword Arguments:
             ignore_z {Boolean} -- ignore z dimension and work only on xy plane projection (default: False)
             noneValue {float}  -- value to return if parameter point is None. (default: None)
+
+        Returns:
+            distances {float / [float]} -- distance from self to p. If p is list, then distances is a list of distances
+                                           from self to all points in p
         """
         # Case p is list of points
         if p is None:
@@ -100,13 +117,7 @@ class Coordinates:
         if isinstance(p, list):
             distances = []                      # array of distances
             for point in p:
-                x2 = math.pow((self.x - point.x), 2)
-                y2 = math.pow((self.y - point.y), 2)
-                if (ignore_z is False):
-                    z2 = math.pow((self.z - point.z), 2)
-                    distances.append(math.sqrt(x2 + y2 + z2))
-                else:
-                    distances.append(math.sqrt(x2 + y2))
+                distances.append(self.distance(point, ignore_z, noneValue))
             return distances
         # case p is single point
         else:
@@ -348,32 +359,44 @@ class Coordinates:
                 return e
         return None
 
-    def isVisible(self, p, island, min_range=mc.VIEW_MIN_RANGE, next=None, FOV=mc.FOV):
+    def isVisible(self, p, island, min_range=mc.VIEW_MIN_RANGE, next=None, FOV=mc.FOV, max_range=mc.VIEW_MAX_RANGE):
         """Checks if p is visible from the caller
 
         Requires island to be set to the corrisponding matrix
 
         Arguments:
-            p {Coordinate} -- Point to be seen
+            p {Coordinate / [Coordinates]} -- Point to be seen. may be a list of points
             island {img[nxmxk]} -- island
 
         Keyword Arguments:
             min_range {float} -- distance within which a tree is seen by default.  {Default: mc.VIEW_MIN_RANGE}
             next {Coordinates} -- previous point. Establishes looking direction. if None look all around {Default: None}
             FOV {int} -- Horizontal field of view in degrees. Ignored if previous is None.  {Default: mc.FOV}
+            max_range {float} -- maximum visibility. Actual visibility is a probabiltiy squared with the distance
 
         Returns:
-            visible {Boolean} -- The point is visible
+            visible {Boolean / [Boolean]} -- The point is visible. If p is list, return boolean list
         """
-        # check if parameter is None
+
+        # case p is None
         if p is None:
             return False
-        # check if fruit tree too close
-        delta = self.diff(p, inplace=False)
-        dist = delta.mag()
-        if(dist < min_range):
-            # print("Tree too close found")             # DEBUG!!!!
+        # case p is list
+        if isinstance(p, list):
+            visible = []
+            for point in p:
+                visible.append(self.isVisible(point, island, min_range, next, FOV))
+            return visible
+        
+        # distance evaluation
+        dist = self.distance(p)
+        sqrdmax = random.randint(min_range * min_range, max_range * max_range) 
+        # case fruit tree too close
+        if (dist < min_range):
             return True
+        # case fruit tree too far
+        if (dist*dist > sqrdmax):
+            return false
 
         # check if p in FOV if next available
         if next is not None:
@@ -381,6 +404,7 @@ class Coordinates:
             cont = self.add(self.diff(next, inplace=False), inplace=False)
             if not cont.angle(p, self, ignore_z=True)[1] < -cos:
                 return False
+
 
         # check if visible
         dist -= min_range
@@ -480,6 +504,54 @@ class Coordinates:
             if tl or tr or br or bl:
                 return True
         return False
+
+    def nextfrom(self, prev, speed, angle):
+        """ return next point considering direction from a given point and movement with given speed and angle.
+
+            Arguments:
+                prev {coordinates} -- previous point. If 'None' direction from the origin is considered
+                speed {float} -- speed of movement (4m/s)
+                angle {float} -- relative angle of movement in deg
+
+            Returns:
+                next {Coordinates} -- next point
+        """
+        # Compute delta vector
+        if prev is None:
+            delta = self    
+        else:
+            delta = prev.diff(self, inplace=False)
+        # scale for speed
+        dist = abs(mc.DT * speed)
+        delta.scale(dist / delta.mag(), inplace=True)
+        # rotate
+        delta.rotate(angle, inplace=True)
+        return self.add(delta, inplace=False).resetz()
+
+    def nexttowards(self, target, speed, angle):
+        """ return next point considering direction towards a given point and movement with given speed and angle.
+
+            Arguments:
+                target {coordinates} -- target point. If 'None' direction from the origin is considered
+                speed {float} -- speed of movement (4m/s)
+                angle {float} -- relative angle of movement in deg
+
+            Returns:
+                next {Coordinates} -- next point
+        """
+        # Compute delta vector
+        if prev is None:
+            delta = self    
+        else:
+            delta = self.diff(target, inplace=False)
+        # scale for speed
+        dist = abs(mc.DT * speed)
+        delta.scale(dist / delta.mag(), inplace=True)
+        # rotate
+        delta.rotate(angle, inplace=True)
+        return self.add(delta, inplace=False).resetz()
+
+
 
 
 def unit():
