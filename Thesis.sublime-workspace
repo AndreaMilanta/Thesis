@@ -4,6 +4,50 @@
 		"selected_items":
 		[
 			[
+				"s",
+				"self"
+			],
+			[
+				"F",
+				"Fruits"
+			],
+			[
+				"ran",
+				"random"
+			],
+			[
+				"fru",
+				"Fruits"
+			],
+			[
+				"DIR",
+				"DIR_ANG_SD"
+			],
+			[
+				"dir",
+				"DIR_VEL_EV"
+			],
+			[
+				"DI",
+				"DIR_VEL_xx"
+			],
+			[
+				"comp",
+				"compute"
+			],
+			[
+				"dista",
+				"distance"
+			],
+			[
+				"at",
+				"atTree"
+			],
+			[
+				"spee",
+				"speed"
+			],
+			[
 				"Isla",
 				"Island"
 			],
@@ -62,10 +106,6 @@
 			[
 				"SU",
 				"SUBDIST_AVG"
-			],
-			[
-				"fru",
-				"fruitSD"
 			],
 			[
 				"_fr",
@@ -154,10 +194,6 @@
 			[
 				"SPD",
 				"SPD_A"
-			],
-			[
-				"spee",
-				"speeds"
 			],
 			[
 				"stra",
@@ -252,14 +288,6 @@
 				"counter"
 			],
 			[
-				"ran",
-				"Random"
-			],
-			[
-				"F",
-				"False"
-			],
-			[
 				"d",
 				"display_island"
 			],
@@ -294,10 +322,6 @@
 			[
 				"in",
 				"inplace"
-			],
-			[
-				"s",
-				"show"
 			],
 			[
 				"a",
@@ -490,35 +514,38 @@
 			[
 				"Pl",
 				"PLANNING_STEPS"
-			],
-			[
-				"MA",
-				"MAX_ITERATIONS\tstatement"
-			],
-			[
-				"displa",
-				"display_memory"
-			],
-			[
-				"monk",
-				"monkeys\tstatement"
-			],
-			[
-				"FRTU",
-				"FRUIT_RADIUS\tstatement"
-			],
-			[
-				"st",
-				"strRatioAeSD\tfunction"
-			],
-			[
-				"pts",
-				"pts_list\tstatement"
 			]
 		]
 	},
 	"buffers":
 	[
+		{
+			"file": "tester.py",
+			"settings":
+			{
+				"buffer_size": 3319,
+				"encoding": "UTF-8",
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "geometry.py",
+			"settings":
+			{
+				"buffer_size": 26917,
+				"encoding": "UTF-8",
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "simulation.py",
+			"settings":
+			{
+				"buffer_size": 25296,
+				"encoding": "UTF-8",
+				"line_ending": "Windows"
+			}
+		},
 		{
 			"file": "datepath.py",
 			"settings":
@@ -529,37 +556,10 @@
 			}
 		},
 		{
-			"file": "dataparser.py",
+			"file": "display.py",
 			"settings":
 			{
-				"buffer_size": 9260,
-				"line_ending": "Windows"
-			}
-		},
-		{
-			"file": "geometry.py",
-			"settings":
-			{
-				"buffer_size": 24330,
-				"encoding": "UTF-8",
-				"line_ending": "Windows"
-			}
-		},
-		{
-			"file": "simulation.py",
-			"settings":
-			{
-				"buffer_size": 26020,
-				"encoding": "UTF-8",
-				"line_ending": "Windows"
-			}
-		},
-		{
-			"file": "generator.py",
-			"settings":
-			{
-				"buffer_size": 3186,
-				"encoding": "UTF-8",
+				"buffer_size": 8505,
 				"line_ending": "Windows"
 			}
 		},
@@ -567,7 +567,7 @@
 			"file": "monkeyconstants.py",
 			"settings":
 			{
-				"buffer_size": 4959,
+				"buffer_size": 5235,
 				"encoding": "UTF-8",
 				"line_ending": "Windows"
 			}
@@ -739,23 +739,25 @@
 	},
 	"expanded_folders":
 	[
-		"/D/Projects/Python/Thesis",
-		"/D/Projects/Python/Thesis/Data"
+		"/D/Projects/Python/Thesis"
 	],
 	"file_history":
 	[
-		"/D/Projects/Python/Thesis/simulation_old.py",
 		"/D/Projects/Python/Thesis/generator.py",
+		"/D/Projects/Python/Thesis/simulation.py",
+		"/D/Projects/Python/Thesis/dataparser.py",
+		"/D/Projects/Python/Thesis/tester",
+		"/D/Downloads/RGB_new/get_panels_RGB.m",
+		"/D/Downloads/RGB_new/main_panels.m",
+		"/D/Projects/Python/Thesis/simulation_old.py",
 		"/D/Projects/Python/Thesis/classifier.py",
 		"/D/Projects/Python/Thesis/Data/main4h.csv",
-		"/D/Projects/Python/Thesis/simulation.py",
 		"/D/Projects/Python/Thesis/geometry.py",
 		"/D/Projects/Python/Thesis/datepath.py",
 		"/D/Projects/Python/Thesis/Data/AllChibi.csv",
 		"/D/Projects/Python/Thesis/datepath_old.py",
 		"/D/Projects/Matlab/Lynx4/DigitalMap/Documentation/Storage Standard.md",
 		"/D/Projects/Python/Thesis/Data/main8h.csv",
-		"/D/Projects/Python/Thesis/dataparser.py",
 		"/D/Projects/Python/Thesis/Data/main.csv",
 		"/D/Projects/Python/BigDada/BankMarketing.py",
 		"/D/Projects/Python/Thesis/monkeyclassifier.py",
@@ -826,7 +828,7 @@
 	],
 	"find":
 	{
-		"height": 34.0
+		"height": 24.0
 	},
 	"find_in_files":
 	{
@@ -926,11 +928,130 @@
 	"groups":
 	[
 		{
-			"selected": 3,
+			"selected": 1,
 			"sheets":
 			[
 				{
 					"buffer": 0,
+					"file": "tester.py",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 3319,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								228,
+								228
+							],
+							[
+								518,
+								518
+							]
+						],
+						"settings":
+						{
+							"SL.22.region_keys":
+							[
+							],
+							"markdonw_live_preview_last_run": 1550741848.98,
+							"open_with_edit": true,
+							"syntax": "Packages/Python/Python.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 3,
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "geometry.py",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 26917,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								7976,
+								7976
+							]
+						],
+						"settings":
+						{
+							"SL.111.region_keys":
+							[
+							],
+							"SL.14.region_keys":
+							[
+							],
+							"SL.15.region_keys":
+							[
+							],
+							"SL.16.region_keys":
+							[
+							],
+							"markdonw_live_preview_last_run": 1550161998.93,
+							"syntax": "Packages/Python/Python.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 3302.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "simulation.py",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 25296,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								2777,
+								2777
+							]
+						],
+						"settings":
+						{
+							"SL.15.region_keys":
+							[
+							],
+							"SL.24.region_keys":
+							[
+							],
+							"markdonw_live_preview_last_run": 1550741961.49,
+							"syntax": "Packages/Python/Python.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 1290.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				},
+				{
+					"buffer": 3,
 					"file": "datepath.py",
 					"semi_transient": false,
 					"settings":
@@ -942,12 +1063,15 @@
 						"selection":
 						[
 							[
-								14604,
-								14604
+								14796,
+								14796
 							]
 						],
 						"settings":
 						{
+							"SL.13.region_keys":
+							[
+							],
 							"SL.65.region_keys":
 							[
 							],
@@ -957,146 +1081,44 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 5956.0,
+						"translation.y": 1681.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 2,
-					"type": "text"
-				},
-				{
-					"buffer": 1,
-					"file": "dataparser.py",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 9260,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								874,
-								874
-							]
-						],
-						"settings":
-						{
-							"SL.147.region_keys":
-							[
-							],
-							"markdonw_live_preview_last_run": 1550167304.21,
-							"syntax": "Packages/Python/Python.sublime-syntax",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 174.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 3,
-					"type": "text"
-				},
-				{
-					"buffer": 2,
-					"file": "geometry.py",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 24330,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								3840,
-								3840
-							]
-						],
-						"settings":
-						{
-							"SL.111.region_keys":
-							[
-							],
-							"markdonw_live_preview_last_run": 1550161998.93,
-							"syntax": "Packages/Python/Python.sublime-syntax",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 7428.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 1,
-					"type": "text"
-				},
-				{
-					"buffer": 3,
-					"file": "simulation.py",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 26020,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								4170,
-								4168
-							]
-						],
-						"settings":
-						{
-							"SL.130.region_keys":
-							[
-							],
-							"markdonw_live_preview_last_run": 1550163544.72,
-							"syntax": "Packages/Python/Python.sublime-syntax",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 1866.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 0,
+					"stack_index": 4,
 					"type": "text"
 				},
 				{
 					"buffer": 4,
-					"file": "generator.py",
-					"semi_transient": false,
+					"file": "display.py",
+					"semi_transient": true,
 					"settings":
 					{
-						"buffer_size": 3186,
+						"buffer_size": 8505,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								379,
-								379
+								532,
+								532
 							]
 						],
 						"settings":
 						{
-							"SL.148.region_keys":
+							"SL.28.region_keys":
 							[
 							],
-							"markdonw_live_preview_last_run": 1550167353.34,
+							"markdonw_live_preview_last_run": 1550742250.35,
 							"syntax": "Packages/Python/Python.sublime-syntax",
 							"tab_size": 4,
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 135.0,
+						"translation.y": 234.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 4,
+					"stack_index": 2,
 					"type": "text"
 				},
 				{
@@ -1105,20 +1127,26 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 4959,
+						"buffer_size": 5235,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								1463,
-								1463
+								1682,
+								1682
 							]
 						],
 						"settings":
 						{
 							"SL.13.region_keys":
+							[
+							],
+							"SL.18.region_keys":
+							[
+							],
+							"SL.19.region_keys":
 							[
 							],
 							"SL.27.region_keys":
@@ -1133,7 +1161,7 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 564.0,
+						"translation.y": 762.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 5,
@@ -1201,7 +1229,7 @@
 	"project": "Thesis.sublime-project",
 	"replace":
 	{
-		"height": 64.0
+		"height": 44.0
 	},
 	"save_all_on_build": true,
 	"select_file":

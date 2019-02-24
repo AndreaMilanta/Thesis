@@ -2,6 +2,7 @@
 """
 import numpy as np
 import math
+import collections
 # from matplotlib import pyplot as plt
 # from mpl_toolkits.mplot3d import Axes3D
 
@@ -77,11 +78,11 @@ class Coordinates:
     def resetz(self):
         """recomputes z from Island
         """
-        if Coordinates.Island is not None:
-            try:
-                self.z = Coordinates.Island[int(self.x), int(self.y)]
-            except IndexError:
-                self.z = 0
+        try:
+            self.z = Coordinates.Island[int(self.x), int(self.y)]
+        except (IndexError, TypeError):
+            self.z = 0
+        return self;
 
     def set_time(self, time):
         """Assign a timestamp to point
@@ -133,7 +134,7 @@ class Coordinates:
         """Return minimum distance between the point and the set of points given as parameter
 
         Arguments:
-            points {List[Coordinates]} -- points considered for minimum distance
+            points {Coordinates / List[Coordinates]} -- point or points considered for maximum distance
 
         Keyword Arguments:
             ignore_z {Boolean} -- ignore z dimension and work only on xy plane projection (default: False)
@@ -142,6 +143,8 @@ class Coordinates:
             min_dist {[float, Coordinates]} -- point of the set at minimum distance and distance
         """
         min_dist = [math.inf, None]
+        if type(points) is not list:
+            return self.distance(points, ignore_z)
         for p in points:
             d = self.distance(p, ignore_z)
             if d < min_dist[0]:
@@ -152,7 +155,7 @@ class Coordinates:
         """Return maximum distance between the point and the set of points given as parameter
 
         Arguments:
-            points {List[Coordinates]} -- points considered for maximum distance
+            points {Coordinates / List[Coordinates]} -- point or points considered for maximum distance
 
         Keyword Arguments:
             ignore_z {Boolean} -- ignore z dimension and work only on xy plane projection (default: False)
@@ -161,6 +164,8 @@ class Coordinates:
             max_dist {[float, Coordinates]} -- point of the set at maximum distance and distance
         """
         max_dist = [0, None]
+        if type(points) is not list:
+            return self.distance(points, ignore_z)
         for p in points:
             d = self.distance(p, ignore_z)
             if d > max_dist[0]:
@@ -234,19 +239,20 @@ class Coordinates:
 
         Keyword Arguments:
             ignore_z {bool} -- ignore z in the computation (default: {False})
-            inplace {bool} -- modify caller  {Default: True}
+            inplace {bool} -- modify caller  {Default: False}
         """
+        # Handle inplace by recalling add on clone
+        if not inplace:
+            return self.clone().add(p, ignore_z, inplace=True)
+        # Actual computation
         if ignore_z:
-            if inplace:
-                self.x += p.x
-                self.y += p.y
-            return Coordinates(p.x + self.x, p.y + self.y, 0)
+            self.x += p.x
+            self.y += p.y
         else:
-            if inplace:
-                self.x += p.x
-                self.y += p.y
-                self.z += p.z
-            return Coordinates(p.x + self.x, p.y + self.y, p.z + self.z)
+            self.x += p.x
+            self.y += p.y
+            self.z += p.z
+        return self
 
     def scale(self, factor, inplace=True):
         """Scales the caller's coordinates of factor
@@ -359,16 +365,31 @@ class Coordinates:
                 return e
         return None
 
-    def isVisible(self, p, island, min_range=mc.VIEW_MIN_RANGE, next=None, FOV=mc.FOV, max_range=mc.VIEW_MAX_RANGE):
+    def atTree(self, fruits, radius=mc.FRUIT_RADIUS, factor=1):
+        """Checks if point is in fruit tree
+
+            Arguments:
+                fruits {Coordinates / [Coordinates]} -- fruit tree or list of fruit trees to check against
+
+            Keyword Arguments:
+                radius {float} - radius of fruit tree.  {Default: mc.FRUIT_RADIUS}
+                factor {float} - radius multiplying factor. {Default: 1}
+
+            Returns:
+                atTree {boolean} -- whether the point is within a fruit tree
+        """
+        return self.minDistance(fruits) <= radius*factor 
+
+    def isVisible(self, p, island=Island, min_range=mc.VIEW_MIN_RANGE, next=None, FOV=mc.FOV, max_range=mc.VIEW_MAX_RANGE):
         """Checks if p is visible from the caller
 
         Requires island to be set to the corrisponding matrix
 
         Arguments:
             p {Coordinate / [Coordinates]} -- Point to be seen. may be a list of points
-            island {img[nxmxk]} -- island
 
         Keyword Arguments:
+            island {img[nxmxk]} -- island.  {Default: Coordinates.Island}
             min_range {float} -- distance within which a tree is seen by default.  {Default: mc.VIEW_MIN_RANGE}
             next {Coordinates} -- previous point. Establishes looking direction. if None look all around {Default: None}
             FOV {int} -- Horizontal field of view in degrees. Ignored if previous is None.  {Default: mc.FOV}
@@ -390,13 +411,13 @@ class Coordinates:
         
         # distance evaluation
         dist = self.distance(p)
-        sqrdmax = random.randint(min_range * min_range, max_range * max_range) 
+        sqrdmax = np.random.randint(min_range * min_range, max_range * max_range) 
         # case fruit tree too close
         if (dist < min_range):
             return True
         # case fruit tree too far
         if (dist*dist > sqrdmax):
-            return false
+            return False
 
         # check if p in FOV if next available
         if next is not None:
@@ -405,9 +426,9 @@ class Coordinates:
             if not cont.angle(p, self, ignore_z=True)[1] < -cos:
                 return False
 
-
         # check if visible
         dist -= min_range
+        delta = self.diff(p, inplace=False)
         unit = delta.scale(1 / dist, inplace=False)
         steps = 0
         temp = self
@@ -451,21 +472,25 @@ class Coordinates:
         # print("Tree Found of height=" + str(p.z) + " from height=" + str(self.z))         # DEBUG!!!!
         return True
 
-    def inWater(self, p, island):
+    def inWater(self, p, island=None):
         """Checks if path from self to p goes through water
 
         Arguments:
             p {Coordinates} -- destination
-            island {img[nxmxk]} -- island
+
+        Keyword Arguments:
+            island {img[nxmxk]} -- island. If None use Coordinates.Island.  {Default: None}
 
         Returns:
             bool -- true if path goes through water
         """
+        if island is None:
+            island  = Coordinates.Island;
         delta = self.diff(p, inplace=False)
         dist = delta.mag()
-        delta.scale(1 / dist)
+        delta.scale(1 / dist, inplace=True)
         steps = 0
-        temp = self
+        temp = self.clone()
         while steps < dist:
             steps = steps + 1
             temp.add(delta, inplace=True)
@@ -505,22 +530,36 @@ class Coordinates:
                 return True
         return False
 
-    def nextfrom(self, prev, speed, angle):
+    def nextfrom(self, prev, speed=None, angle=None):
         """ return next point considering direction from a given point and movement with given speed and angle.
 
             Arguments:
                 prev {coordinates} -- previous point. If 'None' direction from the origin is considered
-                speed {float} -- speed of movement (4m/s)
-                angle {float} -- relative angle of movement in deg
+
+            Keyword Arguments:
+                speed {float} -- speed of movement (m/s). If list use first value as mean and second as sd
+                                 to compute random.  If None compute random default values. {Default: None}
+                angle {float} -- relative angle of movement in deg. If list use first value as mean and second as sd
+                                 to compute random. If None compute random from default values.  {Default: None}
 
             Returns:
                 next {Coordinates} -- next point
         """
         # Compute delta vector
         if prev is None:
-            delta = self    
+            delta = unit()   
         else:
             delta = prev.diff(self, inplace=False)
+        # Compute speed
+        if speed is None:
+            speed = np.random.normal(mc.DF_VEL_EV, mc.DF_VEL_SD)
+        elif isinstance(speed, collections.Iterable):
+            speed = np.random.normal(speed[0], speed[1])
+        # Compute angles
+        if angle is None:
+            angle = np.random.normal(mc.DF_ANG_EV, mc.DF_ANG_SD)
+        elif isinstance(angle, collections.Iterable):
+            angle = np.random.normal(angle[0], angle[1])
         # scale for speed
         dist = abs(mc.DT * speed)
         delta.scale(dist / delta.mag(), inplace=True)
@@ -528,29 +567,42 @@ class Coordinates:
         delta.rotate(angle, inplace=True)
         return self.add(delta, inplace=False).resetz()
 
-    def nexttowards(self, target, speed, angle):
+    def nexttowards(self, target, speed=None, angle=None):
         """ return next point considering direction towards a given point and movement with given speed and angle.
 
             Arguments:
                 target {coordinates} -- target point. If 'None' direction from the origin is considered
-                speed {float} -- speed of movement (4m/s)
-                angle {float} -- relative angle of movement in deg
+
+            Keyword Arguments:
+                speed {float / [float, float]} -- speed of movement (m/s). If list use first value as mean and second as sd
+                                 to compute random.  If None compute random default values. {Default: None}
+                angle {float / [float, float]} -- relative angle of movement in deg. If list use first value as mean and second as sd
+                                 to compute random. If None compute random from default values.  {Default: None}
 
             Returns:
                 next {Coordinates} -- next point
         """
         # Compute delta vector
-        if prev is None:
-            delta = self    
+        if target is None:
+            delta = unit()    
         else:
             delta = self.diff(target, inplace=False)
+        # Compute speed
+        if speed is None:
+            speed = np.random.normal(mc.DF_VEL_EV, mc.DF_VEL_SD)
+        elif isinstance(speed, collections.Iterable):
+            speed = np.random.normal(speed[0], speed[1])
+        # Compute angles
+        if angle is None:
+            angle = np.random.normal(mc.DF_ANG_EV, mc.DF_ANG_SD)
+        elif isinstance(angle, collections.Iterable):
+            angle = np.random.normal(angle[0], angle[1])
         # scale for speed
         dist = abs(mc.DT * speed)
         delta.scale(dist / delta.mag(), inplace=True)
         # rotate
         delta.rotate(angle, inplace=True)
         return self.add(delta, inplace=False).resetz()
-
 
 
 

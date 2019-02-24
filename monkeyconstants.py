@@ -60,23 +60,28 @@ FOV = 360               # Field of View of a monkey
 # -------------------------SIMULATION----------------------#
 
 # TIME
-DT = 4*60             # delta t between points (in seconds)
+DT = 2*60             # delta t between points (in seconds)
 INIT_TIME = time(hour=8, minute=0, second=0)  # initial time of data acquisition -- 08:00:00 am
 
 # OLD VERSION
 #--------------------
 # SPEEDS (m/s)
-DRT_VEL_EV = 0.3      # Expected Value of velocity for direct case (m/s)
-DRT_VEL_SD = 0.1    # Standard Deviation of velocity for direct case (m/s)
+DRT_VEL_EV = 0.1      # Expected Value of velocity for direct case (m/s)
+DRT_VEL_SD = 0.05    # Standard Deviation of velocity for direct case (m/s)
 RDM_VEL_EV = 0.3    # Expected Value of velocity for random case (m/s)
 RDM_VEL_SD = 0.1    # Standard Deviation of velocity for random case (m/s)
 HNG_VEL_EV = 0.0    # Expected Value of velocity during hanging (m/s)
 HNG_VEL_SD = 0.05   # Standard Deviation of velocity during hanging (m/s)
 
+DEF_VEL_EV = 0.3    # Default Expected Value of velocity (m/s)
+DEF_VEL_SD = 0.1    # Default Standard Deviation of velocity (m/s)
+
 # ANGLES (deg)
-DRT_ANG_EV = 180    # Expected Value of angles for direct case
-DRT_ANG_SD = 50     # Standard Deviation of angles for direct case
-RDM_ANG_SD = 100    # Standard Deviation of angles for random case
+DRT_ANG_SD = 75     # next target max angle for direct case (deg)
+RDM_ANG_SD = 100    # Standard Deviation of angles for random case (deg)
+
+DEF_ANG_EV = 180    # Default Expected Value of angles (deg)
+DEF_ANG_SD = 360     # Default Standard Deviation of angles (deg)
 #-----------------------
 
 
@@ -92,8 +97,8 @@ HNG_VEL_SD = 0.0   # Standard Deviation of velocity during hanging (m/s)
 
 # ANGLES (deg)
 DRT_ANG_EV = 180    # Expected Value of angles for direct case
-DRT_ANG_SD = 20     # Standard Deviation of angles for direct case
-RDM_ANG_SD = 180    # Standard Deviation of angles for random case
+DRT_ANG_SD = 75     # Standard Deviation of angles for direct case
+RDM_ANG_SD = 100    # Standard Deviation of angles for random case
 #-------------------------
 
 PLANNING_STEPS = 50  # Number of next steps for which shortest path is computed
@@ -113,7 +118,8 @@ MAX_WATER_TRIES = 5     # Number of tries in one direction when avoiding water
 # ---------------------PERFORMANCE--------------------------#
 
 # SIMULATION
-MAX_ITERATIONS = 100  # Maximum number of iteration to try and complete a path before giving up
+MAX_TRIES = 10  # Maximum number of failed tries due to exceptions before giving up
+MAX_ITERATIONS = 10000  # Maximum number of iteration to try and complete a path before giving up
 DEF_LOAD_SIZE = 10  # default amount of speed and angle data to compute at once
 
 

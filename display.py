@@ -12,6 +12,29 @@ import dataparser as dp
 import monkeyconstants as mc
 
 
+def pause(time):
+    """ pause execution for a variable amount of time. Allows figure to be displayed
+    
+        Arguments:
+            time {float} -- amount of time to pause in seconds.
+    """
+    plt.pause(time)
+
+
+def showfig(block=True):
+    """ shows waiting figures
+
+        Keyword Arguments_
+            block {boolean} -- whether the figure blocks the excution.  {Default: True}
+    """
+    if block:
+        plt.ioff()
+    else:
+        plt.ion()
+    plt.show()
+    pause(0.01)
+
+
 def display(path, index=None, color='#FFFFFF', show=True, block=True):
     """ displays a path
 
@@ -42,11 +65,7 @@ def display(path, index=None, color='#FFFFFF', show=True, block=True):
     plt.draw()
     # optional
     if show:
-        if block:
-            plt.ioff()
-        else:
-            plt.ion()
-        plt.show()
+        showfig(block)
 
 
 def display_island(index=None, f_color='#FFFFFF', show=True, fruits=None, fruitsize=mc.FRUIT_RADIUS, block=True):
@@ -77,22 +96,21 @@ def display_island(index=None, f_color='#FFFFFF', show=True, fruits=None, fruits
     plt.draw()
     # optional
     if show:
-        if block:
-            plt.ioff()
-        else:
-            plt.ion()
-        plt.show()
+        showfig(block)
 
 
 def display_fruits(fruits, index=None, color='#FFFFFF', show=True, fruitsize=mc.FRUIT_RADIUS*2, block=True):
     """ displays fruit trees
 
-    Keyword Arguments;
-        index {int} -- index of  figure. If it is None no figure is created.  {Default: None}
-        [f_color {'hex'} -- color of fruit trees.  {Default: '#FFFFFF'}]
-        [f_color {[int,int,int]} -- color of fruit trees. is converted to HEX]
-        show {boolean} -- whether to immediately show the figure or not.  {Default: True}
-        block {boolean} -- whether the figure blocks the excution.  {Default: True}
+        Arguments:
+            fruits {Coordinates / List[Coordinates]} -- fruit/fruits to be displayed
+
+        Keyword Arguments:
+            index {int} -- index of  figure. If it is None no figure is created.  {Default: None}
+            [f_color {'hex'} -- color of fruit trees.  {Default: '#FFFFFF'}]
+            [f_color {[int,int,int]} -- color of fruit trees. is converted to HEX]
+            show {boolean} -- whether to immediately show the figure or not.  {Default: True}
+            block {boolean} -- whether the figure blocks the excution.  {Default: True}
     """
     # reset block
     plt.ioff()
@@ -105,31 +123,18 @@ def display_fruits(fruits, index=None, color='#FFFFFF', show=True, fruitsize=mc.
     # display fruits
     if fruits is not None:
         ax = plt.gca()
-        for f in fruits:
-            c = plt.Circle((f.x, f.y), radius=fruitsize/2, color=color)
+        if fruits is list:
+            for f in fruits:
+                c = plt.Circle((f.x, f.y), radius=fruitsize/2, color=color)
+                ax.add_patch(c)
+        else:
+            c = plt.Circle((fruits.x, fruits.y), radius=fruitsize/2, color=color)
             ax.add_patch(c)
     plt.axis('scaled')
     plt.draw()
     # optional
     if show:
-        if block:
-            plt.ioff()
-        else:
-            plt.ion()
-        plt.show()
-
-
-def show(block=True):
-    """ shows waiting figures
-
-    Keyword Arguments_
-        block {boolean} -- whether the figure blocks the excution.  {Default: True}
-    """
-    if block:
-        plt.ioff()
-    else:
-        plt.ion()
-    plt.show()
+        showfig(block)
 
 
 # def display_memory(path, index, newfig=False):

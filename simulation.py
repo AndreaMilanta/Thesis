@@ -202,20 +202,26 @@ def _createP2RPath(orig, speed, angle, fruits, ignores):
     return [path, f]
 
 
-def _createP2PPath(orig, dest, speed, angle):
-    """Creates a path from orig to dest
+def _gotoknown(orig, dest, speed=None, angle=None):
+    """Creates a path from orig to dest assuming the monkey already knows the destination
 
-    Arguments:
-        orig {Coordinates} -- Origin point
-        dest {Coordinates} -- Destination point
-        speed {[float, float]} -- speed average and standard deviation [avg, std]
-        angle {float} -- standard deviation of angles wrt destination
+        Arguments:
+            orig {Coordinates} -- Origin point
+            dest {Coordinates} -- Destination point
 
-    Returns:
-        List[Coordinates] -- Listo fo points of the path
+        Keyword Arguments:
+            speed {[float, float]} -- speed average and standard deviation [avg, std]. If None use mc.DIR_VEL_xx.  {Default: None}
+            angle {float} -- standard deviation of angles wrt destination. If None use mc.DIR_ANG_SD.  {Default: None}
+
+        Returns:
+            List[Coordinates] -- List of points of the path
     """
     # value initialization
     LOAD_SIZE = 100
+    if speed is None:
+        speed = [mc.DRT_VEL_EV, mc.DRT_VEL_SD]
+    if angle is None:
+        angle = mc.DRT_ANG_SD
     p = orig
     path = [orig]
     spds = np.array([])
@@ -223,39 +229,22 @@ def _createP2PPath(orig, dest, speed, angle):
     index = LOAD_SIZE
     angl_delta = mc.WATER_SHIFT
     water_index = 0
-    counter = 0                                                                     # DEBUG!!!!
+    counter = 0
+
     # generation loop until almost there or MAX_ITERATIONS
-    while(p.distance(dest) > mc.DT * speed[0] / 2 and counter < mc.MAX_ITERATIONS):
+    while(not p.atTree(dest, radius=mc.DT*mc.DRT_VEL_EV) and counter < mc.MAX_ITERATIONS):
         # Compute speed and angles for the next LOAD_SIZE rounds.
         if index == LOAD_SIZE:
             spds = np.random.normal(speed[0], speed[1], LOAD_SIZE)
-            agls = np.random.normal(0, angle, LOAD_SIZE)
-            index = 0
+            agls = np.random.uniform(-angle, angle, LOAD_SIZE)
+            index = 0;
         # Compute next point
-        delta = p.diff(dest, inplace=False)
-        dist = mc.DT * spds[index]
-        delta.scale(dist / delta.mag())
-        delta.rotate(agls[index])
-        nxt = p.add(delta, inplace=False)
+        nxt = p.nexttowards(dest, spds[index], agls[index])
+        nxt.resetz();
         counter = counter + 1                                                        # DEBUG!!!
         # Check if next point is on water or path goes through water
-        nxt.z = dp.Island()[int(nxt.x), int(nxt.y)]
-        # if nxt.z == 0 or p.inWater(nxt, dp.Island()):
         if nxt.z == 0 or p.inWater(nxt, dp.Island()):
-            # if nxt.z == 0:
-            #     print("WARNING: direct path into water from " + str(orig) + " towards " + str(nxt))
-            # else:
-            #     print("WARNING: direct path into water from " + str(orig))
-            # print("WARNING: direct path into water")
             raise me.PathOnWaterException()                     # Raise path on water Exception and stop path creation
-            # if water_index > 180 / WATER_SHIFT:
-            #     angl_delta = -WATER_SHIFT
-            #     water_index = 0
-            # else:
-            # angl_delta = angl_delta + mc.WATER_SHIFT
-            # water_index = water_index + 1
-            # agls[index] = agls[index] + angl_delta
-            # continue
         # add point to path
         path.append(nxt)
         # handle loop variables
@@ -263,11 +252,90 @@ def _createP2PPath(orig, dest, speed, angle):
         p = nxt
         index = index + 1
 
-    # print("Direct Counter " + str(counter))                                       # DEBUG!!!
     # if max iterations reached throw exception
     if counter == mc.MAX_ITERATIONS:
         raise me.MaxIterationsReachedException()
-    # path.append(dest)
+
+    # force last point within destination
+    if not path[-1].atTree(dest):
+        dist = np.random.uniform(0, mc.FRUIT_RADIUS)
+        angle = np.random.uniform(0, 360)
+        delta = geo.unit().rotate(angle).scale(dist)
+        path.append(dest.add(delta, inplace=False))
+    return path
+
+
+def _gotounknown(orig, dest, speed=None, angle=None):
+    """Creates a path from orig to dest assuming the monkey doesn't initially know the destination
+
+        Arguments:
+            orig {Coordinates} -- Origin point
+            dest {Coordinates} -- Destination point
+
+        Keyword Arguments:
+            speed {[float, float]} -- speed average and standard deviation [avg, std]. If None use mc.RDM_VEL_xx.  {Default: None}
+            angle {float} -- standard deviation of angles wrt destination. If None use mc.RDM_ANG_SD.  {Default: None}
+
+        Returns:
+            List[Coordinates] -- List of points of the path
+    """
+    # value initialization
+    LOAD_SIZE = 100
+    if speed is None:
+        speed = [mc.RDM_VEL_EV, mc.RDM_VEL_SD]
+    if angle is None:
+        angle = mc.RDM_ANG_SD
+    p = orig
+    path = [orig]
+    spds = np.array([])
+    agls = np.array([])
+    index = LOAD_SIZE
+    angl_delta = mc.WATER_SHIFT
+    water_index = 0
+    counter = 0
+
+    seen = False
+
+    # generation loop until almost there or MAX_ITERATIONS
+    while(not p.atTree(dest, radius=mc.DT*mc.DRT_VEL_EV) and counter < mc.MAX_ITERATIONS):
+        # Compute speed and angles for the next LOAD_SIZE rounds.
+        if index == LOAD_SIZE:
+            spds = np.random.normal(speed[0], speed[1], LOAD_SIZE)
+            agls = np.random.uniform(-angle, angle, LOAD_SIZE)
+            index = 0;
+        # Compute next point
+        if seen:
+            nxt = p.nexttowards(dest, spds[index], agls[index])
+        else:
+            nxt = p.nextfrom(None, spds[index], agls[index])
+            seen = p.isVisible(dest)
+        counter = counter + 1                                                        # DEBUG!!!
+        # Check if next point is on water or path goes through water
+        if nxt.z == 0 or p.inWater(nxt, dp.Island()):
+            # raise me.PathOnWaterException()                     # Raise path on water Exception and stop path creation
+            path.append(nxt)
+            return path
+        # add point to path
+        path.append(nxt)
+        # handle loop variables
+        water_index = 0
+        p = nxt
+        index = index + 1
+
+    # add last part to destination
+    last = path.pop()
+    path.append(_gotoknown(last, dest))
+
+    # if max iterations reached throw exception
+    if counter == mc.MAX_ITERATIONS:
+        raise me.MaxIterationsReachedException()
+
+    # force last point within destination
+    if not path[-1].atTree(dest):
+        dist = np.random.uniform(0, mc.FRUIT_RADIUS)
+        angle = np.random.uniform(0, 360)
+        delta = geo.unit().rotate(angle).scale(dist)
+        path.append(dest.add(delta, inplace=False))
     return path
 
 
