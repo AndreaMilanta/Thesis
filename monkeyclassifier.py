@@ -2,68 +2,64 @@
 """
 import sklearn as skl
 import pandas as pd
+from datetime import datetime
+import os
 
+import dataparser as dp
 import monkeyexceptions as me
 import monkeyconstants as mc
-import datepath as dp
+import datepath as dtp
+import display as disp
 
-class Trainer:
-    """Class for optimized training
+# Constants
+STEPSIZE = 50
+FILE_PATH = mc.REAL_PATH + "Dataframe_9-12.csv"
+START = 50 * 0  # Starting point, to recover previous rounds
 
-       Classifiers available: [KNeighbour]
-    """
-    # Names of training dataset columns
-    # [id, straightness Ratio average, class] - N.B. 0 <-> Memory, 1 <-> View
-    Names = ['id', 'straightAvg', 'class']
+START_TIME = datetime.strptime('09:00:00', '%H:%M:%S').time()
+END_TIME = datetime.strptime('12:00:00', '%H:%M:%S').time()
 
-    def __init__(self):
-        self._training = pd.DataFrame(columns=names)
+#Save dataframe with rows
+def save2dataframe(records):
+    df = pd.DataFrame(records, columns=mc.HEADER)
+    df.set_index(mc.ID)
+    with open(FILE_PATH, 'a') as f:
+        df.to_csv(f, mode='a', header=f.tell()==0, na_rep=None, index=False, float_format="%2.2f")
+    print('\nDataFrame successfully saved\n')
 
-    @property
-    def trainsize(self):
-        self._training.shape[0]
 
-    def _addToTrain(self, identifier, strAvg, label):
-        """add new item to training set
-        """
-        if label isinstance(mc.cls):
-            if mc.cls.MEMORY:
-                label = 0
-            elif label is mc.cls.VIEW:
-                label = 1
-            else:
-                raise me.UnclassifiedSampleException()
-        else:
-            if label != 0: label = 1
-        self._training.append(
-            { 'id': identifier,
-              'straightAvg': strAvg,
-              'class': label},
-            ignore_index=True)
+# init vars
+counter = 0;
+total = START;
+rows = [];
 
-    def addToTraining(self, dtpt):
-        """add new datepath to training
-        """
-        self._addToTrain(dtpt.id, dtpt.strRatioAeSD()[0], dtpt.label)
+# read files availabe
+files = os.listdir(mc.REAL_PATH)
+files = files[:-2]
 
-    def train(self, classifier='kneighbours'):
-        """ actually train the selected classifier with the loaded training dataset
+# loop on files
+for i in range(START, len(files)):
+    # Read file
+    f = files[i];
+    print("working on file #{0} - {1}".format(total, f))
+    splits = (f.split('.')[0]).split('_')
+    monkey = int(splits[0])
+    dtm = datetime.strptime(splits[1], '%Y%m%d')
+    path = dtp.datepath.FromCsv(mc.REAL_PATH + f, dp.Fruits(), date=dtm.date(), monkey=monkey, delimiter=',', quotechar='"', start=START_TIME, end=END_TIME)
+    # disp.display_datepath(path)
+    # get dataframe row
+    row = path.getDataframeRow()
+    rows.append(row)
+    counter += 1
+    total += 1
+    # create and save dataframe every STEPSIZE loops
+    if counter >= STEPSIZE:
+        save2dataframe(rows)
+        rows = [];
+        counter = 0;
 
-            Keyword Arguments:
-                classifier {string}: Type of classifier to use.  {Default: "Kneighbours"}
-                    available: ['kneighbours', ]
-
-            Returns:
-                clf: Trained classifier of selected type
-         """
-         # format everything to lowercase
-         classifier = lower(classifier)
-         # switch on classifier type
-         if classifier in 'svc':
-             #do svc
-         # default: kneighbours
-         else:
-             #do kneighbouts
-
+# save any remaining rows
+if counter > 0:
+    save2dataframe(rows)
 
 

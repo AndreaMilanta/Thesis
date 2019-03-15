@@ -11,7 +11,6 @@ import csv
 import monkeyconstants as mc
 import datepath as dp
 import geometry as geo
-
 # CONSTANTS
 DELTA_X_FRT = -50   # shift on x axis for gps conversion of fruit tree data
 DELTA_Y_FRT = -45   # shift on y axis for gps conversion off ruit tree data
@@ -21,6 +20,18 @@ DELTA_Y_MON = -45   # shift on y axis for gps conversion of monkey movement data
 # global variables
 _Island = None    # holds parsed Island
 _Fruits = None    # holds parsed Fruits
+
+
+def applyrandomscore(amount=1, distr=[5, 2], borders=[1, 10]):
+    """ creates a list of random scores following the given distribution and forced within the given borders
+    """
+    scores = np.random.normal(distr[0], distr[1], amount)
+    for i in range(len(scores)):
+        if scores[i] < borders[0]:
+            scores[i] = borders[0]
+        elif scores[i] > borders[1]:
+            scores[i] = borders[0]
+    return scores
 
 
 # Getters
@@ -167,6 +178,16 @@ class MovementData:
                 # dates.append(dp.DatePath.FullInit(m, d, single_date))
         return dates
 
+def modifyfruittrees():
+    """ Change scores property of fruit trees 
+    """
+    columns = ['x', 'y','scores','sizes']
+    df = pd.read_csv(mc.FRUIT_PATH) #, sep=' ', header=True, names=columns)
+    df.reset_index()
+    df.scores = applyrandomscore(amount=len(df.index), distr=[50, 30], borders=[1, 100])
+    df.to_csv(mc.FRUIT_PATH, header=columns, index=False, float_format='%.2f')
+
+
 
 def _parsefruittree():
     """Fruit Tree Reader (x,y)
@@ -176,13 +197,14 @@ def _parsefruittree():
     Returns:
         List of Coordinates -- each element is a coordinate object of a fruit tree
     """
-    columns = ['x', 'y', 'extra']
-    df = pd.read_csv(mc.FRUIT_PATH, sep=' ', header=None, names=columns)
+
+    columns = ['x', 'y','scores','sizes']
+    df = pd.read_csv(mc.FRUIT_PATH) #, sep=' ', header=True, names=columns)
     df.reset_index()
-    df.x = df.x.apply(lambda x: x + DELTA_X_FRT)
-    df.y = df.y.apply(lambda x: x + DELTA_Y_FRT)
+    # df.x = df.x.apply(lambda x: x - 2*DELTA_X_FRT)
+    # df.y = df.y.apply(lambda x: x - 2*DELTA_Y_FRT)
     fts = df.values.tolist()
-    return [geo.Coordinates(x[1], x[0], Island()[int(x[1]), int(x[0])]) for x in fts]
+    return [geo.Tree(x[1], x[0], Island()[int(x[1]), int(x[0])], radius=int(x[3]), score=x[2]) for x in fts]
 
 
 def _parseisland():

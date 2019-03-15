@@ -10,9 +10,13 @@ import datepath as dtp
 import display as disp
 import monkeyexceptions as me
 import monkeyconstants as mc
+import geometry as geo
 
 NUM_TRIES = 10000
 STEPSIZE = 50
+
+DFPATH = mc.DATA + "Sim_9-12.csv"
+
 CLF = int(255 / max([1, NUM_TRIES-1]))
 dtp.datepath.Island = dp.Island()
 geo.Coordinates.Island = dp.Island()
@@ -31,26 +35,29 @@ for j in range(0,steps):
     while i < STEPSIZE:
         try:
             rdm = np.random.uniform(0,1)
+
+            rdm = 0
+
             start = time.process_time()
             if rdm < 0.5:
                 print("working on memory trial " + str(i+basemonkey))
-                path = dtp.datepath.RandomMemory(dp.Fruits(), monkey=i+basemonkey)
+                path = dtp.datepath.RandomMemory(dp.Fruits(), monkey=i+basemonkey, sortmethod=mc.SortScore)
                 col = [i*CLF, 0, 0]
+                title = '{0:02d} - Memory'.format(i+basemonkey)
             else:
                 print("working on view trial " + str(i+basemonkey))
                 path = dtp.datepath.RandomView(dp.Fruits(), monkey=i+basemonkey)
                 col = [0, 255-i*CLF, i*CLF]
+                title = '{0:02d} - Perception'.format(i+basemonkey)
+            print("\tlength:" + str(path.length))
             finish = time.process_time()
+            disp.display_datepath(path, index=i+basemonkey, title=title, fruit_dim='score', show=True, block=True)
             row = path.getDataframeRow()
-            if(row[mc.CLASS] == 0 or row[mc.STR_A] is None or row[mc.STR_A] == 0):
-                print("Error on trial " + str(i) + " - FEATURES are 0 - computation required " + str(finish-start) + "s")
-                print("\nPATH\n")
-                print(path.path)
-                print("\n")
-                # disp.display(path.path, show=True, color=col, block=False)
-            else:
-                rows.append(row)
-                i += 1
+            rows.append(row)
+            i += 1
+
+            quit()
+
                 # path.savecsv();
         except Exception as e:
             finish = time.process_time()
@@ -60,15 +67,18 @@ for j in range(0,steps):
             print(e)
             tb_str = "".join(tb.format_tb(e.__traceback__))
             print("".join(tb_str))
-            # disp.display(path.path, show=True, color=col, block=False)
+
+
+    # disp.block()
 
     # create and save dataframe
     df = pd.DataFrame(rows, columns=mc.HEADER)
     df.set_index(mc.ID)
-    with open(mc.DFPATH, 'a') as f:
+    with open(DFPATH, 'a') as f:
         df.to_csv(f, mode='a', header=f.tell()==0, na_rep=None, index=False, float_format="%2.2f")
     print(df.describe())
     rows = [];
+
 
 quit();
 

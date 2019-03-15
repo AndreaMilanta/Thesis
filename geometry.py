@@ -70,7 +70,7 @@ class Coordinates:
         if (self.time is None):
             return str(f"[{self.x:.2f}, {self.y:.2f}, {self.z:.2f}]")
         else:
-            return str(f"[{self.x:.2f}, {self.y:.2f}, {self.z:.2f} - {self.time}]")
+            return str(f"[{self.x:.2f}, {self.y:.2f}, {self.z:.2f} - {self.time.time()}]")
 
     def clone(self):
         return Coordinates(self.x, self.y, self.z, time=self.time)
@@ -84,7 +84,7 @@ class Coordinates:
             self.z = 0
         return self;
 
-    def set_time(self, time):
+    def set_time(self, time=None):
         """Assign a timestamp to point
         """
         self.time = time
@@ -365,22 +365,41 @@ class Coordinates:
                 return e
         return None
 
-    def atTree(self, fruits, radius=mc.FRUIT_RADIUS, factor=1):
+    def atTree(self, fruits, radius=None, factor=1, consolidate=False):
         """Checks if point is in fruit tree
 
             Arguments:
-                fruits {Coordinates / [Coordinates]} -- fruit tree or list of fruit trees to check against
+                fruits {Tree / [Tree]} -- fruit tree or list of fruit trees to check against
 
             Keyword Arguments:
-                radius {float} - radius of fruit tree.  {Default: mc.FRUIT_RADIUS}
+                radius {float} - radius of fruit tree.  {Default: None -> fruit radius}
                 factor {float} - radius multiplying factor. {Default: 1}
+                consolidate {Boolean} -- whether to consolidate output (T/F) or mantain array (List[T/F]).
+                                         ignored if point is not list.   {Default: False}
+                                         N.B. In consolidation TRUE means the point is at least in one tree
 
             Returns:
-                atTree {boolean} -- whether the point is within a fruit tree
+                atTree {Boolean / List[Boolean]} -- whether the point is in a tree
         """
-        return self.minDistance(fruits) <= radius*factor 
+        # case point is list
+        if isinstance(fruits, list):
+            # Case consolidate. No need to loop whole array, stop at first fine
+            if consolidate:
+                for f in fruits:
+                    if self.atTree(f, radius, factor):
+                        return True
+                return False
+            # case not consolidate
+            return list(map(lambda x: self.atTree(x, radius, factor), fruits))
+        # case point is single
+        if radius is None:
+            return self.distance(fruits) <= fruits.radius * factor
+        else:
+            return self.distance(fruits) <= radius * factor
 
-    def isVisible(self, p, island=Island, min_range=mc.VIEW_MIN_RANGE, next=None, FOV=mc.FOV, max_range=mc.VIEW_MAX_RANGE):
+
+
+    def isVisible(self, p, island=None, min_range=mc.VIEW_MIN_RANGE, next=None, FOV=mc.FOV, max_range=mc.VIEW_MAX_RANGE):
         """Checks if p is visible from the caller
 
         Requires island to be set to the corrisponding matrix
@@ -389,7 +408,7 @@ class Coordinates:
             p {Coordinate / [Coordinates]} -- Point to be seen. may be a list of points
 
         Keyword Arguments:
-            island {img[nxmxk]} -- island.  {Default: Coordinates.Island}
+            island {img[nxmxk]} -- island.  {Default: None -> Coordinates.Island}
             min_range {float} -- distance within which a tree is seen by default.  {Default: mc.VIEW_MIN_RANGE}
             next {Coordinates} -- previous point. Establishes looking direction. if None look all around {Default: None}
             FOV {int} -- Horizontal field of view in degrees. Ignored if previous is None.  {Default: mc.FOV}
@@ -398,24 +417,31 @@ class Coordinates:
         Returns:
             visible {Boolean / [Boolean]} -- The point is visible. If p is list, return boolean list
         """
+        if isinstance(p, 'Tree'):
+            min_range = p.radius * 2;
 
         # case p is None
         if p is None:
+            print('not seen due to target is None')
             return False
         # case p is list
         if isinstance(p, list):
             visible = []
             for point in p:
-                visible.append(self.isVisible(point, island, min_range, next, FOV))
+                visible.append(self.isVisible(point, island, min_range, next, FOV, max_range))
             return visible
+
+        # case island is None
+        if island is None:
+            island = self.Island;
         
         # distance evaluation
         dist = self.distance(p)
-        sqrdmax = np.random.randint(min_range * min_range, max_range * max_range) 
         # case fruit tree too close
         if (dist < min_range):
             return True
         # case fruit tree too far
+        sqrdmax = np.random.randint(min_range * min_range, max_range * max_range) 
         if (dist*dist > sqrdmax):
             return False
 
@@ -431,10 +457,10 @@ class Coordinates:
         delta = self.diff(p, inplace=False)
         unit = delta.scale(1 / dist, inplace=False)
         steps = 0
-        temp = self
+        temp = self.clone()
         while steps < dist:
             steps += 1
-            temp = temp.add(unit)
+            temp.add(unit, inplace=True)
             tl = [math.ceil(temp.x), math.floor(temp.y)]
             tr = [math.ceil(temp.x), math.ceil(temp.y)]
             br = [math.floor(temp.x), math.ceil(temp.y)]
@@ -534,7 +560,7 @@ class Coordinates:
         """ return next point considering direction from a given point and movement with given speed and angle.
 
             Arguments:
-                prev {coordinates} -- previous point. If 'None' direction from the origin is considered
+                prev {coordinates} -- previous point. If 'None' random direction is considered
 
             Keyword Arguments:
                 speed {float} -- speed of movement (m/s). If list use first value as mean and second as sd
@@ -547,7 +573,8 @@ class Coordinates:
         """
         # Compute delta vector
         if prev is None:
-            delta = unit()   
+            delta = unit().rotate(np.random.uniform(0,360), inplace=True)
+            # delta = unit()
         else:
             delta = prev.diff(self, inplace=False)
         # Compute speed
@@ -571,7 +598,7 @@ class Coordinates:
         """ return next point considering direction towards a given point and movement with given speed and angle.
 
             Arguments:
-                target {coordinates} -- target point. If 'None' direction from the origin is considered
+                target {coordinates} -- target point. If 'None' random direction is considered
 
             Keyword Arguments:
                 speed {float / [float, float]} -- speed of movement (m/s). If list use first value as mean and second as sd
@@ -584,7 +611,7 @@ class Coordinates:
         """
         # Compute delta vector
         if target is None:
-            delta = unit()    
+            delta = unit().rotate(np.random.uniform(0,360), inplace=True)
         else:
             delta = self.diff(target, inplace=False)
         # Compute speed
@@ -606,33 +633,83 @@ class Coordinates:
 
 
 
+class Tree(Coordinates):
+    """ Class describing a Tree. Just like Coordinates but includes tree radius
+    """
+    def __init__(self, x, y, z, time=None, radius=mc.FRUIT_RADIUS, score=1):
+        self.x = x
+        self.y = y
+        self.z = z
+        self.set_time(time)
+        self.r = radius
+        self.s = score
+
+    @property
+    def radius(self):
+        return self.r
+    @radius.setter
+    def radius(self, value):
+        self.r = value
+    @property
+    def radiusset(self):
+        return self.r is not None
+
+    @property
+    def score(self):
+        return self.s
+    @radius.setter
+    def score(self, value):
+        self.s = value
+    @property
+    def scoreset(self):
+        return self.s is not None
+
+
+    def __str__(self):
+        if (self.time is None):
+            return str(f"[{self.x:.2f}, {self.y:.2f}, {self.z:.2f} - rad:{self.radius:d}m, score:{self.s:.2f}]")
+        else:
+            return str(f"[{self.x:.2f}, {self.y:.2f}, {self.z:.2f} - {self.time.time()} - rad:{self.radius:d}m, score:{self.s:d}]")
+
+
+
+    def covers(self, point, consolidate=False):
+        """ tells whether a point (or a list of point) is within the tree radius
+        
+            Arguments:
+                point {Coordinates, List[Coordinates]} -- point (or list of points) to check against position
+
+            Keyword Arguments:
+                consolidate {Boolean} -- whether to consolidate output (T/F) or mantain array (List[T/F]).
+                                         ignored if point is not list.   {Default: False}
+                                         N.B. In consolidation TRUE means there is at least one point in tree
+
+            Returns:
+                {Boolean / List[Boolean]} -- whether the points are at the tree
+        """
+        # case point is list
+        if isinstance(point, list):
+            # Case consolidate. No need to loop whole array, stop at first fine
+            if consolidate:
+                for p in point:
+                    if self.covers(p):
+                        return True
+                return False
+            # case not consolidate
+            return list(map(lambda x: self.covers(x), point))
+        # case point is single
+        return self.distance(x) <= self.radius
+
+
+
+
+#--------------SUPPORT FUNCTIONS-----------------------------#
+#------------------------------------------------------------#
+
 def unit():
     """Vector (1, 0, 0)
     """
     return Coordinates(1, 0, 0)
-
-
-def shortestPath(start, points, ignore_z=False):
-    """sorts according to minimum distance from start
-
-    Arguments:
-        start {Coordinates} -- starting point of shortest path
-        points {[Coordinates]} -- list of points that need to be visited -> ordered
-
-    Keyword Arguments:
-        ignore_z {Boolean} -- ignore z dimension and work only on xy plane projection (default: False)
-
-    Return:
-        points {[Coordinates]} -- List of sorted points
-    """
-    shortest = []
-    old = points
-    s = start
-    while old:
-        old.sort(key=lambda x: s.distance(x, ignore_z))
-        shortest.append(old[0])
-        s = old.pop(0)
-    return shortest
 
 
 def reduce_path(pts, radius, ignore_z=False):
