@@ -11,6 +11,10 @@ import monkeyconstants as mc
 import simulation as sim
 import geometry as geo
 
+# CONSTANTS
+DELTA_X_MON = 0  # shift on x axis for gps conversion of monkey movement data
+DELTA_Y_MON = 0   # shift on y axis for gps conversion of monkey movement data
+
 
 class datepath:
     """ Class containing the path of one monkey in one day.
@@ -131,6 +135,9 @@ class datepath:
             Returns:
                 dtp {datepath} -- generated datepath
         """
+        # init variables
+        IslandMaxX = len(datepath.Island)
+        IslandMaxY = len(datepath.Island[0])
         path = []
         # get id and date from filename
         if date is None or monkey is None:
@@ -153,8 +160,10 @@ class datepath:
             if has_header:
                 next(csvreader)
             for row in csvreader:
-                x = float(row[0])
-                y = float(row[1])
+                y =  float(row[0])
+                x =  IslandMaxX - float(row[1])
+                # x = float(row[0]) + DELTA_Y_MON
+                # y = float(row[1]) - DELTA_X_MON
                 z = float(row[2])
                 dtm = datetime.strptime(row[3], '%H:%M:%S.%f')
                 # add file only if within given timeframe
@@ -491,6 +500,60 @@ class datepath:
 # --------------------------------------------------------#
 # --------------SUPPORT FEATURE EXTRACTION----------------#
 #
+    # def _getMeaningfulTrees(self, misseddist=mc.MISSED_MAX_DIST, minvisittimes=mc.MIN_VISIT_TIMES):
+    #     """ computes visitedTrees, missedTrees, missedVisibleTrees and passbyTrees
+
+    #         Keyword Arguments:
+    #             misseddist {float} -- distance from tree within which a tree is considered missed if not visited
+    #             minvisittimes {int} -- minimum number of visits to a tree for the tree to be considered visited and not passedby
+    #     """ 
+    #     # reset dicts
+    #     self._visitedTrees = dict()
+    #     self._passedbyTrees = dict()
+    #     self._missedTrees = dict()
+        
+    #     # print("before computation - visited:" + str(self._visitedTrees))
+
+    #     # loop on points        
+    #     for idx, point in enumerate(self._path):
+    #         fdists = point.distance(self._fruits)
+    #         minf, idf = min((val, idf) for (idf, val) in enumerate(fdists))
+    #         # case tree reached
+    #         if minf <= self._fruits[idf].radius * mc.VICINITY_FACTOR:
+    #             # add point to fruit ref (create one if first time fruittree is met)
+    #             if idf in self._visitedTrees:
+    #                 self._visitedTrees[idf].append(idx)
+    #             else:
+    #                 self._visitedTrees[idf] = [idx];
+    #             # remove fruit from missed
+    #             if idf in self._missedTrees.keys():
+    #                 del self._missedTrees[idf]
+
+    #         # case tree visible and missed (close but not yet visited)
+    #         elif minf < misseddist and idx<len(self._path)-1 \
+    #           and idf not in self._visitedTrees.keys() \
+    #           and idf not in self._missedTrees.keys(): \
+    #           # and (idf not in self._missedTrees or self._path[self._missedTrees[idf]].distance(self._fruits[idf]) > minf): \
+    #           # and point.isVisible(self._fruits[idf], self.Island, next=self._path[idx+1]):
+    #             self._missedTrees[idf] = idx
+
+    #     # distinguish between visits and passby
+    #     bypasskeys = []
+    #     for fruit in self._visitedTrees.keys():
+    #         visitlen = len(self._visitedTrees[fruit])   # get number of visits
+    #         self._visitedTrees[fruit] = min(self._visitedTrees[fruit])  # maintain only first contact
+    #         # case passby: add to _passedbyTrees
+    #         if visitlen < minvisittimes:
+    #             self._passedbyTrees[fruit] = self._visitedTrees[fruit]
+    #     # remove bypassed from visited
+    #     for key in self._passedbyTrees.keys():
+    #         del self._visitedTrees[key]
+    #         self._missedTrees[key] = self._passedbyTrees[key]
+
+    #     # print("after - visited:" + str(self._visitedTrees))
+    #     # print("\t\tmissed:" + str(self._missedTrees))
+    #     # print("\t\tpassedby:" + str(self._passedbyTrees))
+
     def _getMeaningfulTrees(self, misseddist=mc.MISSED_MAX_DIST, minvisittimes=mc.MIN_VISIT_TIMES):
         """ computes visitedTrees, missedTrees, missedVisibleTrees and passbyTrees
 
@@ -503,47 +566,27 @@ class datepath:
         self._passedbyTrees = dict()
         self._missedTrees = dict()
         
-        # print("before computation - visited:" + str(self._visitedTrees))
-
         # loop on points        
-        for idx, point in enumerate(self._path):
-            fdists = point.distance(self._fruits)
-            minf, idf = min((val, idf) for (idf, val) in enumerate(fdists))
-            # case tree reached
-            if minf <= self._fruits[idf].radius * mc.VICINITY_FACTOR:
-                # add point to fruit ref (create one if first time fruittree is met)
-                if idf in self._visitedTrees:
-                    self._visitedTrees[idf].append(idx)
-                else:
-                    self._visitedTrees[idf] = [idx];
-                # remove fruit from missed
-                if idf in self._missedTrees:
-                    del self._missedTrees[idf]
+        for idf, fruit in enumerate(self._fruits):
+            dists = fruit.distance(self._path, ignore_z=True)
+            dists.sort()
+            # get number of path point at tree and within missing range
+            NumAtTree = len(list(filter(lambda x: x <= fruit.radius * mc.VICINITY_FACTOR, dists)))
+            NumMisses = len(list(filter(lambda x: x > fruit.radius * mc.VICINITY_FACTOR and x <= mc.MISSED_MAX_DIST, dists)))
 
-            # case tree visible and missed (close but not yet visited)
-            elif minf < misseddist and idx<len(self._path)-1 \
-              and idf not in self._visitedTrees \
-              and idf not in self._missedTrees: \
-              # and (idf not in self._missedTrees or self._path[self._missedTrees[idf]].distance(self._fruits[idf]) > minf): \
-              # and point.isVisible(self._fruits[idf], self.Island, next=self._path[idx+1]):
-                self._missedTrees[idf] = idx
+            if NumAtTree >= minvisittimes:
+            # case tree reached and visited more than minvisittimes
+                self._visitedTrees[idf] = NumAtTree
+            # elif NumAtTree > 0:
+            # # case tree reached but visited less than minvisittimes
+            #     self._passedbyTrees[idf] = NumAtTree
+            elif NumMisses > 0:
+            # case tree not reached but rached within missing range
+                # print('\nTree: ' + str(fruit) + ', len(dists):' + str(len(dists)) + 'length:' + str(self.length))
+                # print('\tNumAtTree: ' + str(NumAtTree) + ' NumMisses:' + str(NumMisses))
+                # print('\tdists: ' + str(dists[0:5]) + '\n')
+                self._missedTrees[idf] = NumMisses
 
-        # distinguish between visits and passby
-        bypasskeys = []
-        for fruit in self._visitedTrees:
-            visitlen = len(self._visitedTrees[fruit])   # get number of visits
-            self._visitedTrees[fruit] = min(self._visitedTrees[fruit])  # maintain only first contact
-            # case passby: add to _passedbyTrees
-            if visitlen < minvisittimes:
-                self._passedbyTrees[fruit] = self._visitedTrees[fruit]
-        # remove bypassed from visited
-        for key in self._passedbyTrees.keys():
-            del self._visitedTrees[key]
-            self._missedTrees[key] = self._passedbyTrees[key]
-
-        # print("after - visited:" + str(self._visitedTrees))
-        # print("\t\tmissed:" + str(self._missedTrees))
-        # print("\t\tpassedby:" + str(self._passedbyTrees))
 
     def _getsubdistsAeSDeF(self):
         """ sets and returns average, sd and fano factor (burstiness) of distances of subpaths

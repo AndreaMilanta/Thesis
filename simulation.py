@@ -445,7 +445,7 @@ def createViewDate(fruits, orig=None, totaltime=mc.DATE_DURATION_MIN, startTime=
             # handle loop values
             curr_steps = curr_steps + len(curr_path)
         # if semothing happens
-        except (me.PathOnWaterException, TypeError, me.MaxIterationsReachedException):
+        except (me.PathOnWaterException, me.MaxIterationsReachedException) as e:
             #  return None            # GIVE UP
             counter += 1
             continue                # try again

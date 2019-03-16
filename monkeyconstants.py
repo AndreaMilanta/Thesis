@@ -5,6 +5,7 @@ import os
 from enum import Enum
 from datetime import time
 from datetime import date
+from datetime import datetime
 from math import factorial
 import numpy as np
 
@@ -46,20 +47,24 @@ MEMORY_PATH = SIM_PATH + "Memory\\"
 VIEW_PATH = SIM_PATH + "View\\"
 REAL_PATH = DATA + "\\Real\\"
 
+# FILE NAMING
+SIM_INFOS = DATA + "CSVParameter.txt"
+nowstr = datetime.now().strftime('%Y%m%d-%H%M%S')
+SIMCSV = DATA + nowstr + '.csv' 
+
+
 # COMMON
 FRUIT_RADIUS = 20       # Radius of fruit tree
 REDUCTION_RADIUS = 5        # radius of cilinder for reducing paths
-DATE_DURATION_MIN = 3 * 60  # Duration of day in minutes
+DATE_DURATION_MIN = 4 * 60  # Duration of day in minutes
 MISSED_MAX_DIST = 5 * FRUIT_RADIUS # distance within which a tree is considered missed 
-MIN_VISIT_TIMES = 2         # number of times the monkey must be in the tree to be considered a visit
-VICINITY_FACTOR = 2         # radius multiplier to consider a point within the tree
+MIN_VISIT_TIMES = 4         # number of times the monkey must be in the tree to be considered a visit
+VICINITY_FACTOR = 1.5         # radius multiplier to consider a point within the tree
 DEFAULT_DATE = date.today()
 
 MAX_MEM_DIST = 1000          # Maximum distance of next fruit tree in memory model (as the crow flies)
 PLANNING_STEPS = 10  # Number of next steps for which shortest path is computed
 MIN_FRUIT_DIST = 50  # Minimum distance between two consecutive fruit tree on a path
-
-DO_ITERATIVELY = False
 
 # LINE OF SIGHT
 HEIGHT_MARGIN = 1       # margin on LOS height obstruction
@@ -101,8 +106,8 @@ DEF_ANG_SD = 54     # Default Standard Deviation of angles (deg)
 #-------------------------
 
 # HANGING
-FRT_HANG_MINTIME = 10       # minimum number of minutes the monkey hangs at a fruit tree
-FRT_HANG_MAXTIME = 30        # maximum of minutes the monkey hangs at a fruit tree
+FRT_HANG_MINTIME = 15       # minimum number of minutes the monkey hangs at a fruit tree
+FRT_HANG_MAXTIME = 45        # maximum of minutes the monkey hangs at a fruit tree
 FRT_HANG_RAD = FRUIT_RADIUS * 1.5  # radius of hanging zone for the monkey
 
 # WATER AVOIDANCE
@@ -141,6 +146,15 @@ FRUIT_ZTEST = 'FruitZtest'
 
 HEADER = [ID, LENGTH, VIS_NUM, MISS_NUM, PBY_NUM, SUBDIST_AVG, SUBDIST_SD, SUBDIST_FANO, VISDIST_AVG, VISDIST_SD, FRUIT_ZTEST, CLASS]
 
+
+def ParamsString():
+    return 'FOV:{fov}, VIEW_MAX_RANGE:{vmxr:d}, VIEW_MIN_RANGE:{vmnr:d}, MAX_MEM_DIST:{mxmd:d}, PLANNING_STEPS:{ps:d}, DT:{dt:d}s, INIT_TIME:{it:s}, DATE_DURATION_MIN:{ddm:d} minutes' \
+            .format(fov=FOV, vmxr=VIEW_MAX_RANGE, vmnr=VIEW_MIN_RANGE, mxmd=MAX_MEM_DIST, ps=PLANNING_STEPS, dt=DT, it=INIT_TIME.strftime('%H:%m'), ddm=DATE_DURATION_MIN)
+
+
+def savecsvparams():
+    with open(SIM_INFOS, 'a+') as f:
+        f.write(nowstr + ': ' + ParamsString() + '\n')
 
 # ----------------------------------------------------------#
 # ---------------------FUNCTIONS----------------------------#
@@ -252,8 +266,8 @@ def _sortiterative(point, trees, method, maxsorts=None, reverse=False):
     return sorted
 
 
-def SortScore(point, trees, maxsorts=None, iterative=DO_ITERATIVELY):
-    """ sorts trees according to score
+def SortScore(point, trees, maxsorts=None):
+    """ sorts trees according to score. Shortest path between best maxsorts trees.
 
         Arguments:
             point {Coordinates} -- point where the decision is being taken. Ignored, needed for consistency
@@ -266,14 +280,11 @@ def SortScore(point, trees, maxsorts=None, iterative=DO_ITERATIVELY):
         Returns:
             target {List[Tree]} -- Sorted list of tree to go to
     """
-    if iterative:
-        return _sortiterative(point, trees, method=lambda p,t: t.score, maxsorts=maxsorts, reverse=True)
-    else:
-        return _sortshortest(point, trees, method=lambda p,t: t.score, maxsorts=maxsorts, reverse=True)
+    return _sortshortest(point, trees, method=lambda p,t: t.score, maxsorts=maxsorts, reverse=True)
 
 
-def SortDistScoresq(point, trees, maxsorts=None, iterative=DO_ITERATIVELY):
-    """ sorts trees according to squared score over distance
+def SortDistScoresq(point, trees, maxsorts=None):
+    """ sorts trees according to squared score over distance. Go to best iteratively
 
         Arguments:
             point {Coordinates} -- point where the decision is being taken.
@@ -281,20 +292,15 @@ def SortDistScoresq(point, trees, maxsorts=None, iterative=DO_ITERATIVELY):
 
         Keyword Arguments:
             maxsorts {int} -- sorting steps to execute. Order the best maxsort trees.
-            iterative {boolean} -- compute best iteratively. {Default: True}
 
         Returns:
             target {List[Tree]} -- Sorted list of tree to go to
     """
-    if iterative:
-        return _sortiterative(point, trees, method=lambda p,t: t.score**2/t.distance(p), maxsorts=maxsorts, reverse=True)
-    else:
-        print("in SortDistScoresq")
-        return _sortshortest(point, trees, method=lambda p,t: t.score**2/t.distance(p), maxsorts=maxsorts, reverse=True)
+    return _sortiterative(point, trees, method=lambda p,t: t.score**2/t.distance(p), maxsorts=maxsorts, reverse=True)
 
 
-def SortDistScore(point, trees, maxsorts=None, iterative=DO_ITERATIVELY):
-    """ sorts trees according to score over distance
+def SortDistScore(point, trees, maxsorts=None):
+    """ sorts trees according to score over distance. Go to best iteratively
 
         Arguments:
             point {Coordinates} -- point where the decision is being taken.
@@ -302,19 +308,15 @@ def SortDistScore(point, trees, maxsorts=None, iterative=DO_ITERATIVELY):
 
         Keyword Arguments:
             maxsorts {int} -- sorting steps to execute. Order the best maxsort trees. {Default:Inf}
-            iterative {boolean} -- compute best iteratively. {Default: True}
 
         Returns:
             target {List[Tree]} -- Sorted list of tree to go to
     """
-    if iterative:
-        return _sortiterative(point, trees, method=lambda p,t: t.score/t.distance(p), maxsorts=maxsorts, reverse=True)
-    else:
-        return _sortshortest(point, trees, method=lambda p,t: t.score/t.distance(p), maxsorts=maxsorts, reverse=True)
+    return _sortiterative(point, trees, method=lambda p,t: t.score/t.distance(p), maxsorts=maxsorts, reverse=True)
 
 
-def SortDistsqScore(point, trees, maxsorts=None, iterative=DO_ITERATIVELY):
-    """ sorts trees according to score over squared distance
+def SortDistsqScore(point, trees, maxsorts=None):
+    """ sorts trees according to score over squared distance. Go to best strategy.
 
         Arguments:
             point {Coordinates} -- point where the decision is being taken.
@@ -322,19 +324,15 @@ def SortDistsqScore(point, trees, maxsorts=None, iterative=DO_ITERATIVELY):
 
         Keyword Arguments:
             maxsorts {int} -- sorting steps to execute. Order the best maxsort trees.
-            iterative {boolean} -- compute best iteratively. {Default: True}
 
         Returns:
             target {List[Tree]} -- Sorted list of tree to go to
     """
-    if iterative:
-        return _sortiterative(point, trees, method=lambda p,t: t.score/(t.distance(p)**2), maxsorts=maxsorts, reverse=True)
-    else:
-        return _sortshortest(point, trees, method=lambda p,t: t.score/(t.distance(p)**2), maxsorts=maxsorts, reverse=True)
+    return _sortiterative(point, trees, method=lambda p,t: t.score/(t.distance(p)**2), maxsorts=maxsorts, reverse=True)
 
 
-def SortDistance(point, trees, maxsorts=None, iterative=DO_ITERATIVELY):
-    """sorts according to distance
+def SortDistance(point, trees, maxsorts=None):
+    """Return maxsorts trees orderd as "closest first"
 
         Arguments:
             point {Coordinates} -- point where the decision is being taken.
@@ -342,13 +340,9 @@ def SortDistance(point, trees, maxsorts=None, iterative=DO_ITERATIVELY):
 
         Keyword Arguments:
             maxsorts {int} -- sorting steps to execute. Order the best maxsort trees.
-            iterative {boolean} -- compute best iteratively. {Default: True}
 
         Returns:
             target {List[Tree]} -- Sorted list of tree to go to
     """
-    if iterative:
-        return _sortiterative(point, trees, method=lambda p,t: t.distance(p), maxsorts=maxsorts, reverse=False)
-    else:
-        return _sortshortest(point, trees, method=lambda p,t: t.distance(p), maxsorts=maxsorts, reverse=False)
+    return _sortiterative(point, trees, method=lambda p,t: t.distance(p), maxsorts=maxsorts, reverse=False)
 

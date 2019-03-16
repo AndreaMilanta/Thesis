@@ -45,7 +45,7 @@ import monkeyconstants as mc
 #                                                       #
 # --------------- LOAD DATASET ------------------------ #
 #
-csvpath = mc.DATA + "main1h.csv"
+csvpath = mc.DATA + "20190316-141426.csv"
 csvtest = mc.REAL_PATH + "Dataframe.csv"
 df = pd.read_csv(csvpath, sep=',')
 dftest = pd.read_csv(csvtest, sep=',')
@@ -74,6 +74,7 @@ print("\ndataset percentage balance after dropping null values:")
 print(df[mc.CLASS].value_counts() / len(df))
 
 # drop dependent features
+df.drop(mc.FRUIT_ZTEST, axis=1, inplace=True)
 # df.drop(mc.VIS_NUM, axis=1, inplace=True)
 # df.drop(mc.MISS_NUM, axis=1, inplace=True)
 # df.drop(mc.SUBDIST_AVG, axis=1, inplace=True)
@@ -131,6 +132,7 @@ indices = np.argsort(importances)[::-1]
 dftest.drop(mc.ID, axis=1, inplace=True)
 dftest.drop(mc.LENGTH, axis=1, inplace=True)
 dftest.drop(mc.CLASS, axis=1, inplace=True)
+dftest.drop(mc.FRUIT_ZTEST, axis=1, inplace=True)
 # dftest.drop(mc.MISS_NUM, axis=1, inplace=True)
 # dftest.drop(mc.VIS_NUM, axis=1, inplace=True)
 # dftest.drop(mc.SUBDIST_AVG, axis=1, inplace=True)
@@ -140,17 +142,16 @@ dftest.drop(mc.CLASS, axis=1, inplace=True)
 dftest.dropna(inplace=True)
 
 
-# lr_clf = LogisticRegression(solver='lbfgs', max_iter=1000)
-# lr_clf.fit(x_train, y_train)
-# lr_prob = list(lr_clf.predict_proba(dftest))
-# # print(lr_prob)
+lr_clf = LogisticRegression(solver='lbfgs', max_iter=1000)
+lr_clf.fit(x_train, y_train)
+lr_prob = list(lr_clf.predict_proba(dftest))
+# print(lr_prob)
 
-# prob_view = np.array(list(map(lambda x: x[0] , filter(lambda x: x[0] > x[1], lr_prob))))
-# prob_mem = np.array(list(map(lambda x: x[1], filter(lambda x: x[0] < x[1], lr_prob))))
+prob_view = np.array(list(map(lambda x: x[0] , filter(lambda x: x[0] > x[1], lr_prob))))
+prob_mem = np.array(list(map(lambda x: x[1], filter(lambda x: x[0] < x[1], lr_prob))))
 
-# print('VIEW ({2}, {3:.0f}%) mean: {0:.2f}, std: {1:.2f}'.format(np.mean(prob_view, axis=0), np.std(prob_view, axis=0), len(prob_view), len(prob_view)*100/len(lr_prob)))
-# print('MEM ({2}, {3:.0f}%) mean: {0:.2f}, std: {1:.2f}'.format(np.mean(prob_mem, axis=0), np.std(prob_mem, axis=0), len(prob_mem), len(prob_mem)*100/len(lr_prob)))
-
+print('VIEW ({2}, {3:.0f}%) mean: {0:.2f}, std: {1:.2f}'.format(np.mean(prob_view, axis=0), np.std(prob_view, axis=0), len(prob_view), len(prob_view)*100/len(lr_prob)))
+print('MEM ({2}, {3:.0f}%) mean: {0:.2f}, std: {1:.2f}'.format(np.mean(prob_mem, axis=0), np.std(prob_mem, axis=0), len(prob_mem), len(prob_mem)*100/len(lr_prob)))
 
 
 #                                                       #

@@ -10,14 +10,19 @@ import monkeyexceptions as me
 import monkeyconstants as mc
 import datepath as dtp
 import display as disp
+import geometry as geo
 
 # Constants
 STEPSIZE = 50
 FILE_PATH = mc.REAL_PATH + "Dataframe_9-12.csv"
 START = 50 * 0  # Starting point, to recover previous rounds
 
-START_TIME = datetime.strptime('09:00:00', '%H:%M:%S').time()
-END_TIME = datetime.strptime('12:00:00', '%H:%M:%S').time()
+START_TIME = datetime.strptime('11:00:00', '%H:%M:%S').time()
+END_TIME = datetime.strptime('23:00:00', '%H:%M:%S').time()
+
+# init static variables
+dtp.datepath.Island = dp.Island()
+geo.Coordinates.Island = dp.Island()
 
 #Save dataframe with rows
 def save2dataframe(records):
@@ -46,7 +51,8 @@ for i in range(START, len(files)):
     monkey = int(splits[0])
     dtm = datetime.strptime(splits[1], '%Y%m%d')
     path = dtp.datepath.FromCsv(mc.REAL_PATH + f, dp.Fruits(), date=dtm.date(), monkey=monkey, delimiter=',', quotechar='"', start=START_TIME, end=END_TIME)
-    # disp.display_datepath(path)
+    disp.display_datepath(path, fruit_dim='')
+    quit()
     # get dataframe row
     row = path.getDataframeRow()
     rows.append(row)

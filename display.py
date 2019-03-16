@@ -239,7 +239,7 @@ def display_datepath(dtpath, index=None, title=None, radius=mc.FRUIT_RADIUS, sho
         plt.figure(index)
     else:
         display_island(index=index, show=False, block=False)
-        display_fruits(color=fruit_c, show=False, block=False)
+        display_fruits(color=fruit_c, dim=fruit_dim, show=False, block=False)
         if title is not None:
             plt.gcf().suptitle(title)
 
@@ -247,7 +247,7 @@ def display_datepath(dtpath, index=None, title=None, radius=mc.FRUIT_RADIUS, sho
     # display path and properties
     display_path(dtpath.path, color=path_c, show=False, block=False)
     display_points(dtpath.first, color=first_c, show=False, block=False)
-    display_points(dtpath.last, color=last_c, show=False, block=False)
+    # display_points(dtpath.last, color=last_c, show=False, block=False)
     display_fruits(dtpath.visitedTrees, color=visited_c, dim=fruit_dim, show=False)
     display_fruits(dtpath.missedTrees, color=missed_c, dim=fruit_dim, show=False)
     display_fruits(dtpath.passedbyTrees, color=passedby_c, dim=fruit_dim, show=show, block=block)

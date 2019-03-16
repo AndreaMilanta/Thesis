@@ -14,10 +14,13 @@ class Coordinates:
 
     """Represents a point coordinate with time information
     """
-    def __init__(self, x, y, z, time=None):
+    def __init__(self, x, y, z=None, time=None):
         self.x = x
         self.y = y
-        self.z = z
+        if z is not None:
+            self.z = z
+        else:
+            self.resetz()
         self.set_time(time)
         
     @property
@@ -417,7 +420,7 @@ class Coordinates:
         Returns:
             visible {Boolean / [Boolean]} -- The point is visible. If p is list, return boolean list
         """
-        if isinstance(p, 'Tree'):
+        if isinstance(p, Tree):
             min_range = p.radius * 2;
 
         # case p is None
@@ -657,7 +660,7 @@ class Tree(Coordinates):
     @property
     def score(self):
         return self.s
-    @radius.setter
+    @score.setter
     def score(self, value):
         self.s = value
     @property
@@ -667,9 +670,9 @@ class Tree(Coordinates):
 
     def __str__(self):
         if (self.time is None):
-            return str(f"[{self.x:.2f}, {self.y:.2f}, {self.z:.2f} - rad:{self.radius:d}m, score:{self.s:.2f}]")
+            return str(f"[{self.x:.2f}, {self.y:.2f}, {self.z:.2f} - rad:{self.radius:d}m, score:{self.score:.2f}]")
         else:
-            return str(f"[{self.x:.2f}, {self.y:.2f}, {self.z:.2f} - {self.time.time()} - rad:{self.radius:d}m, score:{self.s:d}]")
+            return str(f"[{self.x:.2f}, {self.y:.2f}, {self.z:.2f} - {self.time.time()} - rad:{self.radius:d}m, score:{self.score:d}]")
 
 
 
