@@ -15,6 +15,7 @@ import geometry as geo
 # CONSTANTS
 NUM_TRIES = 1000
 STEPSIZE = 50
+START = 0                               # DEBUG. SET TO 0
 
 # init static variables
 dtp.datepath.Island = dp.Island()
@@ -23,15 +24,12 @@ steps = int(NUM_TRIES / STEPSIZE)
 
 # RANDOM GENERATOR and DISPLAY
 rows = []
-for j in range(0,steps): 
+for j in range(START,steps): 
     basemonkey = STEPSIZE * j
     i = 0
     while i < STEPSIZE:
         try:
             rdm = np.random.uniform(0,1)
-
-            rdm = 1
-
             start = time.process_time()
             if rdm < 0.5:
                 print("working on memory trial " + str(i+basemonkey))
@@ -59,10 +57,11 @@ for j in range(0,steps):
     # create and save dataframe
     df = pd.DataFrame(rows, columns=mc.HEADER)
     df.set_index(mc.ID)
-    with open(mc.DATA+"20190316-141426.csv", 'a') as f:
+    with open(mc.SIMCSV, 'a') as f:
+    # with open(mc.DATA + "20190323-11212.csv", 'a') as f:
         # append new dataframe. If first go add header
-        # if j == 0:
-        if j == -1:
+        if j == 0:
+        # if j == -1:
             df.to_csv(f, mode='a', header=True, na_rep=None, index=False, float_format="%2.2f")
         else:
             df.to_csv(f, mode='a', header=False, na_rep=None, index=False, float_format="%2.2f")
@@ -70,6 +69,6 @@ for j in range(0,steps):
     rows = [];
 
     # save parameters if first round
-    # if j == 0: mc.savecsvparams()
+    if j == 0: mc.savecsvparams()
 
 quit();

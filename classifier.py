@@ -42,11 +42,17 @@ from sklearn.ensemble import RandomForestClassifier
 # monkeys
 import monkeyconstants as mc 
 
+dropftrs = [mc.VISDIST_AVG, mc.VISDIST_SD, mc.FRUIT_ZTEST]
+
+def dropFeatures(dtframe):
+    for feat in dropftrs:
+        dtframe.drop(feat, axis=1, inplace=True)
+
 #                                                       #
 # --------------- LOAD DATASET ------------------------ #
 #
 csvpath = mc.DATA + "20190316-141426.csv"
-csvtest = mc.REAL_PATH + "Dataframe.csv"
+csvtest = mc.REAL_PATH + "Dataframe_FullDay.csv"
 df = pd.read_csv(csvpath, sep=',')
 dftest = pd.read_csv(csvtest, sep=',')
 
@@ -74,13 +80,8 @@ print("\ndataset percentage balance after dropping null values:")
 print(df[mc.CLASS].value_counts() / len(df))
 
 # drop dependent features
-df.drop(mc.FRUIT_ZTEST, axis=1, inplace=True)
-# df.drop(mc.VIS_NUM, axis=1, inplace=True)
-# df.drop(mc.MISS_NUM, axis=1, inplace=True)
-# df.drop(mc.SUBDIST_AVG, axis=1, inplace=True)
-# df.drop(mc.SUBDIST_SD, axis=1, inplace=True)
-# df.drop(mc.VISDIST_AVG, axis=1, inplace=True)
-# df.drop(mc.VISDIST_SD, axis=1, inplace=True)
+
+dropFeatures(df)
 
 # correlation matrix
 crmtx = df.corr();
@@ -132,13 +133,8 @@ indices = np.argsort(importances)[::-1]
 dftest.drop(mc.ID, axis=1, inplace=True)
 dftest.drop(mc.LENGTH, axis=1, inplace=True)
 dftest.drop(mc.CLASS, axis=1, inplace=True)
-dftest.drop(mc.FRUIT_ZTEST, axis=1, inplace=True)
-# dftest.drop(mc.MISS_NUM, axis=1, inplace=True)
-# dftest.drop(mc.VIS_NUM, axis=1, inplace=True)
-# dftest.drop(mc.SUBDIST_AVG, axis=1, inplace=True)
-# dftest.drop(mc.SUBDIST_SD, axis=1, inplace=True)
-# dftest.drop(mc.VISDIST_SD, axis=1, inplace=True)
-# dftest = dftest[dftest[mc.VIS_NUM] >= 6]
+dropFeatures(dftest)
+
 dftest.dropna(inplace=True)
 
 

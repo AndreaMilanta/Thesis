@@ -203,7 +203,7 @@ def _createP2RPath(orig, speed, angle, fruits, ignores):
     return [path, f]
 
 
-def _gotoknown(orig, dest, speed=None, angle=None):
+def _gotoknown(orig, dest, speed=None, angle=None, deviateonvisual=False, trees=None):
     """Creates a path from orig to dest assuming the monkey already knows the destination
 
         Arguments:
@@ -213,9 +213,11 @@ def _gotoknown(orig, dest, speed=None, angle=None):
         Keyword Arguments:
             speed {[float, float]} -- speed average and standard deviation [avg, std]. If None use mc.DIR_VEL_xx.  {Default: None}
             angle {float} -- standard deviation of angles wrt destination. If None use mc.DIR_ANG_SD.  {Default: None}
+            deviateonvisual {boolean} -- whether to deviate towards a closer fruit tree if it becomes visible.  {Default: False}
+            trees {List[Trees]} -- list of trees to look for. Ignored if deviateonvisula is False.  {Default: None}
 
         Returns:
-            List[Coordinates] -- List of points of the path
+            [List[Coordinates], Tree] -- List of points of the path and destination
     """
     # value initialization
     LOAD_SIZE = 100
@@ -246,6 +248,16 @@ def _gotoknown(orig, dest, speed=None, angle=None):
         # Check if next point is on water or path goes through water
         if nxt.z == 0 or p.inWater(nxt, dp.Island()):
             raise me.PathOnWaterException()                     # Raise path on water Exception and stop path creation
+
+        # if requested, check for a closer visible fruit tree
+        if deviateonvisual and trees is not None:
+            # compute closest visible tree
+            closest = nxt.minDistance(nxt.isVisible(trees))
+            # if closest visible tree is closer than current destination, deviate towards it
+            if closest is not None and closest[0] < nxt.distance(dest):
+                route = _gotoknown(nxt, closest[1], deviateonvisual=True, trees=trees)
+                return [path.extend(route[0]), route[1]]
+
         # add point to path
         path.append(nxt)
         # handle loop variables
@@ -263,15 +275,15 @@ def _gotoknown(orig, dest, speed=None, angle=None):
         angle = np.random.uniform(0, 360)
         delta = geo.unit().rotate(angle).scale(dist)
         path.append(dest.add(delta, inplace=False))
-    return path
+    return [path, dest]
 
 
-def _gotounknown(orig, dest, speed=None, angle=None, getbestfun=mc.Random, max_range=mc.VIEW_MAX_RANGE):
+def _gotounknown(orig, trees, speed=None, angle=None, getbestfun=mc.Random, max_range=mc.VIEW_MAX_RANGE):
     """Creates a path from orig to dest assuming the monkey doesn't initially know the destination
 
         Arguments:
             orig {Coordinates} -- Origin point
-            dest {Coordinates} -- Destination point
+            trees {List[Coordinates]} -- Trees suitable as destinations
 
         Keyword Arguments:
             speed {[float, float]} -- speed average and standard deviation [avg, std]. If None use mc.RDM_VEL_xx.  {Default: None}
@@ -320,16 +332,16 @@ def _gotounknown(orig, dest, speed=None, angle=None, getbestfun=mc.Random, max_r
         water_index = 0
         p = nxt
         index += 1
-        if isinstance(dest, list):
-            visibility = p.isVisible(dest, max_range=max_range)
+        if isinstance(trees, list):
+            visibility = p.isVisible(trees, max_range=max_range)
             found = True in visibility
             # found = visibility.count(True) >= 2
         else:
-            found = p.isVisible(dest, max_range=max_range)
+            found = p.isVisible(trees, max_range=max_range)
 
     # Select instances based on value function
-    if isinstance(dest, list):
-        vis = list(compress(dest, visibility))
+    if isinstance(trees, list):
+        vis = list(compress(trees, visibility))
         # print("There are %d trees visible" % (len(vis)))
         actualdest = getbestfun(p, vis)
     else:
@@ -338,7 +350,9 @@ def _gotounknown(orig, dest, speed=None, angle=None, getbestfun=mc.Random, max_r
     # add last part to destination
     last = path.pop()
     # print('last: ' + str(last) + ' at index: ' + str(len(path)))
-    path.extend(_gotoknown(last, actualdest))
+    route = _gotoknown(last, actualdest, deviateonvisual=True, trees=trees)
+    path.extend(route[0])
+    actualdest = route[1]
 
     # if max iterations reached throw exception
     if counter == mc.MAX_ITERATIONS:

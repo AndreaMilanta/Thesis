@@ -56,15 +56,15 @@ SIMCSV = DATA + nowstr + '.csv'
 # COMMON
 FRUIT_RADIUS = 20       # Radius of fruit tree
 REDUCTION_RADIUS = 5        # radius of cilinder for reducing paths
-DATE_DURATION_MIN = 4 * 60  # Duration of day in minutes
+DATE_DURATION_MIN = 12 * 60  # Duration of day in minutes
 MISSED_MAX_DIST = 5 * FRUIT_RADIUS # distance within which a tree is considered missed 
 MIN_VISIT_TIMES = 4         # number of times the monkey must be in the tree to be considered a visit
-VICINITY_FACTOR = 1.5         # radius multiplier to consider a point within the tree
+VICINITY_FACTOR = 3         # radius multiplier to consider a point within the tree
 DEFAULT_DATE = date.today()
 
 MAX_MEM_DIST = 1000          # Maximum distance of next fruit tree in memory model (as the crow flies)
-PLANNING_STEPS = 10  # Number of next steps for which shortest path is computed
-MIN_FRUIT_DIST = 50  # Minimum distance between two consecutive fruit tree on a path
+PLANNING_STEPS = 30  # Number of next steps for which shortest path is computed
+MIN_FRUIT_DIST = 20  # Minimum distance between two consecutive fruit tree on a path
 
 # LINE OF SIGHT
 HEIGHT_MARGIN = 1       # margin on LOS height obstruction

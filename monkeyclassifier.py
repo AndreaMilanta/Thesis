@@ -14,11 +14,11 @@ import geometry as geo
 
 # Constants
 STEPSIZE = 50
-FILE_PATH = mc.REAL_PATH + "Dataframe_9-12.csv"
+FILE_PATH = mc.REAL_PATH + "Dataframe_FullDay.csv"
 START = 50 * 0  # Starting point, to recover previous rounds
 
-START_TIME = datetime.strptime('11:00:00', '%H:%M:%S').time()
-END_TIME = datetime.strptime('23:00:00', '%H:%M:%S').time()
+START_TIME = datetime.strptime('00:00:00', '%H:%M:%S').time()
+END_TIME = datetime.strptime('23:59:00', '%H:%M:%S').time()
 
 # init static variables
 dtp.datepath.Island = dp.Island()
@@ -51,8 +51,8 @@ for i in range(START, len(files)):
     monkey = int(splits[0])
     dtm = datetime.strptime(splits[1], '%Y%m%d')
     path = dtp.datepath.FromCsv(mc.REAL_PATH + f, dp.Fruits(), date=dtm.date(), monkey=monkey, delimiter=',', quotechar='"', start=START_TIME, end=END_TIME)
-    disp.display_datepath(path, fruit_dim='')
-    quit()
+    # disp.display_datepath(path, fruit_dim='')
+    # quit()
     # get dataframe row
     row = path.getDataframeRow()
     rows.append(row)
